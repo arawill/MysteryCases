@@ -1,0 +1,18 @@
+import { describe, expect, it } from 'vitest'
+import { case001 } from '../../data/cases/case001'
+import { buildTrueCluePool } from '../generation/cluePool'
+import { createGenerationTemplate } from '../generation/template'
+import type { BoardCell, Placement } from '../types'
+import type { GenerationTemplate } from '../generation/types'
+
+const character = (id: string, victim = false) => ({ id, name: id, avatar: '', isVictim: victim })
+const template = (board: BoardCell[], zones: GenerationTemplate['zones'], characters = [character('a', true), character('b')]): GenerationTemplate => ({ id: 'test', title: '', intro: '', difficulty: '', rows: 3, columns: 3, zones, board, characters })
+const solution: Placement[] = [{ characterId: 'a', position: { row: 1, column: 1 } }, { characterId: 'b', position: { row: 3, column: 3 } }]
+const cells = (object?: BoardCell['object']): BoardCell[] => Array.from({ length: 9 }, (_, index) => ({ row: Math.floor(index / 3) + 1, column: index % 3 + 1, zoneId: 'open', occupiable: true, ...(object && index === 4 ? { object, occupiable: object.occupiable } : {}) }))
+describe('trivial negative clue filtering', () => {
+  it('descarta notOnObject para objetos bloqueantes de case001', () => { const pool = buildTrueCluePool(createGenerationTemplate(case001), case001.solution); for (const objectId of ['plant', 'register', 'table', 'crate']) expect(pool.some(candidate => candidate.clue.type === 'notOnObject' && candidate.clue.objectId === objectId)).toBe(false); expect(pool.some(candidate => candidate.clue.type === 'notOnObject' && candidate.clue.objectId === 'chair')).toBe(true); expect(pool.some(candidate => candidate.clue.type === 'notOnObject' && candidate.clue.objectId === 'puddle')).toBe(true) })
+  it('permite notOnObject si una instancia del mismo objeto es ocupable', () => { const board = cells(); board[0] = { row: 1, column: 1, zoneId: 'open', occupiable: false, object: { id: 'crate', label: 'crate', icon: '', occupiable: false } }; board[1] = { row: 1, column: 2, zoneId: 'open', occupiable: true, object: { id: 'crate', label: 'crate', icon: '', occupiable: true } }; const pool = buildTrueCluePool(template(board, [{ id: 'open', name: 'Open', tone: 'open' }]), solution); expect(pool.some(candidate => candidate.clue.type === 'notOnObject' && candidate.clue.objectId === 'crate')).toBe(true) })
+  it('descarta notZone para una zona sin celdas ocupables', () => { const board = cells(); board[1] = { row: 1, column: 2, zoneId: 'blocked-zone', occupiable: false }; board[2] = { row: 1, column: 3, zoneId: 'blocked-zone', occupiable: false }; const pool = buildTrueCluePool(template(board, [{ id: 'open', name: 'Open', tone: 'open' }, { id: 'blocked-zone', name: 'Blocked', tone: 'blocked' }]), solution); expect(pool.some(candidate => candidate.clue.type === 'notZone' && candidate.clue.zoneId === 'blocked-zone')).toBe(false) })
+  it('descarta notBesideObject si no existe una celda ocupable adyacente', () => { const board = cells({ id: 'plant', label: 'plant', icon: '', occupiable: false }); for (const index of [1, 3, 5, 7]) board[index].occupiable = false; const pool = buildTrueCluePool(template(board, [{ id: 'open', name: 'Open', tone: 'open' }]), solution); expect(pool.some(candidate => candidate.clue.type === 'notBesideObject' && candidate.clue.objectId === 'plant')).toBe(false) })
+  it('permite notBesideObject si una celda ocupable puede estar junto al objeto', () => { const board = cells({ id: 'plant', label: 'plant', icon: '', occupiable: false }); const pool = buildTrueCluePool(template(board, [{ id: 'open', name: 'Open', tone: 'open' }]), solution); expect(pool.some(candidate => candidate.clue.type === 'notBesideObject' && candidate.clue.objectId === 'plant')).toBe(true) })
+})

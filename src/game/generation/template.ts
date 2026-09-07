@@ -1,0 +1,3 @@
+import type { GameCase } from '../types'
+import type { GenerationTemplate } from './types'
+export function createGenerationTemplate(caseData: GameCase): GenerationTemplate { return { id: caseData.id, title: caseData.title, intro: caseData.intro, difficulty: caseData.difficulty, rows: caseData.rows, columns: caseData.columns, zones: caseData.zones.map(zone => ({ ...zone })), board: caseData.board.map(cell => ({ ...cell, ...(cell.object ? { object: { ...cell.object } } : {}) })), characters: caseData.characters.map(character => ({ id: character.id, name: character.name, avatar: character.avatar, isVictim: character.isVictim })) } }
