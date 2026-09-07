@@ -1,10 +1,10 @@
 import { analyzeCase } from '../analysis'
-import { findKiller, getCell, placementsEqual } from '../rules'
+import { findKiller, placementsEqual } from '../rules'
 import { solveCase } from '../solver'
 import { validateCaseDefinition } from '../validation'
-import type { Placement } from '../types'
 import { applyCandidates, buildTrueCluePool, type CandidateClue } from './cluePool'
 import { createSeededRandom, shuffle } from './random'
+import { generateValidPlacement } from './placement'
 import type { GeneratedPuzzle, GenerationStats, GenerationTemplate, GeneratePuzzleOptions } from './types'
 
 const UINT32_MAX = 4294967295
@@ -13,33 +13,10 @@ const validatePositiveInteger = (value: number, name: string) => { if (!Number.i
 const validateNonNegativeInteger = (value: number, name: string) => { if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer.`) }
 const clueCount = (candidates: readonly CandidateClue[], characterId: string) => candidates.filter(candidate => candidate.characterId === characterId).length
 
-function generatePlacement(template: GenerationTemplate, random: ReturnType<typeof createSeededRandom>, maxNodes: number): { solution: Placement[]; attempts: number } {
-  if (template.characters.length !== template.rows || template.characters.length !== template.columns) throw new Error('Template characters must match rows and columns.')
-  if (template.characters.filter(character => character.isVictim).length !== 1) throw new Error('Template must contain exactly one victim.')
-  const cells = template.board.filter(cell => cell.occupiable); let attempts = 0; const searchOrder = shuffle(template.characters, random); const placements: Placement[] = []
-  const search = (index: number): boolean => {
-    if (index === searchOrder.length) { const provisional = toOrderedPlacements(template, placements); const provisionalCase = applyCandidates(template, provisional, []); return findKiller(provisionalCase, provisional) !== null }
-    const character = searchOrder[index]; const usedRows = new Set(placements.map(placement => placement.position.row)); const usedColumns = new Set(placements.map(placement => placement.position.column))
-    for (const cell of shuffle(cells, random)) {
-      if (attempts >= maxNodes) return false
-      if (usedRows.has(cell.row) || usedColumns.has(cell.column)) continue
-      attempts += 1; placements.push({ characterId: character.id, position: { row: cell.row, column: cell.column } })
-      const victim = template.characters.find(candidate => candidate.isVictim); const victimPlacement = placements.find(candidate => candidate.characterId === victim?.id)
-      const victimCell = victimPlacement ? getCell(template.board, victimPlacement.position) : undefined
-      const inVictimZone = victimCell ? placements.filter(candidate => getCell(template.board, candidate.position)?.zoneId === victimCell.zoneId).length : 0
-      if (inVictimZone <= 2 && search(index + 1)) return true
-      placements.pop()
-    }
-    return false
-  }
-  if (!search(0)) throw new Error('Unable to generate a valid placement with a unique killer.')
-  return { solution: toOrderedPlacements(template, placements), attempts }
-}
-function toOrderedPlacements(template: GenerationTemplate, placements: Placement[]): Placement[] { return template.characters.map(character => { const placement = placements.find(candidate => candidate.characterId === character.id); if (!placement) throw new Error(`Missing placement for ${character.id}.`); return { characterId: placement.characterId, position: { ...placement.position } } }) }
 
 export function generatePuzzle(template: GenerationTemplate, options: GeneratePuzzleOptions): GeneratedPuzzle {
   validateSeed(options.seed); const maxPlacementAttempts = options.maxPlacementAttempts ?? 10000; const minCluesPerCharacter = options.minCluesPerCharacter ?? 1; validatePositiveInteger(maxPlacementAttempts, 'maxPlacementAttempts'); validateNonNegativeInteger(minCluesPerCharacter, 'minCluesPerCharacter')
-  const random = createSeededRandom(options.seed); const placement = generatePlacement(template, random, maxPlacementAttempts); const pool = shuffle(buildTrueCluePool(template, placement.solution), random); const stats: GenerationStats = { placementAttempts: placement.attempts, candidateClues: pool.length, selectedClues: 0, removedClues: 0, solverCalls: 0 }
+  const random = createSeededRandom(options.seed); const placement = generateValidPlacement(template, random, maxPlacementAttempts); const pool = shuffle(buildTrueCluePool(template, placement.solution), random); const stats: GenerationStats = { placementAttempts: placement.attempts, candidateClues: pool.length, selectedClues: 0, removedClues: 0, solverCalls: 0 }
   const selected: CandidateClue[] = []
   for (const character of template.characters) { const available = pool.filter(candidate => candidate.characterId === character.id); if (available.length < minCluesPerCharacter) throw new Error(`Not enough candidate clues for ${character.id}.`); selected.push(...available.slice(0, minCluesPerCharacter)) }
   const remaining = pool.filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id))

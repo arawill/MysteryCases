@@ -1,0 +1,7 @@
+import type { BoardCell, BoardObject } from '../../types'
+import { shuffle, type SeededRandom } from '../random'
+export interface ObjectPlacementResult { board: BoardCell[]; attempts: number; objectsPlaced: number }
+export function placeScenarioObjects(board: readonly BoardCell[], objects: readonly BoardObject[], random: SeededRandom, minOccupiableCellsPerZone: number): ObjectPlacementResult | null { const result = board.map(cell => ({ ...cell })); const occupiableByZone = new Map<string, number>(); const objectsByZone = new Map<string, number>(); for (const cell of result) if (cell.occupiable) occupiableByZone.set(cell.zoneId, (occupiableByZone.get(cell.zoneId) ?? 0) + 1); let attempts = 0
+  for (const object of objects) { const candidates = shuffle(result.filter(cell => !cell.object && (object.occupiable || (occupiableByZone.get(cell.zoneId) ?? 0) > minOccupiableCellsPerZone)), random); attempts += 1; if (candidates.length === 0) return null; const fewestObjects = Math.min(...candidates.map(cell => objectsByZone.get(cell.zoneId) ?? 0)); const cell = candidates.find(candidate => (objectsByZone.get(candidate.zoneId) ?? 0) === fewestObjects); if (!cell) return null; cell.object = { ...object }; cell.occupiable = object.occupiable; objectsByZone.set(cell.zoneId, (objectsByZone.get(cell.zoneId) ?? 0) + 1); if (!object.occupiable) occupiableByZone.set(cell.zoneId, (occupiableByZone.get(cell.zoneId) ?? 0) - 1) }
+  return { board: result, attempts, objectsPlaced: objects.length }
+}
