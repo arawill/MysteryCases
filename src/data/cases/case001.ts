@@ -29,3 +29,4 @@ const characters = [
 ]
 const solution: Placement[] = [{ characterId: 'lucia', position: { row: 1, column: 3 } }, { characterId: 'mateo', position: { row: 2, column: 4 } }, { characterId: 'nora', position: { row: 3, column: 6 } }, { characterId: 'bruno', position: { row: 4, column: 1 } }, { characterId: 'ines', position: { row: 5, column: 5 } }, { characterId: 'alma', position: { row: 6, column: 2 } }]
 export const case001: GameCase = { id: 'case001', title: 'La última taza', intro: 'Cuando el local cerró, una taza seguía caliente. Seis siluetas pasaron por la cafetería, pero solo una salió del almacén con la verdad.', difficulty: 'Fácil', rows: 6, columns: 6, zones, board, characters, solution }
+case001.intro = 'Tras el cierre de la cafetería, Alma fue encontrada muerta en el local. Cinco personas estuvieron allí aquella noche. Reconstruye dónde se encontraba cada una y descubre quién se quedó a solas con la víctima.'

@@ -1,0 +1,2 @@
+import { Link } from 'react-router-dom'
+export function AppHeader({ back = false }: { back?: boolean }) { return <header className="app-header"><Link to="/" className="brand-link" aria-label="Volver al archivo"><span className="brand-mark">MC</span><span>MYSTERYCASES</span></Link><span className="header-label">ARCHIVO DE MISTERIOS</span>{back && <Link className="back-link" to="/">← VOLVER AL ARCHIVO</Link>}</header> }

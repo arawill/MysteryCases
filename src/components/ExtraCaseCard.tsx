@@ -1,0 +1,1 @@
+export function ExtraCaseCard() { return <article className="extra-card" title="Nuevos archivos aparecerán próximamente"><span className="lock-mark">?</span><strong>ARCHIVO DESCONOCIDO</strong><small>▣ BLOQUEADO · PRÓXIMAMENTE</small></article> }

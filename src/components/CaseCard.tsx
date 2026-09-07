@@ -1,0 +1,3 @@
+import { Link } from 'react-router-dom'
+import type { GameCase } from '../game/types'
+export function CaseCard({ gameCase }: { gameCase: GameCase }) { return <article className="case-card"><div><p className="eyebrow">CASO 001</p><h2>{gameCase.title}</h2><p>Después del cierre de una cafetería, Alma ha sido encontrada muerta. Reconstruye la escena y descubre qué ocurrió.</p><span className="difficulty">✦ Dificultad: {gameCase.difficulty}</span></div><div className="case-card-footer"><span className="available">● DISPONIBLE</span><Link className="primary" to={`/case/${gameCase.id}`}>INVESTIGAR <span>→</span></Link></div></article> }
