@@ -18,9 +18,9 @@ const characters = [
   { id: 'lucia', name: 'Lucía Ferrer', avatar: '🦊', clues: ['Estaba en la primera fila.', 'Estaba junto a una planta.'], isVictim: false },
   { id: 'mateo', name: 'Mateo Soler', avatar: '🦉', clues: ['Estaba en la segunda fila.', 'Estaba junto a la caja registradora.'], isVictim: false },
   { id: 'nora', name: 'Nora Vidal', avatar: '🐈', clues: ['Estaba en la tercera fila.', 'Ocupaba la sexta columna.'], isVictim: false },
-  { id: 'bruno', name: 'Bruno Leal', avatar: '🦬', clues: ['Estaba en el almacén.', 'Ocupaba la primera columna.'], isVictim: false },
+  { id: 'bruno', name: 'Bruno Leal', avatar: '🦬', clues: ['Estaba en el almacén.', 'Estaba en la cuarta fila.'], isVictim: false },
   { id: 'ines', name: 'Inés Roca', avatar: '🦋', clues: ['Estaba en el baño.', 'Ocupaba la quinta columna.'], isVictim: false },
-  { id: 'alma', name: 'Alma Ríos', avatar: '🌙', clues: ['Estaba en el almacén.', 'Ocupaba la segunda columna.'], isVictim: true },
+  { id: 'alma', name: 'Alma Ríos', avatar: '🌙', clues: ['Estaba en el almacén.', 'Estaba al sur de Inés.'], isVictim: true },
 ]
 const solution: Placement[] = [
   { characterId: 'lucia', position: { row: 1, column: 3 } }, { characterId: 'mateo', position: { row: 2, column: 4 } },
