@@ -15,7 +15,7 @@ const zoneAt = (row: number, column: number) => row <= 3 ? (column <= 3 ? 'cafe'
 const blocked: Record<string, keyof typeof objects> = { '1-2': 'plant', '1-3': 'chair', '2-5': 'register', '2-2': 'table', '4-2': 'crate', '5-4': 'puddle' }
 const board: BoardCell[] = Array.from({ length: 6 }, (_, r) => Array.from({ length: 6 }, (_, c) => { const row = r + 1, column = c + 1, object = blocked[`${row}-${column}`]; return { row, column, zoneId: zoneAt(row, column), occupiable: object ? objects[object].occupiable : true, ...(object ? { object: objects[object] } : {}) } })).flat()
 const characters = [
-  { id: 'lucia', name: 'Lucía Ferrer', avatar: '🦊', clues: ['Estaba en la primera fila.', 'Estaba junto a una planta.'], isVictim: false },
+  { id: 'lucia', name: 'Lucía Ferrer', avatar: '🦊', clues: ['Estaba en la primera fila.', 'Estaba sentada en una silla.'], isVictim: false },
   { id: 'mateo', name: 'Mateo Soler', avatar: '🦉', clues: ['Estaba en la segunda fila.', 'Estaba junto a la caja registradora.'], isVictim: false },
   { id: 'nora', name: 'Nora Vidal', avatar: '🐈', clues: ['Estaba en la tercera fila.', 'Ocupaba la sexta columna.'], isVictim: false },
   { id: 'bruno', name: 'Bruno Leal', avatar: '🦬', clues: ['Estaba en el almacén.', 'Estaba en la cuarta fila.'], isVictim: false },
