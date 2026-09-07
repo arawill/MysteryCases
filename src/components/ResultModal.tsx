@@ -1,0 +1,2 @@
+import type { Character } from '../game/types'
+export function ResultModal({ killer, onClose }: { killer: Character; onClose: () => void }) { return <div className="modal-backdrop" role="dialog" aria-modal="true"><div className="modal"><span className="stamp">CASO RESUELTO</span><h2>La escena encaja.</h2><p>Has reconstruido correctamente la escena.</p><div className="killer-avatar">{killer.avatar}</div><p className="eyebrow">EL ASESINO ES...</p><h3>{killer.name}</h3><button className="primary" onClick={onClose}>VOLVER AL CASO</button></div></div> }
