@@ -9,5 +9,7 @@ describe('solver', () => {
   it('encuentra la única solución de case001 y coincide con la canónica', () => { const analysis = analyzeCase(case001); expect(analysis.status).toBe('unique'); expect(analysis.solutionsFound).toBe(1); expect(analysis.solution && placementsEqual(analysis.solution, case001.solution)).toBe(true); expect(analysis.matchesCanonical).toBe(true) })
   it('no lee caseData.solution durante la búsqueda', () => { const altered: GameCase = { ...case001, solution: [] }; const result = solveCase(altered); expect(result.solutionsFound).toBe(1); expect(placementsEqual(result.solutions[0], case001.solution)).toBe(true) })
   it('detecta un caso ambiguo sin superar maxSolutions', () => { const result = solveCase(smallCase([[], []])); expect(result.solutionsFound).toBe(2) })
+  it('respeta maxSolutions explícito y el valor predeterminado 2', () => { expect(solveCase(case001).solutionsFound).toBe(1); expect(solveCase(smallCase([[], []])).solutionsFound).toBe(2); expect(solveCase(smallCase([[], []]), { maxSolutions: 1 }).solutionsFound).toBe(1) })
+  it.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])('rechaza maxSolutions inválido: %s', maxSolutions => { expect(() => solveCase(case001, { maxSolutions })).toThrow('maxSolutions must be a positive integer.') })
   it('detecta un caso imposible', () => { const result = solveCase(smallCase([[{ id: 'a-row', type: 'row', text: '', row: 1 }], [{ id: 'b-row', type: 'row', text: '', row: 1 }]])); expect(result.solutionsFound).toBe(0) })
 })

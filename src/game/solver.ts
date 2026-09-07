@@ -10,6 +10,7 @@ const candidatesFor = (characterId: string, caseData: GameCase, placements: Plac
 }
 export function solveCase(caseData: GameCase, options: SolveOptions = {}): SolveResult {
   const maxSolutions = options.maxSolutions ?? defaultOptions.maxSolutions
+  if (!Number.isInteger(maxSolutions) || maxSolutions < 1) throw new Error('maxSolutions must be a positive integer.')
   const cells = caseData.board.filter(cell => cell.occupiable)
   const solutions: Placement[][] = []
   const search = (placements: Placement[]) => {
@@ -21,6 +22,6 @@ export function solveCase(caseData: GameCase, options: SolveOptions = {}): Solve
     if (!choice || choice.candidates.length === 0) return
     for (const cell of choice.candidates) { if (solutions.length >= maxSolutions) return; search([...placements, { characterId: choice.character.id, position: { row: cell.row, column: cell.column } }]) }
   }
-  if (maxSolutions > 0) search([])
+  search([])
   return { solutions, solutionsFound: solutions.length }
 }
