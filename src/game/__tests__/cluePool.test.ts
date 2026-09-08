@@ -6,7 +6,7 @@ import type { BoardCell, Placement } from '../types'
 import type { GenerationTemplate } from '../generation/types'
 
 const character = (id: string, victim = false) => ({ id, name: id, avatar: '', isVictim: victim })
-const template = (board: BoardCell[], zones: GenerationTemplate['zones'], characters = [character('a', true), character('b')]): GenerationTemplate => ({ id: 'test', title: '', intro: '', difficulty: '', rows: 3, columns: 3, zones, board, characters })
+const template = (board: BoardCell[], zones: GenerationTemplate['zones'], characters = [character('a', true), character('b')]): GenerationTemplate => ({ id: 'test', title: '', intro: '', difficulty: 1, rows: 3, columns: 3, zones, board, characters })
 const solution: Placement[] = [{ characterId: 'a', position: { row: 1, column: 1 } }, { characterId: 'b', position: { row: 3, column: 3 } }]
 const cells = (object?: BoardCell['object']): BoardCell[] => Array.from({ length: 9 }, (_, index) => ({ row: Math.floor(index / 3) + 1, column: index % 3 + 1, zoneId: 'open', occupiable: true, ...(object && index === 4 ? { object, occupiable: object.occupiable } : {}) }))
 describe('trivial negative clue filtering', () => {

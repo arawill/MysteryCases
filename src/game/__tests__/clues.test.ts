@@ -8,7 +8,7 @@ const board = [
   { row: 1, column: 2, zoneId: 'a', occupiable: true, object: { id: 'chair', label: 'chair', icon: '', occupiable: true } },
   { row: 2, column: 1, zoneId: 'a', occupiable: true }, { row: 2, column: 2, zoneId: 'b', occupiable: true },
 ]
-const baseCase: GameCase = { id: 'test', title: '', intro: '', difficulty: '', rows: 2, columns: 2, zones: [{ id: 'a', name: 'A', tone: 'a' }, { id: 'b', name: 'B', tone: 'b' }], board, characters: [{ id: 'a', name: 'A', avatar: '', isVictim: true, clues: [] }, { id: 'b', name: 'B', avatar: '', isVictim: false, clues: [] }], solution: [] }
+const baseCase: GameCase = { id: 'test', title: '', intro: '', difficulty: 1, rows: 2, columns: 2, zones: [{ id: 'a', name: 'A', tone: 'a' }, { id: 'b', name: 'B', tone: 'b' }], board, characters: [{ id: 'a', name: 'A', avatar: '', isVictim: true, clues: [] }, { id: 'b', name: 'B', avatar: '', isVictim: false, clues: [] }], solution: [] }
 const placed: Placement[] = [{ characterId: 'a', position: { row: 1, column: 2 } }, { characterId: 'b', position: { row: 2, column: 1 } }]
 describe('evaluateClue', () => {
   it('evalúa pistas directas y negativas', () => {

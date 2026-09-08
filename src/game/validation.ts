@@ -1,10 +1,12 @@
 import { areAllCluesSatisfied } from './clues'
+import { isDifficultyRating } from './difficulty'
 import { findKiller, getCell } from './rules'
 import type { Clue, GameCase } from './types'
 
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
 export function validateCaseDefinition(caseData: GameCase): string[] {
   const errors: string[] = []
+  if (!isDifficultyRating(caseData.difficulty)) errors.push('La dificultad debe ser un valor entre 1 y 5.')
   if (caseData.rows <= 0) errors.push('rows debe ser mayor que 0.')
   if (caseData.columns <= 0) errors.push('columns debe ser mayor que 0.')
   if (caseData.characters.length !== caseData.rows) errors.push('El número de personajes debe coincidir con rows.')

@@ -7,11 +7,13 @@ import { GameScreen } from './screens/GameScreen'
 import { HelpScreen } from './screens/HelpScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
-import { applyTheme, isTheme, SETTINGS_KEY, type Theme } from './theme'
+import { loadSettings } from './game/persistence/settings'
+import { case001 } from './data/cases/case001'
+import { applyTheme, isTheme, type Theme } from './theme'
 
 function ThemeController() {
   useEffect(() => {
-    const readTheme = (): Theme => { try { const value: unknown = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}').theme; return isTheme(value) ? value : 'dark' } catch { return 'dark' } }
+    const readTheme = (): Theme => loadSettings().theme
     let theme = readTheme()
     let media: MediaQueryList | null = null
     let onMediaChange: (() => void) | null = null
@@ -23,5 +25,5 @@ function ThemeController() {
   }, [])
   return null
 }
-function CaseRoute() { return <div className="case-route"><AppHeader back/><GameScreen/></div> }
+function CaseRoute() { return <div className="case-route"><AppHeader back/><GameScreen gameCase={case001}/></div> }
 export default function App() { return <BrowserRouter><ThemeController/><Routes><Route path="/" element={<HomeScreen/>}/><Route path="/case/case001" element={<CaseRoute/>}/><Route path="/settings" element={<SettingsScreen/>}/><Route path="/help" element={<HelpScreen/>}/><Route path="/about" element={<AboutScreen/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></BrowserRouter> }

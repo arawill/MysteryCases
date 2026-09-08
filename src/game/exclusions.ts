@@ -1,0 +1,4 @@
+import type { BoardCell, Placement, Position } from './types'
+export const positionKey = (position: Position) => `${position.row}:${position.column}`
+export function getAutomaticExcludedCells(board: readonly BoardCell[], placements: readonly Placement[]): Position[] { const occupied = new Set(placements.map(placement => positionKey(placement.position))); const rows = new Set(placements.map(placement => placement.position.row)); const columns = new Set(placements.map(placement => placement.position.column)); return board.filter(cell => cell.occupiable && !occupied.has(positionKey(cell)) && (rows.has(cell.row) || columns.has(cell.column))).map(cell => ({ row: cell.row, column: cell.column })) }
+export function mergeExcludedCells(...groups: readonly Position[][]): Position[] { const result = new Map<string, Position>(); for (const group of groups) for (const position of group) result.set(positionKey(position), { ...position }); return [...result.values()] }

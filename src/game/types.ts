@@ -1,3 +1,4 @@
+export type DifficultyRating = 1 | 2 | 3 | 4 | 5
 export interface Position { row: number; column: number }
 export interface Zone { id: string; name: string; tone: string; icon?: string }
 export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean }
@@ -18,4 +19,4 @@ export interface NotBesideObjectClue extends BaseClue { type: 'notBesideObject';
 export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue
 export interface Character { id: string; name: string; avatar: string; clues: Clue[]; isVictim: boolean }
 export interface Placement { characterId: string; position: Position }
-export interface GameCase { id: string; title: string; intro: string; difficulty: string; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[] }
+export interface GameCase { id: string; title: string; intro: string; difficulty: DifficultyRating; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[] }
