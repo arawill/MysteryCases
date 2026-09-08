@@ -23,6 +23,7 @@ const edgeFeatures: EdgeFeature[] = [
 ]
 
 const traitSolution: Placement[] = case001.solution.map(placement => placement.characterId === 'lucia' ? { ...placement, position: { row: 5, column: 3 } } : placement)
+const expectNoMojibake = (text: string) => expect(text).not.toMatch(/[\u00C3\u00C2]/)
 
 const traitTemplate = () => {
   const template = createGenerationTemplate(case001)
@@ -72,6 +73,9 @@ describe('5.5E.3 procedural edge and trait evidence', () => {
     expect(mateoStaff.some(candidate => candidate.clue.type === 'withoutTraitInZone')).toBe(true)
     expect(mateoStaff.some(candidate => candidate.clue.type === 'withTraitInZone' || candidate.clue.type === 'companionTraitCount')).toBe(false)
     expect(brunoStaff.every(candidate => candidate.clue.text.includes('Personal') && !candidate.clue.text.includes('staff'))).toBe(true)
+    expect(brunoStaff.some(candidate => candidate.clue.text.includes('Compart\u00EDa habitaci\u00F3n con otra persona con el rasgo \u00ABPersonal\u00BB.'))).toBe(true)
+    expect(mateoStaff.some(candidate => candidate.clue.text.includes('No hab\u00EDa ninguna otra persona con el rasgo \u00ABPersonal\u00BB en su habitaci\u00F3n.'))).toBe(true)
+    for (const candidate of [...brunoStaff, ...mateoStaff]) expectNoMojibake(candidate.clue.text)
     for (const candidate of pool.filter(candidate => 'traitId' in candidate.clue)) expect(evaluateClue(candidate.clue, candidate.characterId, { ...case001, traitDefinitions: template.traitDefinitions, characters: template.characters.map(character => ({ ...character, clues: [] })) }, traitSolution)).toBe('satisfied')
   })
 
@@ -99,8 +103,10 @@ describe('5.5E.3 procedural edge and trait evidence', () => {
     expect(zero?.clue.text).toContain('nadie')
     expect(one?.clue.text).toContain('una persona')
     expect(many?.clue.text).toMatch(/\d+ personas/)
+    expect([zero, one, many].every(candidate => candidate?.clue.text.includes('hab\u00EDa') && candidate.clue.text.includes('\u00AB') && candidate.clue.text.includes('\u00BB'))).toBe(true)
     for (const candidate of pool) {
       expect(candidate.clue.text).not.toContain('staff')
+      expectNoMojibake(candidate.clue.text)
       expect(evaluateGlobalClue(candidate.clue, { ...case001, traitDefinitions: template.traitDefinitions, characters: template.characters.map(character => ({ ...character, clues: [] })) }, traitSolution)).toBe('satisfied')
     }
   })

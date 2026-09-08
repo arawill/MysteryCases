@@ -51,11 +51,11 @@ export function buildTrueCluePool(template: GenerationTemplate, solution: Placem
     for (const definition of template.traitDefinitions ?? []) {
       const companions = solution.filter(item => item.characterId !== subject.id && getCell(template.board, item.position)?.zoneId === cell.zoneId && characterHasTrait(template.characters.find(character => character.id === item.characterId) ?? { traitIds: [] }, definition.id)).length
       const label = traitLabel(caseData, definition.id)
-      if (companions === 0) add(pool, subject.id, { id: `gen-${subject.id}-without-trait-${definition.id}`, type: 'withoutTraitInZone', text: `No habÃ­a ninguna otra persona con el rasgo Â«${label}Â» en su habitaciÃ³n.`, traitId: definition.id })
+      if (companions === 0) add(pool, subject.id, { id: `gen-${subject.id}-without-trait-${definition.id}`, type: 'withoutTraitInZone', text: `No hab\u00EDa ninguna otra persona con el rasgo \u00AB${label}\u00BB en su habitaci\u00F3n.`, traitId: definition.id })
       else {
-        add(pool, subject.id, { id: `gen-${subject.id}-with-trait-${definition.id}`, type: 'withTraitInZone', text: `CompartÃ­a habitaciÃ³n con otra persona con el rasgo Â«${label}Â».`, traitId: definition.id })
-        const people = companions === 1 ? 'una persona mÃ¡s' : `${companions} personas mÃ¡s`
-        add(pool, subject.id, { id: `gen-${subject.id}-trait-count-${definition.id}-${companions}`, type: 'companionTraitCount', text: `En su habitaciÃ³n habÃ­a exactamente ${people} con el rasgo Â«${label}Â».`, traitId: definition.id, count: companions })
+        add(pool, subject.id, { id: `gen-${subject.id}-with-trait-${definition.id}`, type: 'withTraitInZone', text: `Compart\u00EDa habitaci\u00F3n con otra persona con el rasgo \u00AB${label}\u00BB.`, traitId: definition.id })
+        const people = companions === 1 ? 'una persona m\u00E1s' : `${companions} personas m\u00E1s`
+        add(pool, subject.id, { id: `gen-${subject.id}-trait-count-${definition.id}-${companions}`, type: 'companionTraitCount', text: `En su habitaci\u00F3n hab\u00EDa exactamente ${people} con el rasgo \u00AB${label}\u00BB.`, traitId: definition.id, count: companions })
       }
     }
     for (const target of template.characters) {
@@ -83,7 +83,7 @@ export function buildTrueGlobalCluePool(template: GenerationTemplate, solution: 
   for (const zone of template.zones) for (const definition of template.traitDefinitions ?? []) {
     const count = solution.filter(item => getCell(template.board, item.position)?.zoneId === zone.id && characterHasTrait(template.characters.find(character => character.id === item.characterId) ?? { traitIds: [] }, definition.id)).length
     const label = traitLabel(caseData, definition.id)
-    const text = count === 0 ? `En ${zone.name.toLowerCase()} no habÃ­a nadie con el rasgo Â«${label}Â».` : count === 1 ? `En ${zone.name.toLowerCase()} habÃ­a exactamente una persona con el rasgo Â«${label}Â».` : `En ${zone.name.toLowerCase()} habÃ­a exactamente ${count} personas con el rasgo Â«${label}Â».`
+    const text = count === 0 ? `En ${zone.name.toLowerCase()} no hab\u00EDa nadie con el rasgo \u00AB${label}\u00BB.` : count === 1 ? `En ${zone.name.toLowerCase()} hab\u00EDa exactamente una persona con el rasgo \u00AB${label}\u00BB.` : `En ${zone.name.toLowerCase()} hab\u00EDa exactamente ${count} personas con el rasgo \u00AB${label}\u00BB.`
     pool.push({ kind: 'global', clue: { id: `gen-global-zone-trait-${zone.id}-${definition.id}`, type: 'zoneTraitCount', text, zoneId: zone.id, traitId: definition.id, count } })
   }
   for (const candidate of pool) if (evaluateGlobalClue(candidate.clue, caseData, solution) !== 'satisfied') throw new Error(`Generated an invalid global clue: ${candidate.clue.id}.`)
