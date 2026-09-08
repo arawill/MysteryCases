@@ -12,3 +12,7 @@ export function generateNormalCase(request: NormalCaseRequest): GeneratedProcedu
   if (difficulty === 1 && caseNumber === 1) return { caseData: case001, baseSeed, effectiveSeed: baseSeed, seedOffset: 0, killerId: 'bruno', scenarioAttempts: 0 }
   return generateProceduralCase({ id: getNormalCaseId(difficulty, caseNumber), title: `Expediente ${String(caseNumber).padStart(2, '0')}`, intro: 'Reconstruye la escena a partir de las declaraciones y descubre quién se quedó a solas con la víctima.', difficulty, seed: baseSeed })
 }
+const normalCaseCache = new Map<string, GeneratedProceduralCase>()
+const cacheKey = ({ difficulty, caseNumber }: NormalCaseRequest) => `${difficulty}:${caseNumber}`
+export function getCachedNormalCase(request: NormalCaseRequest) { const key = cacheKey(request); const cached = normalCaseCache.get(key); if (cached) return cached; const generated = generateNormalCase(request); normalCaseCache.set(key, generated); return generated }
+export function clearNormalCaseCache() { normalCaseCache.clear() }
