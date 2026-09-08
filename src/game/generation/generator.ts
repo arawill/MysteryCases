@@ -1,4 +1,5 @@
 import { analyzeCase } from '../analysis'
+import { evaluateClue } from '../clues'
 import { findKiller, placementsEqual } from '../rules'
 import { solveCase } from '../solver'
 import { validateCaseDefinition } from '../validation'
@@ -24,8 +25,13 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   const remaining = pool.filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id)).sort((a, b) => cluePriority(a) - cluePriority(b))
   const solveSelected = (candidates: readonly CandidateClue[]) => { stats.solverCalls += 1; return solveCase(applyCandidates(template, placement.solution, candidates), { maxSolutions: 2 }) }
   let result = solveSelected(selected)
-  let cursor = 0
-  while (result.solutionsFound > 1 && cursor < remaining.length) { const candidate = remaining[cursor]; cursor += 1; if (!canAddReadableClue(selected, candidate)) continue; selected.push(candidate); result = solveSelected(selected) }
+  while (result.solutionsFound > 1) {
+    const current = applyCandidates(template, placement.solution, selected)
+    const ranked = remaining.filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id) && canAddReadableClue(selected, candidate)).map((candidate, index) => ({ candidate, index, eliminated: result.solutions.filter(solution => evaluateClue(candidate.clue, candidate.characterId, current, solution) === 'violated').length })).filter(item => item.eliminated > 0).sort((a, b) => b.eliminated - a.eliminated || cluePriority(a.candidate) - cluePriority(b.candidate) || a.index - b.index)
+    const next = ranked[0]?.candidate
+    if (!next) throw new Error('No readable clue eliminates the current counterexamples.')
+    selected.push(next); result = solveSelected(selected)
+  }
   if (result.solutionsFound === 0) throw new Error('Generated clues contradict the generated placement.')
   if (result.solutionsFound !== 1) throw new Error('Unable to produce a uniquely solvable puzzle from the candidate clues.')
   if (!placementsEqual(result.solutions[0], placement.solution)) throw new Error('Solver found a unique solution different from the generated placement.')
