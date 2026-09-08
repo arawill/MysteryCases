@@ -6,7 +6,7 @@ import { applyConstraints, buildTrueCluePool, buildTrueGlobalCluePool, evaluateC
 import { createSeededRandom, shuffle } from './random'
 import { generateValidPlacement } from './placement'
 import { canAddReadableClue, isNegativeClue } from './clueQuality'
-import { allowsClue, difficultyRequirements, isLogicAdvanced, isSpatialAdvanced } from './clueDifficulty'
+import { allowsClue, difficultyRequirements, isClassicProceduralGlobal, isEdgeAdvanced, isLogicAdvanced, isSpatialAdvanced, isTraitAdvanced, isTraitGlobal } from './clueDifficulty'
 import type { GeneratedPuzzle, GenerationStats, GenerationTemplate, GeneratePuzzleOptions } from './types'
 
 const UINT32_MAX = 4294967295
@@ -14,7 +14,7 @@ const validateSeed = (seed: number) => { if (!Number.isInteger(seed) || seed < 0
 const validatePositiveInteger = (value: number, name: string) => { if (!Number.isInteger(value) || value < 1) throw new Error(`${name} must be a positive integer.`) }
 const validateNonNegativeInteger = (value: number, name: string) => { if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer.`) }
 const clueCount = (candidates: readonly CandidateConstraint[], characterId: string) => candidates.filter((candidate): candidate is CandidateCharacterClue => candidate.kind === 'character').filter(candidate => candidate.characterId === characterId).length
-const cluePriority = (candidate: CandidateCharacterClue) => { if (isNegativeClue(candidate.clue)) return 3; if (candidate.clue.type === 'row' || candidate.clue.type === 'column') return 0; if (candidate.clue.type === 'zone' || candidate.clue.type === 'onObject' || candidate.clue.type === 'besideObject') return 1; return 2 }
+export const cluePriority = (candidate: CandidateCharacterClue) => { if (isNegativeClue(candidate.clue)) return 3; if (candidate.clue.type === 'row' || candidate.clue.type === 'column') return 0; if (candidate.clue.type === 'zone' || candidate.clue.type === 'onObject' || candidate.clue.type === 'besideObject') return 1; return 2 }
 
 
 export function generatePuzzle(template: GenerationTemplate, options: GeneratePuzzleOptions): GeneratedPuzzle {
@@ -25,8 +25,20 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   const selectRequired = (predicate: (candidate: CandidateCharacterClue) => boolean, count: number) => { for (const candidate of pool.filter(predicate).sort((a, b) => cluePriority(a) - cluePriority(b))) { if (selected.some(item => item.kind === 'character' && item.clue.id === candidate.clue.id) || !canAddReadableClue(selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), candidate)) continue; selected.push(candidate); if (selected.filter(item => item.kind === 'character' && predicate(item)).length >= count) return } if (count > 0) throw new Error('Not enough advanced candidate clues.') }
   selectRequired(candidate => isSpatialAdvanced(candidate.clue), requirements.spatial)
   selectRequired(candidate => isLogicAdvanced(candidate.clue), requirements.logic)
-  selected.push(...globalPool.slice(0, requirements.globals))
-  if (selected.filter(item => item.kind === 'global').length < requirements.globals) throw new Error('Not enough global candidate clues.')
+  selectRequired(candidate => isEdgeAdvanced(candidate.clue), requirements.edge)
+  selectRequired(candidate => isTraitAdvanced(candidate.clue), requirements.trait)
+  const selectRequiredGlobals = (predicate: (candidate: CandidateConstraint) => boolean, count: number) => {
+    if (count === 0) return
+    const available = globalPool.filter(predicate).sort((a, b) => (a.clue.type === 'zoneTraitCount' && a.clue.count === 0 ? 1 : 0) - (b.clue.type === 'zoneTraitCount' && b.clue.count === 0 ? 1 : 0))
+    for (const candidate of available) {
+      if (selected.some(item => item.clue.id === candidate.clue.id)) continue
+      selected.push(candidate)
+      if (selected.filter(predicate).length >= count) return
+    }
+    if (count > 0) throw new Error('Not enough required global candidate clues.')
+  }
+  selectRequiredGlobals(candidate => candidate.kind === 'global' && isClassicProceduralGlobal(candidate.clue), requirements.classicGlobals)
+  selectRequiredGlobals(candidate => candidate.kind === 'global' && isTraitGlobal(candidate.clue), requirements.traitGlobals)
   const remaining: CandidateConstraint[] = [...pool, ...globalPool].filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id)).sort((a, b) => a.kind === 'global' ? 2 : b.kind === 'global' ? -2 : cluePriority(a) - cluePriority(b))
   const solveSelected = (candidates: readonly CandidateConstraint[]) => { stats.solverCalls += 1; return solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2 }) }
   let result = solveSelected(selected)

@@ -90,14 +90,10 @@ describe('5.5E.2 procedural scenario decoration', () => {
     expect(wide).toBeDefined()
   })
 
-  it('creates complete, valid five-star decorations without activating their clue types', () => {
+  it('creates complete, valid five-star scenario decorations', () => {
     const caseData = generateNormalCase({ difficulty: 5, caseNumber: 42 }).caseData
     expectCorrectEdges(caseData, 3)
     expectCorrectTraits(caseData)
-    const clues = caseData.characters.flatMap(character => character.clues)
-    expect(clues.some(clue => clue.type === 'besideEdgeFeature' || clue.type === 'notBesideEdgeFeature')).toBe(false)
-    expect(clues.some(clue => clue.type === 'withTraitInZone' || clue.type === 'withoutTraitInZone' || clue.type === 'companionTraitCount')).toBe(false)
-    expect(caseData.globalClues?.some(clue => clue.type === 'zoneTraitCount') ?? false).toBe(false)
     expect(validateCaseDefinition(caseData)).toEqual([])
     expect(solveCase(caseData, { maxSolutions: 2 }).solutionsFound).toBe(1)
     expect(hasReadableClues(caseData)).toBe(true)

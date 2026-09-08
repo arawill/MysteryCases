@@ -2,6 +2,8 @@ import { evaluateClue } from '../clues'
 import { evaluateGlobalClue } from '../globalClues'
 import { getCell, isBeside } from '../rules'
 import { isBesideWall, isBoardCorner, isZoneCorner } from '../spatial'
+import { isCellBesideEdgeFeature } from '../edgeFeatures'
+import { characterHasTrait, getTraitLabel } from '../traits'
 import type { Character, Clue, GameCase, GlobalClue, Placement } from '../types'
 import type { GenerationTemplate } from './types'
 
@@ -15,6 +17,8 @@ export const isZoneOccupiable = (template: GenerationTemplate, zoneId: string) =
 export const canStandBesideObject = (template: GenerationTemplate, objectId: string) => template.board.filter(cell => cell.object?.id === objectId).some(objectCell => template.board.some(candidate => candidate.occupiable && isBeside(candidate, objectCell, template.board)))
 const objectLabel = (template: GenerationTemplate, id: string) => template.board.find(cell => cell.object?.id === id)?.object?.label ?? `el objeto ${id}`
 const zoneName = (template: GenerationTemplate, id: string) => template.zones.find(zone => zone.id === id)?.name ?? id
+const edgeLabel = (type: 'window' | 'door') => type === 'window' ? 'ventana' : 'puerta'
+const traitLabel = (caseData: GameCase, traitId: string) => getTraitLabel(caseData, traitId) ?? traitId
 const clueCase = (template: GenerationTemplate, solution: Placement[]): GameCase => ({ ...template, zones: template.zones.map(zone => ({ ...zone })), board: template.board.map(cell => ({ ...cell, ...(cell.object ? { object: { ...cell.object } } : {}) })), characters: template.characters.map(character => ({ ...character, ...(character.traitIds ? { traitIds: [...character.traitIds] } : {}), clues: [] })), ...(template.edgeFeatures ? { edgeFeatures: template.edgeFeatures.map(feature => ({ ...feature, segments: feature.segments.map(segment => ({ position: { ...segment.position }, side: segment.side })) })) } : {}), ...(template.traitDefinitions ? { traitDefinitions: template.traitDefinitions.map(definition => ({ ...definition })) } : {}), solution: solution.map(placement => ({ characterId: placement.characterId, position: { ...placement.position } })) })
 const add = (pool: CandidateClue[], characterId: string, clue: Clue) => pool.push({ kind: 'character', characterId, clue })
 export function buildTrueCluePool(template: GenerationTemplate, solution: Placement[]): CandidateClue[] {
@@ -39,6 +43,21 @@ export function buildTrueCluePool(template: GenerationTemplate, solution: Placem
       if (!beside && besidePossibleObjectIds.has(objectId)) add(pool, subject.id, { id: `gen-${subject.id}-not-beside-object-${objectId}`, type: 'notBesideObject', text: `No estaba junto a ${objectLabel(template, objectId)}.`, objectId })
     }
     for (const zone of template.zones) if (zone.id !== cell.zoneId && occupiableZoneIds.has(zone.id)) add(pool, subject.id, { id: `gen-${subject.id}-not-zone-${zone.id}`, type: 'notZone', text: `No estaba en ${zone.name.toLowerCase()}.`, zoneId: zone.id })
+    const edgeTypes = [...new Set((template.edgeFeatures ?? []).map(feature => feature.type))]
+    for (const featureType of edgeTypes) {
+      const beside = (template.edgeFeatures ?? []).some(feature => feature.type === featureType && isCellBesideEdgeFeature(cell, feature, template.board))
+      add(pool, subject.id, beside ? { id: `gen-${subject.id}-beside-${featureType}`, type: 'besideEdgeFeature', text: `Estaba junto a una ${edgeLabel(featureType)}.`, featureType } : { id: `gen-${subject.id}-not-beside-${featureType}`, type: 'notBesideEdgeFeature', text: `No estaba junto a ninguna ${edgeLabel(featureType)}.`, featureType })
+    }
+    for (const definition of template.traitDefinitions ?? []) {
+      const companions = solution.filter(item => item.characterId !== subject.id && getCell(template.board, item.position)?.zoneId === cell.zoneId && characterHasTrait(template.characters.find(character => character.id === item.characterId) ?? { traitIds: [] }, definition.id)).length
+      const label = traitLabel(caseData, definition.id)
+      if (companions === 0) add(pool, subject.id, { id: `gen-${subject.id}-without-trait-${definition.id}`, type: 'withoutTraitInZone', text: `No habÃ­a ninguna otra persona con el rasgo Â«${label}Â» en su habitaciÃ³n.`, traitId: definition.id })
+      else {
+        add(pool, subject.id, { id: `gen-${subject.id}-with-trait-${definition.id}`, type: 'withTraitInZone', text: `CompartÃ­a habitaciÃ³n con otra persona con el rasgo Â«${label}Â».`, traitId: definition.id })
+        const people = companions === 1 ? 'una persona mÃ¡s' : `${companions} personas mÃ¡s`
+        add(pool, subject.id, { id: `gen-${subject.id}-trait-count-${definition.id}-${companions}`, type: 'companionTraitCount', text: `En su habitaciÃ³n habÃ­a exactamente ${people} con el rasgo Â«${label}Â».`, traitId: definition.id, count: companions })
+      }
+    }
     for (const target of template.characters) {
       if (target.id === subject.id) continue
       const targetPlacement = solution.find(candidate => candidate.characterId === target.id); if (!targetPlacement) continue
@@ -61,6 +80,12 @@ export function buildTrueGlobalCluePool(template: GenerationTemplate, solution: 
   pool.push({ kind: 'global', clue: { id: 'gen-global-empty-zones', type: 'emptyZoneCount', text: empty === 0 ? 'No había habitaciones vacías.' : empty === 1 ? 'Había exactamente una habitación vacía.' : `Había exactamente ${empty} habitaciones vacías.`, count: empty } })
   for (const zone of template.zones) { const count = solution.filter(item => getCell(template.board, item.position)?.zoneId === zone.id).length; const text = count === 0 ? `En ${zone.name.toLowerCase()} no había ninguna persona.` : count === 1 ? `En ${zone.name.toLowerCase()} había exactamente una persona.` : `En ${zone.name.toLowerCase()} había exactamente ${count} personas.`; pool.push({ kind: 'global', clue: { id: `gen-global-zone-${zone.id}`, type: 'zoneOccupancyCount', text, zoneId: zone.id, count } }) }
   for (const objectId of objectIds(template).filter(id => isObjectOccupiableSomewhere(template, id))) { const count = solution.filter(item => getCell(template.board, item.position)?.object?.id === objectId).length; const text = count === 0 ? `Ninguna persona estaba sobre ${objectLabel(template, objectId)}.` : count === 1 ? `Exactamente una persona estaba sobre ${objectLabel(template, objectId)}.` : `Exactamente ${count} personas estaban sobre ${objectLabel(template, objectId)}.`; pool.push({ kind: 'global', clue: { id: `gen-global-object-${objectId}`, type: 'objectOccupancyCount', text, objectId, count } }) }
+  for (const zone of template.zones) for (const definition of template.traitDefinitions ?? []) {
+    const count = solution.filter(item => getCell(template.board, item.position)?.zoneId === zone.id && characterHasTrait(template.characters.find(character => character.id === item.characterId) ?? { traitIds: [] }, definition.id)).length
+    const label = traitLabel(caseData, definition.id)
+    const text = count === 0 ? `En ${zone.name.toLowerCase()} no habÃ­a nadie con el rasgo Â«${label}Â».` : count === 1 ? `En ${zone.name.toLowerCase()} habÃ­a exactamente una persona con el rasgo Â«${label}Â».` : `En ${zone.name.toLowerCase()} habÃ­a exactamente ${count} personas con el rasgo Â«${label}Â».`
+    pool.push({ kind: 'global', clue: { id: `gen-global-zone-trait-${zone.id}-${definition.id}`, type: 'zoneTraitCount', text, zoneId: zone.id, traitId: definition.id, count } })
+  }
   for (const candidate of pool) if (evaluateGlobalClue(candidate.clue, caseData, solution) !== 'satisfied') throw new Error(`Generated an invalid global clue: ${candidate.clue.id}.`)
   return pool
 }
