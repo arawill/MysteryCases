@@ -23,7 +23,15 @@ export interface BesideWallClue extends BaseClue { type: 'besideWall' }
 export interface NotBesideWallClue extends BaseClue { type: 'notBesideWall' }
 export interface OneOfZonesClue extends BaseClue { type: 'oneOfZones'; zoneIds: string[] }
 export interface OneOfObjectsClue extends BaseClue { type: 'oneOfObjects'; objectIds: string[] }
-export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue | RowOffsetFromCharacterClue | CornerOfBoardClue | CornerOfZoneClue | BesideWallClue | NotBesideWallClue | OneOfZonesClue | OneOfObjectsClue
+export interface AloneInZoneClue extends BaseClue { type: 'aloneInZone' }
+export interface NotAloneInZoneClue extends BaseClue { type: 'notAloneInZone' }
+export interface OwnZoneOccupancyCountClue extends BaseClue { type: 'ownZoneOccupancyCount'; count: number }
+export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue | RowOffsetFromCharacterClue | CornerOfBoardClue | CornerOfZoneClue | BesideWallClue | NotBesideWallClue | OneOfZonesClue | OneOfObjectsClue | AloneInZoneClue | NotAloneInZoneClue | OwnZoneOccupancyCountClue
+export interface BaseGlobalClue { id: string; text: string }
+export interface EmptyZoneCountGlobalClue extends BaseGlobalClue { type: 'emptyZoneCount'; count: number }
+export interface ZoneOccupancyCountGlobalClue extends BaseGlobalClue { type: 'zoneOccupancyCount'; zoneId: string; count: number }
+export interface ObjectOccupancyCountGlobalClue extends BaseGlobalClue { type: 'objectOccupancyCount'; objectId: string; count: number }
+export type GlobalClue = EmptyZoneCountGlobalClue | ZoneOccupancyCountGlobalClue | ObjectOccupancyCountGlobalClue
 export interface Character { id: string; name: string; avatar: string; clues: Clue[]; isVictim: boolean }
 export interface Placement { characterId: string; position: Position }
-export interface GameCase { id: string; title: string; intro: string; difficulty: DifficultyRating; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[] }
+export interface GameCase { id: string; title: string; intro: string; difficulty: DifficultyRating; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[]; globalClues?: GlobalClue[] }

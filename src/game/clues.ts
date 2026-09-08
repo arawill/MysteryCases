@@ -8,6 +8,8 @@ const placementFor = (placements: Placement[], id: string) => placements.find(p 
 const cellFor = (caseData: GameCase, placements: Placement[], id: string) => { const placement = placementFor(placements, id); return placement ? getCell(caseData.board, placement.position) : undefined }
 const objectCells = (caseData: GameCase, objectId: string) => caseData.board.filter(cell => cell.object?.id === objectId)
 const besideAnyObject = (caseData: GameCase, subjectCell: NonNullable<ReturnType<typeof cellFor>>, objectId: string) => objectCells(caseData, objectId).some(objectCell => isBeside(subjectCell, objectCell, caseData.board))
+const zoneOccupancy = (caseData: GameCase, placements: Placement[], zoneId: string) => placements.filter(placement => getCell(caseData.board, placement.position)?.zoneId === zoneId).length
+const complete = (caseData: GameCase, placements: Placement[]) => placements.length === caseData.characters.length
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
 
 export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: GameCase, placements: Placement[]): ClueEvaluation {
@@ -27,6 +29,9 @@ export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: G
     case 'notBesideWall': return !subjectCell ? 'undetermined' : isBesideWall(subjectCell, caseData.board) ? 'violated' : 'satisfied'
     case 'oneOfZones': return !subjectCell ? 'undetermined' : clue.zoneIds.includes(subjectCell.zoneId) ? 'satisfied' : 'violated'
     case 'oneOfObjects': return !subjectCell ? 'undetermined' : subjectCell.object && clue.objectIds.includes(subjectCell.object.id) ? 'satisfied' : 'violated'
+    case 'aloneInZone': { if (!subjectCell) return 'undetermined'; const current = zoneOccupancy(caseData, placements, subjectCell.zoneId); if (current > 1) return 'violated'; return complete(caseData, placements) ? 'satisfied' : 'undetermined' }
+    case 'notAloneInZone': { if (!subjectCell) return 'undetermined'; const current = zoneOccupancy(caseData, placements, subjectCell.zoneId); if (current > 1) return 'satisfied'; return complete(caseData, placements) ? 'violated' : 'undetermined' }
+    case 'ownZoneOccupancyCount': { if (!subjectCell) return 'undetermined'; const current = zoneOccupancy(caseData, placements, subjectCell.zoneId); if (current > clue.count) return 'violated'; return complete(caseData, placements) ? current === clue.count ? 'satisfied' : 'violated' : 'undetermined' }
     case 'northOfCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : subjectCell.row < target.row ? 'satisfied' : 'violated' }
     case 'southOfCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : subjectCell.row > target.row ? 'satisfied' : 'violated' }
     case 'sameZoneAsCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : subjectCell.zoneId === target.zoneId ? 'satisfied' : 'violated' }

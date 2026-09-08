@@ -1,7 +1,8 @@
 import { areAllCluesSatisfied } from './clues'
 import { isDifficultyRating } from './difficulty'
 import { findKiller, getCell } from './rules'
-import type { Clue, GameCase } from './types'
+import { areAllGlobalCluesSatisfied } from './globalClues'
+import type { Clue, GameCase, GlobalClue } from './types'
 
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
 
@@ -19,11 +20,12 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
   if (caseData.board.length !== caseData.rows * caseData.columns) errors.push('El tablero no contiene rows * columns celdas.')
   for (const cell of caseData.board) { const key = `${cell.row}:${cell.column}`; if (coordinates.has(key)) errors.push(`Coordenada de celda duplicada: ${key}.`); coordinates.add(key); if (cell.row < 1 || cell.row > caseData.rows || cell.column < 1 || cell.column > caseData.columns) errors.push(`Celda fuera del tablero: ${key}.`); if (!zoneIds.has(cell.zoneId)) errors.push(`Zona inexistente en celda ${key}: ${cell.zoneId}.`); if (cell.object && cell.occupiable !== cell.object.occupiable) errors.push(`Incoherencia occupiable en celda ${key}: la celda y el objeto no coinciden.`); if (cell.object) objectIds.add(cell.object.id) }
   for (const character of caseData.characters) for (const clue of character.clues) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateClue(clue, character.id, caseData, zoneIds, objectIds, errors) }
+  for (const clue of caseData.globalClues ?? []) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateGlobalClue(clue, caseData, zoneIds, objectIds, errors) }
   const canonicalIds = new Set<string>(), canonicalRows = new Set<number>(), canonicalColumns = new Set<number>()
   if (caseData.solution.length !== caseData.characters.length) errors.push('La solución canónica debe contener una posición por personaje.')
   for (const placement of caseData.solution) { if (canonicalIds.has(placement.characterId)) errors.push(`Personaje repetido en solución canónica: ${placement.characterId}.`); canonicalIds.add(placement.characterId); if (!characterIds.has(placement.characterId)) errors.push(`Personaje inexistente en solución canónica: ${placement.characterId}.`); if (placement.position.row < 1 || placement.position.row > caseData.rows || placement.position.column < 1 || placement.position.column > caseData.columns) errors.push(`Posición canónica fuera del tablero: ${placement.characterId}.`); const cell = getCell(caseData.board, placement.position); if (!cell) errors.push(`La solución canónica apunta a una celda inexistente: ${placement.characterId}.`); else if (!cell.occupiable) errors.push(`La solución canónica usa una celda bloqueada: ${placement.characterId}.`); if (canonicalRows.has(placement.position.row)) errors.push(`Fila duplicada en solución canónica: ${placement.position.row}.`); canonicalRows.add(placement.position.row); if (canonicalColumns.has(placement.position.column)) errors.push(`Columna duplicada en solución canónica: ${placement.position.column}.`); canonicalColumns.add(placement.position.column) }
   for (const id of characterIds) if (!canonicalIds.has(id)) errors.push(`Falta personaje en solución canónica: ${id}.`)
-  if (caseData.solution.length === caseData.characters.length && !areAllCluesSatisfied(caseData, caseData.solution)) errors.push('La solución canónica no satisface todas las pistas.')
+  if (caseData.solution.length === caseData.characters.length && (!areAllCluesSatisfied(caseData, caseData.solution) || !areAllGlobalCluesSatisfied(caseData, caseData.solution))) errors.push('La solución canónica no satisface todas las pistas.')
   if (!findKiller(caseData, caseData.solution)) errors.push('La solución canónica no identifica un asesino único.')
   return errors
 }
@@ -40,9 +42,21 @@ function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds
     case 'onObject': case 'besideObject': case 'notOnObject': case 'notBesideObject': object(clue.objectId); return
     case 'oneOfZones': choices(clue.zoneIds, 'zona'); return
     case 'oneOfObjects': choices(clue.objectIds, 'objeto'); return
+    case 'aloneInZone': case 'notAloneInZone': return
+    case 'ownZoneOccupancyCount': if (!Number.isInteger(clue.count) || clue.count < 1 || clue.count > caseData.characters.length) errors.push(`La pista ${clue.id} tiene un conteo de ocupación inválido.`); return
     case 'cornerOfBoard': case 'cornerOfZone': case 'besideWall': case 'notBesideWall': return
     case 'rowOffsetFromCharacter': target(clue.targetCharacterId); if (!Number.isInteger(clue.rowOffset) || clue.rowOffset === 0 || Math.abs(clue.rowOffset) >= caseData.rows) errors.push(`La pista ${clue.id} tiene un offset de fila inválido.`); return
     case 'northOfCharacter': case 'southOfCharacter': case 'sameZoneAsCharacter': case 'besideCharacter': target(clue.targetCharacterId); return
+    default: return exhaustive(clue)
+  }
+}
+
+function validateGlobalClue(clue: GlobalClue, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, errors: string[]) {
+  const count = (value: number, maximum: number) => Number.isInteger(value) && value >= 0 && value <= maximum
+  switch (clue.type) {
+    case 'emptyZoneCount': if (!count(clue.count, caseData.zones.length)) errors.push(`La evidencia ${clue.id} tiene un conteo de zonas vacías inválido.`); return
+    case 'zoneOccupancyCount': if (!zoneIds.has(clue.zoneId)) errors.push(`La evidencia ${clue.id} referencia una zona inexistente: ${clue.zoneId}.`); if (!count(clue.count, caseData.characters.length)) errors.push(`La evidencia ${clue.id} tiene un conteo de ocupación inválido.`); return
+    case 'objectOccupancyCount': { const maximum = caseData.board.filter(cell => cell.occupiable && cell.object?.id === clue.objectId).length; if (!objectIds.has(clue.objectId)) errors.push(`La evidencia ${clue.id} referencia un objeto inexistente: ${clue.objectId}.`); if (!count(clue.count, Math.min(maximum, caseData.characters.length))) errors.push(`La evidencia ${clue.id} tiene un conteo de objeto inválido.`); return }
     default: return exhaustive(clue)
   }
 }

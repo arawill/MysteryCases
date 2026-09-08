@@ -5,11 +5,11 @@ import { getExclusionHint, getRevealHint, reviewInvestigation } from '../hints'
 describe('hints', () => {
   it('revisa únicamente contradicciones reales de pistas', () => {
     expect(reviewInvestigation(case001, [])).toEqual({ status: 'clear' })
-    expect(reviewInvestigation(case001, [{ characterId: 'lucia', position: { row: 2, column: 3 } }])).toEqual({ status: 'contradiction', characterId: 'lucia' })
+    expect(reviewInvestigation(case001, [{ characterId: 'lucia', position: { row: 2, column: 3 } }])).toEqual({ status: 'contradiction', source: 'character', characterId: 'lucia' })
     expect(reviewInvestigation(case001, [
       { characterId: 'ines', position: { row: 4, column: 5 } },
       { characterId: 'alma', position: { row: 3, column: 2 } },
-    ])).toEqual({ status: 'contradiction', characterId: 'alma' })
+    ])).toEqual({ status: 'contradiction', source: 'character', characterId: 'alma' })
   })
 
   it('propone una exclusión determinista, segura y sin mutar entradas', () => {

@@ -1,8 +1,10 @@
 import { evaluateAllClues } from './clues'
+import { evaluateAllGlobalClues } from './globalClues'
 import type { GameCase, Placement, Position } from './types'
 
 export type ReviewHint =
-  | { status: 'contradiction'; characterId: string }
+  | { status: 'contradiction'; source: 'character'; characterId: string }
+  | { status: 'contradiction'; source: 'global'; globalClueId: string; text: string }
   | { status: 'clear' }
 
 export interface PositionHint {
@@ -12,7 +14,9 @@ export interface PositionHint {
 
 export function reviewInvestigation(caseData: GameCase, placements: Placement[]): ReviewHint {
   const violated = evaluateAllClues(caseData, placements).find(item => item.evaluation === 'violated')
-  return violated ? { status: 'contradiction', characterId: violated.characterId } : { status: 'clear' }
+  if (violated) return { status: 'contradiction', source: 'character', characterId: violated.characterId }
+  const global = evaluateAllGlobalClues(caseData, placements).find(item => item.evaluation === 'violated')
+  return global ? { status: 'contradiction', source: 'global', globalClueId: global.clue.id, text: global.clue.text } : { status: 'clear' }
 }
 
 export function getExclusionHint(
