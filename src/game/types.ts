@@ -16,7 +16,14 @@ export interface BesideCharacterClue extends BaseClue { type: 'besideCharacter';
 export interface NotZoneClue extends BaseClue { type: 'notZone'; zoneId: string }
 export interface NotOnObjectClue extends BaseClue { type: 'notOnObject'; objectId: string }
 export interface NotBesideObjectClue extends BaseClue { type: 'notBesideObject'; objectId: string }
-export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue
+export interface RowOffsetFromCharacterClue extends BaseClue { type: 'rowOffsetFromCharacter'; targetCharacterId: string; rowOffset: number }
+export interface CornerOfBoardClue extends BaseClue { type: 'cornerOfBoard' }
+export interface CornerOfZoneClue extends BaseClue { type: 'cornerOfZone' }
+export interface BesideWallClue extends BaseClue { type: 'besideWall' }
+export interface NotBesideWallClue extends BaseClue { type: 'notBesideWall' }
+export interface OneOfZonesClue extends BaseClue { type: 'oneOfZones'; zoneIds: string[] }
+export interface OneOfObjectsClue extends BaseClue { type: 'oneOfObjects'; objectIds: string[] }
+export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue | RowOffsetFromCharacterClue | CornerOfBoardClue | CornerOfZoneClue | BesideWallClue | NotBesideWallClue | OneOfZonesClue | OneOfObjectsClue
 export interface Character { id: string; name: string; avatar: string; clues: Clue[]; isVictim: boolean }
 export interface Placement { characterId: string; position: Position }
 export interface GameCase { id: string; title: string; intro: string; difficulty: DifficultyRating; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[] }

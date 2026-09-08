@@ -1,4 +1,5 @@
 import { getCell, isBeside } from './rules'
+import { isBesideWall, isBoardCorner, isZoneCorner } from './spatial'
 import type { Clue, GameCase, Placement } from './types'
 
 export type ClueEvaluation = 'satisfied' | 'violated' | 'undetermined'
@@ -20,10 +21,17 @@ export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: G
     case 'notOnObject': return !subjectCell ? 'undetermined' : subjectCell.object?.id !== clue.objectId ? 'satisfied' : 'violated'
     case 'besideObject': return !subjectCell ? 'undetermined' : besideAnyObject(caseData, subjectCell, clue.objectId) ? 'satisfied' : 'violated'
     case 'notBesideObject': return !subjectCell ? 'undetermined' : besideAnyObject(caseData, subjectCell, clue.objectId) ? 'violated' : 'satisfied'
+    case 'cornerOfBoard': return !subjectCell ? 'undetermined' : isBoardCorner(subjectCell, caseData.rows, caseData.columns) ? 'satisfied' : 'violated'
+    case 'cornerOfZone': return !subjectCell ? 'undetermined' : isZoneCorner(subjectCell, caseData.board) ? 'satisfied' : 'violated'
+    case 'besideWall': return !subjectCell ? 'undetermined' : isBesideWall(subjectCell, caseData.board) ? 'satisfied' : 'violated'
+    case 'notBesideWall': return !subjectCell ? 'undetermined' : isBesideWall(subjectCell, caseData.board) ? 'violated' : 'satisfied'
+    case 'oneOfZones': return !subjectCell ? 'undetermined' : clue.zoneIds.includes(subjectCell.zoneId) ? 'satisfied' : 'violated'
+    case 'oneOfObjects': return !subjectCell ? 'undetermined' : subjectCell.object && clue.objectIds.includes(subjectCell.object.id) ? 'satisfied' : 'violated'
     case 'northOfCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : subjectCell.row < target.row ? 'satisfied' : 'violated' }
     case 'southOfCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : subjectCell.row > target.row ? 'satisfied' : 'violated' }
     case 'sameZoneAsCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : subjectCell.zoneId === target.zoneId ? 'satisfied' : 'violated' }
     case 'besideCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : isBeside(subjectCell, target, caseData.board) ? 'satisfied' : 'violated' }
+    case 'rowOffsetFromCharacter': { const target = cellFor(caseData, placements, clue.targetCharacterId); return !subjectCell || !target ? 'undetermined' : subjectCell.row === target.row + clue.rowOffset ? 'satisfied' : 'violated' }
     default: return exhaustive(clue)
   }
 }
