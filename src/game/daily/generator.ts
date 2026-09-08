@@ -10,6 +10,7 @@ import { selectDailyCharactersForDate } from './characters'
 import { getDailyDateKey } from './date'
 import { getDailyDifficultySeed, getDailyPuzzleId } from './date'
 import type { DifficultyRating } from '../types'
+import { getVersionedProceduralCaseId } from '../generation/version'
 
 export interface GeneratedDailyCase { caseData: GameCase; dateKey: string; baseSeed: number; effectiveSeed: number; seedOffset: number; killerId: string; scenarioAttempts: number; stats: GenerationStats }
 export function generateDailyCase(date: Date, difficulty: DifficultyRating = 1): GeneratedDailyCase {
@@ -21,7 +22,7 @@ export function generateDailyCase(date: Date, difficulty: DifficultyRating = 1):
     try {
       const scenario = generateScenarioTemplate(profile, { seed: effectiveSeed })
       const puzzle = generatePuzzle(scenario.template, { seed: effectiveSeed, minCluesPerCharacter: 2, minimizeClues: false })
-      const caseData = { ...puzzle.caseData, id: getDailyPuzzleId(date, difficulty) }
+      const caseData = { ...puzzle.caseData, id: getVersionedProceduralCaseId(getDailyPuzzleId(date, difficulty)) }
       if (!hasReadableClues(caseData)) continue
       return { caseData, dateKey, baseSeed, effectiveSeed, seedOffset: offset, killerId: puzzle.killerId, scenarioAttempts: scenario.stats.scenarioAttempts, stats: puzzle.stats }
     } catch { continue }
