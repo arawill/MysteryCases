@@ -7,6 +7,7 @@ import { getAutomaticExcludedCells, mergeExcludedCells, positionKey } from '../g
 import { getExclusionHint, getRevealHint, reviewInvestigation } from '../game/hints'
 import { recordCaseCompletion } from '../game/persistence/completion'
 import { loadCaseSave, saveCase } from '../game/persistence/caseSave'
+import { recordHintUse } from '../game/persistence/playerStats'
 import { loadSettings } from '../game/persistence/settings'
 import { canPlace, findKiller, isSolutionCorrect } from '../game/rules'
 import type { BoardCell, Character, GameCase, Placement, Position } from '../game/types'
@@ -122,6 +123,7 @@ function GameSession({
   const review = () => {
     const hint = reviewInvestigation(gameCase, placements)
     setHintsUsed(value => ({ ...value, review: value.review + 1 }))
+    recordHintUse('review')
     const name = hint.status === 'contradiction'
       ? gameCase.characters.find(character => character.id === hint.characterId)?.name
       : null
@@ -134,6 +136,7 @@ function GameSession({
     const hint = getExclusionHint(gameCase, placements, manualExcludedCells)
     if (!hint) return setMessage('No encuentro una exclusión nueva útil.')
     setHintsUsed(value => ({ ...value, exclusion: value.exclusion + 1 }))
+    recordHintUse('exclusion')
     const name = gameCase.characters.find(character => character.id === hint.characterId)?.name
     setMessage(`Puedes descartar fila ${hint.position.row}, columna ${hint.position.column} para ${name}.`)
   }
@@ -143,6 +146,7 @@ function GameSession({
     const hint = getRevealHint(gameCase, placements, selectedId)
     if (!hint) return setMessage('Todas las posiciones ya son correctas.')
     setHintsUsed(value => ({ ...value, reveal: value.reveal + 1 }))
+    recordHintUse('reveal')
     const name = gameCase.characters.find(character => character.id === hint.characterId)?.name
     setMessage(`${name} estaba en fila ${hint.position.row}, columna ${hint.position.column}.`)
   }
