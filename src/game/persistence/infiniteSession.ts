@@ -1,0 +1,11 @@
+import { isDifficultyRating } from '../difficulty'
+import { isDifficultyUnlocked, type NormalModeProgress } from './normalProgress'
+import type { DifficultyRating } from '../types'
+export interface InfiniteSession { saveVersion: 1; generationVersion: 1; difficulty: DifficultyRating; seed: number; status: 'active' | 'completed' }
+export const INFINITE_SESSION_KEY = 'mystery-cases-infinite-session'
+const validSeed = (seed: unknown): seed is number => Number.isInteger(seed) && (seed as number) >= 0 && (seed as number) <= 4294967295
+export function loadInfiniteSession(storage: Storage = localStorage): InfiniteSession | null { try { const value: unknown = JSON.parse(storage.getItem(INFINITE_SESSION_KEY) ?? 'null'); if (!value || typeof value !== 'object') return null; const session = value as Partial<InfiniteSession>; return session.saveVersion === 1 && session.generationVersion === 1 && isDifficultyRating(session.difficulty) && validSeed(session.seed) && (session.status === 'active' || session.status === 'completed') ? session as InfiniteSession : null } catch { return null } }
+export function startInfiniteSession(difficulty: DifficultyRating, seed: number, progress: NormalModeProgress, storage: Storage = localStorage) { const existing = loadInfiniteSession(storage); if (existing?.status === 'active') return existing; if (!validSeed(seed) || !isDifficultyUnlocked(difficulty, progress)) return null; const session: InfiniteSession = { saveVersion: 1, generationVersion: 1, difficulty, seed, status: 'active' }; storage.setItem(INFINITE_SESSION_KEY, JSON.stringify(session)); return session }
+export function markInfiniteSessionCompleted(storage: Storage = localStorage) { const session = loadInfiniteSession(storage); if (!session) return null; const next = { ...session, status: 'completed' as const }; storage.setItem(INFINITE_SESSION_KEY, JSON.stringify(next)); return next }
+export function clearInfiniteSession(storage: Storage = localStorage) { storage.removeItem(INFINITE_SESSION_KEY) }
+export function createInfiniteSeed(excludedSeed?: number) { for (let attempt = 0; attempt < 8; attempt += 1) { const value = new Uint32Array(1); crypto.getRandomValues(value); if (value[0] !== excludedSeed) return value[0] } throw new Error('Could not create a new infinite seed.') }
