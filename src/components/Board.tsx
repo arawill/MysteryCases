@@ -1,13 +1,14 @@
 import type { BoardCell, Character, Placement, Position, Zone } from '../game/types'
 import { getCell } from '../game/rules'
 import { fallbackZoneTheme, zoneTheme } from '../game/zones/theme'
+import type { BoardInteractionMode } from '../game/interaction'
 
 interface BoardProps {
-  board: BoardCell[]; rows: number; columns: number; zones: Zone[]; placements: Placement[]; excludedCells: Position[]; characters: Character[]; selectedCharacterId?: string | null
+  board: BoardCell[]; rows: number; columns: number; zones: Zone[]; placements: Placement[]; excludedCells: Position[]; characters: Character[]; selectedCharacterId?: string | null; interactionMode?: BoardInteractionMode
   onCellClick: (cell: BoardCell) => void; onCellContextMenu: (cell: BoardCell) => void
 }
 
-export function Board({ board, rows, columns, zones, placements, excludedCells, characters, selectedCharacterId, onCellClick, onCellContextMenu }: BoardProps) {
+export function Board({ board, rows, columns, zones, placements, excludedCells, characters, selectedCharacterId, interactionMode = 'place', onCellClick, onCellContextMenu }: BoardProps) {
   const labels = Array.from({ length: rows }, (_, index) => index + 1)
   return <div className="board-wrap">
     <div className="board-plan-label"><span>PLANO DE LA ESCENA</span><small>{rows} × {columns} · COORDENADAS</small></div>
@@ -27,7 +28,8 @@ export function Board({ board, rows, columns, zones, placements, excludedCells, 
             const theme = zoneTheme[zone?.tone ?? cell.zoneId] ?? fallbackZoneTheme
             const first = board.find(item => item.zoneId === cell.zoneId)
             const firstZoneCell = first?.row === cell.row && first.column === cell.column
-            const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, excluded ? 'descartada' : '', cell.object?.label].filter(Boolean).join(', ')
+            const action = interactionMode === 'exclude' ? 'Tocar para marcar descarte' : 'Tocar para colocar persona'
+            const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, excluded ? 'descartada' : '', cell.object?.label, action].filter(Boolean).join(', ')
             return <button key={`${cell.row}-${cell.column}`} style={{ '--zone-background': theme.background } as React.CSSProperties} className={`cell zone-themed ${!cell.occupiable ? 'blocked' : ''} ${excluded ? 'excluded' : ''} ${top && top.zoneId !== cell.zoneId ? 'wall-top' : ''} ${left && left.zoneId !== cell.zoneId ? 'wall-left' : ''}`} onClick={() => onCellClick(cell)} onContextMenu={event => { event.preventDefault(); onCellContextMenu(cell) }} aria-label={description}>
               <span className="object">{cell.object && <img src={cell.object.icon} alt="" />}</span>
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
