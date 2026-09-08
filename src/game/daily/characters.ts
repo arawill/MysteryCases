@@ -1,0 +1,7 @@
+import { createSeededRandom, shuffle } from '../generation/random'
+import type { GenerationCharacter } from '../generation/types'
+export interface DailyCharacterDefinition { id: string; name: string; avatar: string }
+export const dailyCharacterCatalog: readonly DailyCharacterDefinition[] = [
+  { id: 'ada', name: 'Ada', avatar: '🦋' }, { id: 'biel', name: 'Biel', avatar: '🦔' }, { id: 'cora', name: 'Cora', avatar: '🐦' }, { id: 'dario', name: 'Darío', avatar: '🦝' }, { id: 'elena', name: 'Elena', avatar: '🦢' }, { id: 'fabio', name: 'Fabio', avatar: '🦊' }, { id: 'gema', name: 'Gema', avatar: '🐚' }, { id: 'hugo', name: 'Hugo', avatar: '🦉' }, { id: 'iris', name: 'Iris', avatar: '🐈' }, { id: 'jules', name: 'Jules', avatar: '🦦' }, { id: 'kai', name: 'Kai', avatar: '🦎' }, { id: 'lara', name: 'Lara', avatar: '🐝' }, { id: 'milo', name: 'Milo', avatar: '🐺' }, { id: 'nerea', name: 'Nerea', avatar: '🪶' }, { id: 'olmo', name: 'Olmo', avatar: '🐢' }, { id: 'petra', name: 'Petra', avatar: '🦜' }, { id: 'quim', name: 'Quim', avatar: '🐙' }, { id: 'runa', name: 'Runa', avatar: '🦌' }
+]
+export function selectDailyCharacters(seed: number): GenerationCharacter[] { const selected = shuffle(dailyCharacterCatalog, createSeededRandom(seed)).slice(0, 6); const victimIndex = Math.floor(createSeededRandom((seed + 1) >>> 0)() * selected.length); return selected.map((character, index) => ({ ...character, isVictim: index === victimIndex })) }

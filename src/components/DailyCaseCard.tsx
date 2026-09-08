@@ -1,0 +1,3 @@
+import { Link } from 'react-router-dom'
+import { formatDifficultyStars } from '../game/difficulty'
+export function DailyCaseCard({ dateLabel, completed }: { dateLabel: string; completed: boolean }) { return <article className="case-card daily-card"><div><p className="eyebrow">CASO DIARIO</p><h2>{dateLabel}</h2><p>Un nuevo expediente espera hoy.</p><span className="difficulty">✦ Dificultad: {formatDifficultyStars(1)}</span></div><div className="case-card-footer"><span className="available">{completed ? '✓ COMPLETADO HOY' : '● DISPONIBLE'}</span>{completed ? <span>VUELVE MAÑANA</span> : <Link className="primary" to="/daily">JUGAR CASO DIARIO <span>→</span></Link>}</div></article> }
