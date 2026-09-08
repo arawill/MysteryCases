@@ -1,10 +1,13 @@
 import { areAllCluesSatisfied } from './clues'
+import { areCollinearContiguousEdgeSegments, edgeSegmentKey, isEdgeFeatureType, isEdgeSegmentOnWall, isWallSideValue } from './edgeFeatures'
 import { isDifficultyRating } from './difficulty'
-import { findKiller, getCell } from './rules'
 import { areAllGlobalCluesSatisfied } from './globalClues'
-import type { Clue, GameCase, GlobalClue } from './types'
+import { findKiller, getCell } from './rules'
+import type { Clue, EdgeFeature, EdgeSegment, GameCase, GlobalClue, Position } from './types'
 
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
+const isPosition = (value: unknown): value is Position => isRecord(value) && Number.isInteger(value.row) && Number.isInteger(value.column)
 
 export function validateCaseDefinition(caseData: GameCase): string[] {
   const errors: string[] = []
@@ -18,22 +21,77 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
   for (const character of caseData.characters) { if (characterIds.has(character.id)) errors.push(`ID de personaje duplicado: ${character.id}.`); characterIds.add(character.id) }
   for (const zone of caseData.zones) { if (zoneIds.has(zone.id)) errors.push(`ID de zona duplicado: ${zone.id}.`); zoneIds.add(zone.id) }
   if (caseData.board.length !== caseData.rows * caseData.columns) errors.push('El tablero no contiene rows * columns celdas.')
-  for (const cell of caseData.board) { const key = `${cell.row}:${cell.column}`; if (coordinates.has(key)) errors.push(`Coordenada de celda duplicada: ${key}.`); coordinates.add(key); if (cell.row < 1 || cell.row > caseData.rows || cell.column < 1 || cell.column > caseData.columns) errors.push(`Celda fuera del tablero: ${key}.`); if (!zoneIds.has(cell.zoneId)) errors.push(`Zona inexistente en celda ${key}: ${cell.zoneId}.`); if (cell.object && cell.occupiable !== cell.object.occupiable) errors.push(`Incoherencia occupiable en celda ${key}: la celda y el objeto no coinciden.`); if (cell.object) objectIds.add(cell.object.id) }
-  for (const character of caseData.characters) for (const clue of character.clues) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateClue(clue, character.id, caseData, zoneIds, objectIds, errors) }
+  for (const cell of caseData.board) {
+    const key = `${cell.row}:${cell.column}`
+    if (coordinates.has(key)) errors.push(`Coordenada de celda duplicada: ${key}.`)
+    coordinates.add(key)
+    if (cell.row < 1 || cell.row > caseData.rows || cell.column < 1 || cell.column > caseData.columns) errors.push(`Celda fuera del tablero: ${key}.`)
+    if (!zoneIds.has(cell.zoneId)) errors.push(`Zona inexistente en celda ${key}: ${cell.zoneId}.`)
+    if (cell.object && cell.occupiable !== cell.object.occupiable) errors.push(`Incoherencia occupiable en celda ${key}: la celda y el objeto no coinciden.`)
+    if (cell.object) objectIds.add(cell.object.id)
+  }
+  const edgeFeatureTypes = validateEdgeFeatures(caseData, errors)
+  for (const character of caseData.characters) for (const clue of character.clues) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateClue(clue, character.id, caseData, zoneIds, objectIds, edgeFeatureTypes, errors) }
   for (const clue of caseData.globalClues ?? []) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateGlobalClue(clue, caseData, zoneIds, objectIds, errors) }
   const canonicalIds = new Set<string>(), canonicalRows = new Set<number>(), canonicalColumns = new Set<number>()
   if (caseData.solution.length !== caseData.characters.length) errors.push('La solución canónica debe contener una posición por personaje.')
-  for (const placement of caseData.solution) { if (canonicalIds.has(placement.characterId)) errors.push(`Personaje repetido en solución canónica: ${placement.characterId}.`); canonicalIds.add(placement.characterId); if (!characterIds.has(placement.characterId)) errors.push(`Personaje inexistente en solución canónica: ${placement.characterId}.`); if (placement.position.row < 1 || placement.position.row > caseData.rows || placement.position.column < 1 || placement.position.column > caseData.columns) errors.push(`Posición canónica fuera del tablero: ${placement.characterId}.`); const cell = getCell(caseData.board, placement.position); if (!cell) errors.push(`La solución canónica apunta a una celda inexistente: ${placement.characterId}.`); else if (!cell.occupiable) errors.push(`La solución canónica usa una celda bloqueada: ${placement.characterId}.`); if (canonicalRows.has(placement.position.row)) errors.push(`Fila duplicada en solución canónica: ${placement.position.row}.`); canonicalRows.add(placement.position.row); if (canonicalColumns.has(placement.position.column)) errors.push(`Columna duplicada en solución canónica: ${placement.position.column}.`); canonicalColumns.add(placement.position.column) }
+  for (const placement of caseData.solution) {
+    if (canonicalIds.has(placement.characterId)) errors.push(`Personaje repetido en solución canónica: ${placement.characterId}.`)
+    canonicalIds.add(placement.characterId)
+    if (!characterIds.has(placement.characterId)) errors.push(`Personaje inexistente en solución canónica: ${placement.characterId}.`)
+    if (placement.position.row < 1 || placement.position.row > caseData.rows || placement.position.column < 1 || placement.position.column > caseData.columns) errors.push(`Posición canónica fuera del tablero: ${placement.characterId}.`)
+    const cell = getCell(caseData.board, placement.position)
+    if (!cell) errors.push(`La solución canónica apunta a una celda inexistente: ${placement.characterId}.`)
+    else if (!cell.occupiable) errors.push(`La solución canónica usa una celda bloqueada: ${placement.characterId}.`)
+    if (canonicalRows.has(placement.position.row)) errors.push(`Fila duplicada en solución canónica: ${placement.position.row}.`)
+    canonicalRows.add(placement.position.row)
+    if (canonicalColumns.has(placement.position.column)) errors.push(`Columna duplicada en solución canónica: ${placement.position.column}.`)
+    canonicalColumns.add(placement.position.column)
+  }
   for (const id of characterIds) if (!canonicalIds.has(id)) errors.push(`Falta personaje en solución canónica: ${id}.`)
   if (caseData.solution.length === caseData.characters.length && (!areAllCluesSatisfied(caseData, caseData.solution) || !areAllGlobalCluesSatisfied(caseData, caseData.solution))) errors.push('La solución canónica no satisface todas las pistas.')
   if (!findKiller(caseData, caseData.solution)) errors.push('La solución canónica no identifica un asesino único.')
   return errors
 }
 
-function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, errors: string[]) {
+function validateEdgeFeatures(caseData: GameCase, errors: string[]): Set<EdgeFeature['type']> {
+  const types = new Set<EdgeFeature['type']>(), rawFeatures: unknown = caseData.edgeFeatures
+  if (rawFeatures === undefined) return types
+  if (!Array.isArray(rawFeatures)) { errors.push('edgeFeatures debe ser un array.'); return types }
+  const ids = new Set<string>(), occupiedSegments = new Set<string>()
+  rawFeatures.forEach((rawFeature, index) => {
+    const prefix = `Edge feature ${index + 1}`
+    if (!isRecord(rawFeature)) { errors.push(`${prefix} debe ser un objeto válido.`); return }
+    const id = rawFeature.id
+    if (typeof id !== 'string' || id.trim().length === 0) errors.push(`${prefix} tiene un id inválido.`)
+    else { if (ids.has(id)) errors.push(`ID de edge feature duplicado: ${id}.`); ids.add(id) }
+    if (typeof rawFeature.label !== 'string' || rawFeature.label.trim().length === 0) errors.push(`${prefix} tiene un label inválido.`)
+    if (!isEdgeFeatureType(rawFeature.type)) errors.push(`${prefix} tiene un type inválido.`)
+    else types.add(rawFeature.type)
+    if (!Array.isArray(rawFeature.segments)) { errors.push(`${prefix} debe incluir un array de segmentos.`); return }
+    if (rawFeature.segments.length < 1 || rawFeature.segments.length > 2) errors.push(`${prefix} debe tener uno o dos segmentos.`)
+    const segments: EdgeSegment[] = []
+    rawFeature.segments.forEach((rawSegment, segmentIndex) => {
+      if (!isRecord(rawSegment) || !isPosition(rawSegment.position) || !isWallSideValue(rawSegment.side)) { errors.push(`${prefix}, segmento ${segmentIndex + 1} es inválido.`); return }
+      const segment: EdgeSegment = { position: rawSegment.position, side: rawSegment.side }
+      const cell = getCell(caseData.board, segment.position)
+      if (!cell) errors.push(`${prefix}, segmento ${segmentIndex + 1} apunta a una celda inexistente.`)
+      else if (!isEdgeSegmentOnWall(segment, caseData.board)) errors.push(`${prefix}, segmento ${segmentIndex + 1} no está sobre una pared.`)
+      const key = edgeSegmentKey(segment)
+      if (occupiedSegments.has(key)) errors.push(`${prefix}, segmento ${segmentIndex + 1} duplica un borde físico.`)
+      occupiedSegments.add(key)
+      segments.push(segment)
+    })
+    if (segments.length === 2 && !areCollinearContiguousEdgeSegments(segments[0], segments[1])) errors.push(`${prefix} debe usar dos segmentos colineales y contiguos.`)
+  })
+  return types
+}
+
+function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, edgeFeatureTypes: Set<EdgeFeature['type']>, errors: string[]) {
   const target = (id: string) => { if (!caseData.characters.some(character => character.id === id)) errors.push(`La pista ${clue.id} referencia un personaje inexistente: ${id}.`); if (id === subjectId) errors.push(`La pista ${clue.id} no puede referirse al propio personaje.`) }
   const object = (id: string) => { if (!objectIds.has(id)) errors.push(`La pista ${clue.id} referencia un objeto inexistente: ${id}.`) }
   const zone = (id: string) => { if (!zoneIds.has(id)) errors.push(`La pista ${clue.id} referencia una zona inexistente: ${id}.`) }
+  const featureType = (type: unknown) => { if (!isEdgeFeatureType(type)) errors.push(`La pista ${clue.id} tiene un tipo de edge feature inválido.`); else if (!edgeFeatureTypes.has(type)) errors.push(`La pista ${clue.id} referencia un edge feature inexistente: ${type}.`) }
   const choices = (ids: string[], kind: 'zona' | 'objeto') => { if (ids.length < 2) errors.push(`La pista ${clue.id} debe incluir al menos dos ${kind}s.`); if (new Set(ids).size !== ids.length) errors.push(`La pista ${clue.id} no puede repetir ${kind}s.`); ids.forEach(kind === 'zona' ? zone : object) }
   switch (clue.type) {
     case 'row': if (clue.row < 1 || clue.row > caseData.rows) errors.push(`La pista ${clue.id} tiene una fila inválida.`); return
@@ -45,6 +103,7 @@ function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds
     case 'aloneInZone': case 'notAloneInZone': return
     case 'ownZoneOccupancyCount': if (!Number.isInteger(clue.count) || clue.count < 1 || clue.count > caseData.characters.length) errors.push(`La pista ${clue.id} tiene un conteo de ocupación inválido.`); return
     case 'cornerOfBoard': case 'cornerOfZone': case 'besideWall': case 'notBesideWall': return
+    case 'besideEdgeFeature': case 'notBesideEdgeFeature': featureType(clue.featureType); return
     case 'rowOffsetFromCharacter': target(clue.targetCharacterId); if (!Number.isInteger(clue.rowOffset) || clue.rowOffset === 0 || Math.abs(clue.rowOffset) >= caseData.rows) errors.push(`La pista ${clue.id} tiene un offset de fila inválido.`); return
     case 'northOfCharacter': case 'southOfCharacter': case 'sameZoneAsCharacter': case 'besideCharacter': target(clue.targetCharacterId); return
     default: return exhaustive(clue)

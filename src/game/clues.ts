@@ -1,5 +1,6 @@
 import { getCell, isBeside } from './rules'
 import { isBesideWall, isBoardCorner, isZoneCorner } from './spatial'
+import { isCellBesideEdgeFeature } from './edgeFeatures'
 import type { Clue, GameCase, Placement } from './types'
 
 export type ClueEvaluation = 'satisfied' | 'violated' | 'undetermined'
@@ -27,6 +28,8 @@ export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: G
     case 'cornerOfZone': return !subjectCell ? 'undetermined' : isZoneCorner(subjectCell, caseData.board) ? 'satisfied' : 'violated'
     case 'besideWall': return !subjectCell ? 'undetermined' : isBesideWall(subjectCell, caseData.board) ? 'satisfied' : 'violated'
     case 'notBesideWall': return !subjectCell ? 'undetermined' : isBesideWall(subjectCell, caseData.board) ? 'violated' : 'satisfied'
+    case 'besideEdgeFeature': return !subjectCell ? 'undetermined' : (caseData.edgeFeatures ?? []).some(feature => feature.type === clue.featureType && isCellBesideEdgeFeature(subjectCell, feature, caseData.board)) ? 'satisfied' : 'violated'
+    case 'notBesideEdgeFeature': return !subjectCell ? 'undetermined' : (caseData.edgeFeatures ?? []).some(feature => feature.type === clue.featureType && isCellBesideEdgeFeature(subjectCell, feature, caseData.board)) ? 'violated' : 'satisfied'
     case 'oneOfZones': return !subjectCell ? 'undetermined' : clue.zoneIds.includes(subjectCell.zoneId) ? 'satisfied' : 'violated'
     case 'oneOfObjects': return !subjectCell ? 'undetermined' : subjectCell.object && clue.objectIds.includes(subjectCell.object.id) ? 'satisfied' : 'violated'
     case 'aloneInZone': { if (!subjectCell) return 'undetermined'; const current = zoneOccupancy(caseData, placements, subjectCell.zoneId); if (current > 1) return 'violated'; return complete(caseData, placements) ? 'satisfied' : 'undetermined' }

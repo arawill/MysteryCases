@@ -1,14 +1,15 @@
-import type { BoardCell, Character, Placement, Position, Zone } from '../game/types'
+import { isCellBesideEdgeFeature } from '../game/edgeFeatures'
+import type { BoardCell, Character, EdgeFeature, Placement, Position, Zone } from '../game/types'
 import { getCell } from '../game/rules'
 import { fallbackZoneTheme, zoneTheme } from '../game/zones/theme'
 import type { BoardInteractionMode } from '../game/interaction'
 
 interface BoardProps {
-  board: BoardCell[]; rows: number; columns: number; zones: Zone[]; placements: Placement[]; excludedCells: Position[]; characters: Character[]; selectedCharacterId?: string | null; interactionMode?: BoardInteractionMode
+  board: BoardCell[]; rows: number; columns: number; zones: Zone[]; edgeFeatures?: EdgeFeature[]; placements: Placement[]; excludedCells: Position[]; characters: Character[]; selectedCharacterId?: string | null; interactionMode?: BoardInteractionMode
   onCellClick: (cell: BoardCell) => void; onCellContextMenu: (cell: BoardCell) => void
 }
 
-export function Board({ board, rows, columns, zones, placements, excludedCells, characters, selectedCharacterId, interactionMode = 'place', onCellClick, onCellContextMenu }: BoardProps) {
+export function Board({ board, rows, columns, zones, edgeFeatures = [], placements, excludedCells, characters, selectedCharacterId, interactionMode = 'place', onCellClick, onCellContextMenu }: BoardProps) {
   const labels = Array.from({ length: rows }, (_, index) => index + 1)
   return <div className="board-wrap">
     <div className="board-plan-label"><span>PLANO DE LA ESCENA</span><small>{rows} × {columns} · COORDENADAS</small></div>
@@ -28,9 +29,11 @@ export function Board({ board, rows, columns, zones, placements, excludedCells, 
             const theme = zoneTheme[zone?.tone ?? cell.zoneId] ?? fallbackZoneTheme
             const first = board.find(item => item.zoneId === cell.zoneId)
             const firstZoneCell = first?.row === cell.row && first.column === cell.column
+            const adjacentFeatureTypes = [...new Set(edgeFeatures.filter(feature => isCellBesideEdgeFeature(cell, feature, board)).map(feature => feature.type === 'window' ? 'ventana' : 'puerta'))]
             const action = interactionMode === 'exclude' ? 'Tocar para marcar descarte' : 'Tocar para colocar persona'
-            const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, excluded ? 'descartada' : '', cell.object?.label, action].filter(Boolean).join(', ')
+            const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, excluded ? 'descartada' : '', cell.object?.label, ...adjacentFeatureTypes.map(type => `junto a ${type}`), action].filter(Boolean).join(', ')
             return <button key={`${cell.row}-${cell.column}`} style={{ '--zone-background': theme.background } as React.CSSProperties} className={`cell zone-themed ${!cell.occupiable ? 'blocked' : ''} ${excluded ? 'excluded' : ''} ${top && top.zoneId !== cell.zoneId ? 'wall-top' : ''} ${left && left.zoneId !== cell.zoneId ? 'wall-left' : ''}`} onClick={() => onCellClick(cell)} onContextMenu={event => { event.preventDefault(); onCellContextMenu(cell) }} aria-label={description}>
+              {edgeFeatures.flatMap(feature => feature.segments.filter(segment => segment.position.row === cell.row && segment.position.column === cell.column).map((segment, index) => <span key={`${feature.id}-${index}-${segment.side}`} className={`edge-feature edge-feature-${feature.type} edge-feature-${segment.side.toLowerCase()}`} aria-hidden="true" />))}
               <span className="object">{cell.object && <img src={cell.object.icon} alt="" />}</span>
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
               {excluded && !character && <span className="exclude-mark" aria-hidden="true">×</span>}
@@ -40,6 +43,6 @@ export function Board({ board, rows, columns, zones, placements, excludedCells, 
         </div>
       </div>
     </div>
-    <div className="zone-legend" aria-label="Leyenda de zonas">{zones.map(zone => { const theme = zoneTheme[zone.tone] ?? fallbackZoneTheme; return <span key={zone.id}><b className="dot" style={{ background: theme.dot }} />{zone.name}</span> })}</div>
+    <div className="zone-legend" aria-label="Leyenda de zonas">{zones.map(zone => { const theme = zoneTheme[zone.tone] ?? fallbackZoneTheme; return <span key={zone.id}><b className="dot" style={{ background: theme.dot }} />{zone.name}</span> })}{[...new Set(edgeFeatures.map(feature => feature.type))].map(type => <span className="edge-legend" key={type}><b className={`edge-feature edge-feature-${type}`} aria-hidden="true" />{type === 'window' ? 'VENTANA' : 'PUERTA'}</span>)}</div>
   </div>
 }

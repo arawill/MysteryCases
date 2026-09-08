@@ -1,5 +1,9 @@
 export type DifficultyRating = 1 | 2 | 3 | 4 | 5
 export interface Position { row: number; column: number }
+export type WallSide = 'N' | 'E' | 'S' | 'W'
+export type EdgeFeatureType = 'window' | 'door'
+export interface EdgeSegment { position: Position; side: WallSide }
+export interface EdgeFeature { id: string; type: EdgeFeatureType; label: string; segments: EdgeSegment[] }
 export interface Zone { id: string; name: string; tone: string; icon?: string }
 export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean }
 export interface BoardCell extends Position { zoneId: string; occupiable: boolean; object?: BoardObject }
@@ -21,12 +25,14 @@ export interface CornerOfBoardClue extends BaseClue { type: 'cornerOfBoard' }
 export interface CornerOfZoneClue extends BaseClue { type: 'cornerOfZone' }
 export interface BesideWallClue extends BaseClue { type: 'besideWall' }
 export interface NotBesideWallClue extends BaseClue { type: 'notBesideWall' }
+export interface BesideEdgeFeatureClue extends BaseClue { type: 'besideEdgeFeature'; featureType: EdgeFeatureType }
+export interface NotBesideEdgeFeatureClue extends BaseClue { type: 'notBesideEdgeFeature'; featureType: EdgeFeatureType }
 export interface OneOfZonesClue extends BaseClue { type: 'oneOfZones'; zoneIds: string[] }
 export interface OneOfObjectsClue extends BaseClue { type: 'oneOfObjects'; objectIds: string[] }
 export interface AloneInZoneClue extends BaseClue { type: 'aloneInZone' }
 export interface NotAloneInZoneClue extends BaseClue { type: 'notAloneInZone' }
 export interface OwnZoneOccupancyCountClue extends BaseClue { type: 'ownZoneOccupancyCount'; count: number }
-export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue | RowOffsetFromCharacterClue | CornerOfBoardClue | CornerOfZoneClue | BesideWallClue | NotBesideWallClue | OneOfZonesClue | OneOfObjectsClue | AloneInZoneClue | NotAloneInZoneClue | OwnZoneOccupancyCountClue
+export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue | RowOffsetFromCharacterClue | CornerOfBoardClue | CornerOfZoneClue | BesideWallClue | NotBesideWallClue | BesideEdgeFeatureClue | NotBesideEdgeFeatureClue | OneOfZonesClue | OneOfObjectsClue | AloneInZoneClue | NotAloneInZoneClue | OwnZoneOccupancyCountClue
 export interface BaseGlobalClue { id: string; text: string }
 export interface EmptyZoneCountGlobalClue extends BaseGlobalClue { type: 'emptyZoneCount'; count: number }
 export interface ZoneOccupancyCountGlobalClue extends BaseGlobalClue { type: 'zoneOccupancyCount'; zoneId: string; count: number }
@@ -34,4 +40,4 @@ export interface ObjectOccupancyCountGlobalClue extends BaseGlobalClue { type: '
 export type GlobalClue = EmptyZoneCountGlobalClue | ZoneOccupancyCountGlobalClue | ObjectOccupancyCountGlobalClue
 export interface Character { id: string; name: string; avatar: string; clues: Clue[]; isVictim: boolean }
 export interface Placement { characterId: string; position: Position }
-export interface GameCase { id: string; title: string; intro: string; difficulty: DifficultyRating; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[]; globalClues?: GlobalClue[] }
+export interface GameCase { id: string; title: string; intro: string; difficulty: DifficultyRating; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[]; globalClues?: GlobalClue[]; edgeFeatures?: EdgeFeature[] }

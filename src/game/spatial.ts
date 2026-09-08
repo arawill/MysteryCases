@@ -1,7 +1,7 @@
 import { getCell } from './rules'
-import type { BoardCell, Position } from './types'
+import type { BoardCell, Position, WallSide } from './types'
 
-export type WallSide = 'N' | 'E' | 'S' | 'W'
+export type { WallSide } from './types'
 const offset: Record<WallSide, Position> = { N: { row: -1, column: 0 }, E: { row: 0, column: 1 }, S: { row: 1, column: 0 }, W: { row: 0, column: -1 } }
 
 /** A wall is either the edge of the board or a change of room. */
