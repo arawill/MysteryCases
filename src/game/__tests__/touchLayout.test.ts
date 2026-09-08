@@ -6,6 +6,8 @@ describe('touch board layout', () => {
     expect(isTouchBoardLayout(390, false)).toBe(true)
     expect(isTouchBoardLayout(844, true)).toBe(true)
     expect(isTouchBoardLayout(768, true)).toBe(true)
+    expect(isTouchBoardLayout(1024, true)).toBe(true)
+    expect(isTouchBoardLayout(1200, true)).toBe(true)
     expect(isTouchBoardLayout(1200, false)).toBe(false)
   })
 })
