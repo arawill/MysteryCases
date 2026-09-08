@@ -102,6 +102,18 @@ describe('edge features', () => {
     expect(validateCaseDefinition(invalidReference).join(' ')).toContain('tipo de edge feature inválido')
   })
 
+  it.each([
+    ['edgeFeatures no es un array', {} as unknown as EdgeFeature[]],
+    ['segments es null', [{ id: 'bad-window', type: 'window', label: 'Ventana', segments: null }] as unknown as EdgeFeature[]],
+    ['position de segmento es null', [{ id: 'bad-window', type: 'window', label: 'Ventana', segments: [{ position: null, side: 'N' }] }] as unknown as EdgeFeature[]],
+  ])('does not throw while validating runtime-corrupt edge features: %s', (_label, edgeFeatures) => {
+    const corrupt = fixture()
+    corrupt.edgeFeatures = edgeFeatures
+    const validate = () => validateCaseDefinition(corrupt)
+    expect(validate).not.toThrow()
+    expect(validate().length).toBeGreaterThan(0)
+  })
+
   it('solves the unique synthetic case and leaves case001 backward compatible', () => {
     const game = fixture(), solved = solveCase(game, { maxSolutions: 2 })
     expect(solved.solutionsFound).toBe(1)

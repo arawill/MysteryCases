@@ -30,7 +30,8 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
     if (cell.object && cell.occupiable !== cell.object.occupiable) errors.push(`Incoherencia occupiable en celda ${key}: la celda y el objeto no coinciden.`)
     if (cell.object) objectIds.add(cell.object.id)
   }
-  const edgeFeatureTypes = validateEdgeFeatures(caseData, errors)
+  const edgeFeatureValidation = validateEdgeFeatures(caseData, errors)
+  const edgeFeatureTypes = edgeFeatureValidation.types
   for (const character of caseData.characters) for (const clue of character.clues) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateClue(clue, character.id, caseData, zoneIds, objectIds, edgeFeatureTypes, errors) }
   for (const clue of caseData.globalClues ?? []) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateGlobalClue(clue, caseData, zoneIds, objectIds, errors) }
   const canonicalIds = new Set<string>(), canonicalRows = new Set<number>(), canonicalColumns = new Set<number>()
@@ -49,15 +50,17 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
     canonicalColumns.add(placement.position.column)
   }
   for (const id of characterIds) if (!canonicalIds.has(id)) errors.push(`Falta personaje en solución canónica: ${id}.`)
-  if (caseData.solution.length === caseData.characters.length && (!areAllCluesSatisfied(caseData, caseData.solution) || !areAllGlobalCluesSatisfied(caseData, caseData.solution))) errors.push('La solución canónica no satisface todas las pistas.')
+  const evaluationCase: GameCase = { ...caseData, edgeFeatures: edgeFeatureValidation.safeFeatures }
+  if (caseData.solution.length === caseData.characters.length && (!areAllCluesSatisfied(evaluationCase, caseData.solution) || !areAllGlobalCluesSatisfied(evaluationCase, caseData.solution))) errors.push('La solución canónica no satisface todas las pistas.')
   if (!findKiller(caseData, caseData.solution)) errors.push('La solución canónica no identifica un asesino único.')
   return errors
 }
 
-function validateEdgeFeatures(caseData: GameCase, errors: string[]): Set<EdgeFeature['type']> {
+function validateEdgeFeatures(caseData: GameCase, errors: string[]): { types: Set<EdgeFeature['type']>; safeFeatures: EdgeFeature[] } {
   const types = new Set<EdgeFeature['type']>(), rawFeatures: unknown = caseData.edgeFeatures
-  if (rawFeatures === undefined) return types
-  if (!Array.isArray(rawFeatures)) { errors.push('edgeFeatures debe ser un array.'); return types }
+  const safeFeatures: EdgeFeature[] = []
+  if (rawFeatures === undefined) return { types, safeFeatures }
+  if (!Array.isArray(rawFeatures)) { errors.push('edgeFeatures debe ser un array.'); return { types, safeFeatures } }
   const ids = new Set<string>(), occupiedSegments = new Set<string>()
   rawFeatures.forEach((rawFeature, index) => {
     const prefix = `Edge feature ${index + 1}`
@@ -82,9 +85,10 @@ function validateEdgeFeatures(caseData: GameCase, errors: string[]): Set<EdgeFea
       occupiedSegments.add(key)
       segments.push(segment)
     })
+    if (isEdgeFeatureType(rawFeature.type)) safeFeatures.push({ id: typeof id === 'string' ? id : '', type: rawFeature.type, label: typeof rawFeature.label === 'string' ? rawFeature.label : '', segments })
     if (segments.length === 2 && !areCollinearContiguousEdgeSegments(segments[0], segments[1])) errors.push(`${prefix} debe usar dos segmentos colineales y contiguos.`)
   })
-  return types
+  return { types, safeFeatures }
 }
 
 function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, edgeFeatureTypes: Set<EdgeFeature['type']>, errors: string[]) {
