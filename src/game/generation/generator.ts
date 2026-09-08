@@ -17,7 +17,7 @@ const cluePriority = (candidate: CandidateClue) => { if (isNegativeClue(candidat
 
 
 export function generatePuzzle(template: GenerationTemplate, options: GeneratePuzzleOptions): GeneratedPuzzle {
-  validateSeed(options.seed); const maxPlacementAttempts = options.maxPlacementAttempts ?? 10000; const minCluesPerCharacter = options.minCluesPerCharacter ?? 1; validatePositiveInteger(maxPlacementAttempts, 'maxPlacementAttempts'); validateNonNegativeInteger(minCluesPerCharacter, 'minCluesPerCharacter')
+  validateSeed(options.seed); const maxPlacementAttempts = options.maxPlacementAttempts ?? 10000; const minCluesPerCharacter = options.minCluesPerCharacter ?? 1; const minimizeClues = options.minimizeClues ?? true; validatePositiveInteger(maxPlacementAttempts, 'maxPlacementAttempts'); validateNonNegativeInteger(minCluesPerCharacter, 'minCluesPerCharacter')
   const random = createSeededRandom(options.seed); const placement = generateValidPlacement(template, random, maxPlacementAttempts); const pool = shuffle(buildTrueCluePool(template, placement.solution), random); const stats: GenerationStats = { placementAttempts: placement.attempts, candidateClues: pool.length, selectedClues: 0, removedClues: 0, solverCalls: 0 }
   const selected: CandidateClue[] = []
   for (const character of template.characters) { const available = pool.filter(candidate => candidate.characterId === character.id).sort((a, b) => cluePriority(a) - cluePriority(b)); const chosen: CandidateClue[] = []; for (const candidate of available) { if (canAddReadableClue([...selected, ...chosen], candidate)) chosen.push(candidate); if (chosen.length === minCluesPerCharacter) break } if (chosen.length < minCluesPerCharacter) throw new Error(`Not enough readable candidate clues for ${character.id}.`); selected.push(...chosen) }
@@ -29,7 +29,7 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   if (result.solutionsFound === 0) throw new Error('Generated clues contradict the generated placement.')
   if (result.solutionsFound !== 1) throw new Error('Unable to produce a uniquely solvable puzzle from the candidate clues.')
   if (!placementsEqual(result.solutions[0], placement.solution)) throw new Error('Solver found a unique solution different from the generated placement.')
-  for (const candidate of shuffle(selected, random)) {
+  if (minimizeClues) for (const candidate of shuffle(selected, random)) {
     if (clueCount(selected, candidate.characterId) <= minCluesPerCharacter) continue
     const trial = selected.filter(chosen => chosen.clue.id !== candidate.clue.id); const trialResult = solveSelected(trial)
     if (trialResult.solutionsFound === 1 && placementsEqual(trialResult.solutions[0], placement.solution)) { const index = selected.findIndex(chosen => chosen.clue.id === candidate.clue.id); selected.splice(index, 1); stats.removedClues += 1 }

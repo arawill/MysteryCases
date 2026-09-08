@@ -9,7 +9,7 @@ export function generateNormalCase(request: NormalCaseRequest): GeneratedProcedu
   validate(request)
   const { difficulty, caseNumber } = request
   const baseSeed = getNormalCaseSeed(difficulty, caseNumber)
-  if (difficulty === 1 && caseNumber === 1) return { caseData: case001, baseSeed, effectiveSeed: baseSeed, seedOffset: 0, killerId: 'bruno', scenarioAttempts: 0 }
+  if (difficulty === 1 && caseNumber === 1) return { caseData: case001, baseSeed, effectiveSeed: baseSeed, seedOffset: 0, killerId: 'bruno', scenarioAttempts: 0, stats: { placementAttempts: 0, candidateClues: 0, selectedClues: case001.characters.reduce((total, character) => total + character.clues.length, 0), removedClues: 0, solverCalls: 0 } }
   return generateProceduralCase({ id: getNormalCaseId(difficulty, caseNumber), title: `Expediente ${String(caseNumber).padStart(2, '0')}`, intro: 'Reconstruye la escena a partir de las declaraciones y descubre quién se quedó a solas con la víctima.', difficulty, seed: baseSeed })
 }
 const normalCaseCache = new Map<string, GeneratedProceduralCase>()
