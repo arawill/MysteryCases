@@ -8,6 +8,8 @@ import { HelpScreen } from './screens/HelpScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { DailyScreen } from './screens/DailyScreen'
+import { NormalCasesScreen } from './screens/NormalCasesScreen'
+import { NormalCaseScreen } from './screens/NormalCaseScreen'
 import { loadSettings } from './game/persistence/settings'
 import { case001 } from './data/cases/case001'
 import { applyTheme, isTheme, type Theme } from './theme'
@@ -27,4 +29,4 @@ function ThemeController() {
   return null
 }
 function CaseRoute() { return <div className="case-route"><AppHeader back/><GameScreen gameCase={case001}/></div> }
-export default function App() { return <BrowserRouter><ThemeController/><Routes><Route path="/" element={<HomeScreen/>}/><Route path="/daily" element={<DailyScreen/>}/><Route path="/case/case001" element={<CaseRoute/>}/><Route path="/settings" element={<SettingsScreen/>}/><Route path="/help" element={<HelpScreen/>}/><Route path="/about" element={<AboutScreen/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></BrowserRouter> }
+export default function App() { return <BrowserRouter><ThemeController/><Routes><Route path="/" element={<HomeScreen/>}/><Route path="/daily" element={<DailyScreen/>}/><Route path="/normal" element={<NormalCasesScreen/>}/><Route path="/normal/:difficulty/:caseNumber" element={<NormalCaseScreen/>}/><Route path="/case/case001" element={<CaseRoute/>}/><Route path="/settings" element={<SettingsScreen/>}/><Route path="/help" element={<HelpScreen/>}/><Route path="/about" element={<AboutScreen/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></BrowserRouter> }

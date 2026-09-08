@@ -12,14 +12,15 @@ const validateSeed = (seed: number) => { if (!Number.isInteger(seed) || seed < 0
 const validatePositiveInteger = (value: number, name: string) => { if (!Number.isInteger(value) || value < 1) throw new Error(`${name} must be a positive integer.`) }
 const validateNonNegativeInteger = (value: number, name: string) => { if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer.`) }
 const clueCount = (candidates: readonly CandidateClue[], characterId: string) => candidates.filter(candidate => candidate.characterId === characterId).length
+const isNegativeClue = (candidate: CandidateClue) => candidate.clue.type === 'notZone' || candidate.clue.type === 'notOnObject' || candidate.clue.type === 'notBesideObject'
 
 
 export function generatePuzzle(template: GenerationTemplate, options: GeneratePuzzleOptions): GeneratedPuzzle {
   validateSeed(options.seed); const maxPlacementAttempts = options.maxPlacementAttempts ?? 10000; const minCluesPerCharacter = options.minCluesPerCharacter ?? 1; validatePositiveInteger(maxPlacementAttempts, 'maxPlacementAttempts'); validateNonNegativeInteger(minCluesPerCharacter, 'minCluesPerCharacter')
   const random = createSeededRandom(options.seed); const placement = generateValidPlacement(template, random, maxPlacementAttempts); const pool = shuffle(buildTrueCluePool(template, placement.solution), random); const stats: GenerationStats = { placementAttempts: placement.attempts, candidateClues: pool.length, selectedClues: 0, removedClues: 0, solverCalls: 0 }
   const selected: CandidateClue[] = []
-  for (const character of template.characters) { const available = pool.filter(candidate => candidate.characterId === character.id); if (available.length < minCluesPerCharacter) throw new Error(`Not enough candidate clues for ${character.id}.`); selected.push(...available.slice(0, minCluesPerCharacter)) }
-  const remaining = pool.filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id))
+  for (const character of template.characters) { const available = pool.filter(candidate => candidate.characterId === character.id).sort((a, b) => Number(isNegativeClue(a)) - Number(isNegativeClue(b))); if (available.length < minCluesPerCharacter) throw new Error(`Not enough candidate clues for ${character.id}.`); selected.push(...available.slice(0, minCluesPerCharacter)) }
+  const remaining = pool.filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id)).sort((a, b) => Number(isNegativeClue(a)) - Number(isNegativeClue(b)))
   const solveSelected = (candidates: readonly CandidateClue[]) => { stats.solverCalls += 1; return solveCase(applyCandidates(template, placement.solution, candidates), { maxSolutions: 2 }) }
   let result = solveSelected(selected)
   let cursor = 0
