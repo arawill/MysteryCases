@@ -3,6 +3,7 @@ import { areCollinearContiguousEdgeSegments, edgeSegmentKey, isEdgeFeatureType, 
 import { isDifficultyRating } from './difficulty'
 import { areAllGlobalCluesSatisfied } from './globalClues'
 import { findKiller, getCell } from './rules'
+import { charactersWithTrait } from './traits'
 import type { Clue, EdgeFeature, EdgeSegment, GameCase, GlobalClue, Position } from './types'
 
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
@@ -20,6 +21,8 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
   const characterIds = new Set<string>(), zoneIds = new Set<string>(), coordinates = new Set<string>(), objectIds = new Set<string>(), clueIds = new Set<string>()
   for (const character of caseData.characters) { if (characterIds.has(character.id)) errors.push(`ID de personaje duplicado: ${character.id}.`); characterIds.add(character.id) }
   for (const zone of caseData.zones) { if (zoneIds.has(zone.id)) errors.push(`ID de zona duplicado: ${zone.id}.`); zoneIds.add(zone.id) }
+  const traitIds = validateTraitDefinitions(caseData, errors)
+  for (const character of caseData.characters) validateCharacterTraits(character, traitIds, errors)
   if (caseData.board.length !== caseData.rows * caseData.columns) errors.push('El tablero no contiene rows * columns celdas.')
   for (const cell of caseData.board) {
     const key = `${cell.row}:${cell.column}`
@@ -32,8 +35,8 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
   }
   const edgeFeatureValidation = validateEdgeFeatures(caseData, errors)
   const edgeFeatureTypes = edgeFeatureValidation.types
-  for (const character of caseData.characters) for (const clue of character.clues) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateClue(clue, character.id, caseData, zoneIds, objectIds, edgeFeatureTypes, errors) }
-  for (const clue of caseData.globalClues ?? []) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateGlobalClue(clue, caseData, zoneIds, objectIds, errors) }
+  for (const character of caseData.characters) for (const clue of character.clues) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateClue(clue, character.id, caseData, zoneIds, objectIds, traitIds, edgeFeatureTypes, errors) }
+  for (const clue of caseData.globalClues ?? []) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateGlobalClue(clue, caseData, zoneIds, objectIds, traitIds, errors) }
   const canonicalIds = new Set<string>(), canonicalRows = new Set<number>(), canonicalColumns = new Set<number>()
   if (caseData.solution.length !== caseData.characters.length) errors.push('La solución canónica debe contener una posición por personaje.')
   for (const placement of caseData.solution) {
@@ -91,11 +94,46 @@ function validateEdgeFeatures(caseData: GameCase, errors: string[]): { types: Se
   return { types, safeFeatures }
 }
 
-function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, edgeFeatureTypes: Set<EdgeFeature['type']>, errors: string[]) {
+function validateTraitDefinitions(caseData: GameCase, errors: string[]): Set<string> {
+  const rawDefinitions: unknown = caseData.traitDefinitions
+  const ids = new Set<string>()
+  if (rawDefinitions === undefined) return ids
+  if (!Array.isArray(rawDefinitions)) { errors.push('traitDefinitions debe ser un array.'); return ids }
+  rawDefinitions.forEach((definition, index) => {
+    const prefix = `Trait ${index + 1}`
+    if (!isRecord(definition)) { errors.push(`${prefix} debe ser un objeto válido.`); return }
+    if (typeof definition.id !== 'string' || definition.id.trim().length === 0) errors.push(`${prefix} tiene un id inválido.`)
+    else { if (ids.has(definition.id)) errors.push(`ID de trait duplicado: ${definition.id}.`); ids.add(definition.id) }
+    if (typeof definition.label !== 'string' || definition.label.trim().length === 0) errors.push(`${prefix} tiene un label inválido.`)
+  })
+  return ids
+}
+
+function validateCharacterTraits(character: GameCase['characters'][number], traitIds: Set<string>, errors: string[]) {
+  const rawTraitIds: unknown = character.traitIds
+  if (rawTraitIds === undefined) return
+  if (!Array.isArray(rawTraitIds)) { errors.push(`traitIds de ${character.id} debe ser un array.`); return }
+  const assigned = new Set<string>()
+  rawTraitIds.forEach((traitId, index) => {
+    if (typeof traitId !== 'string' || traitId.trim().length === 0) { errors.push(`traitIds de ${character.id} contiene un valor inválido en posición ${index + 1}.`); return }
+    if (assigned.has(traitId)) errors.push(`traitIds de ${character.id} repite ${traitId}.`)
+    assigned.add(traitId)
+    if (!traitIds.has(traitId)) errors.push(`traitIds de ${character.id} referencia un trait inexistente: ${traitId}.`)
+  })
+}
+
+function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, traitIds: Set<string>, edgeFeatureTypes: Set<EdgeFeature['type']>, errors: string[]) {
   const target = (id: string) => { if (!caseData.characters.some(character => character.id === id)) errors.push(`La pista ${clue.id} referencia un personaje inexistente: ${id}.`); if (id === subjectId) errors.push(`La pista ${clue.id} no puede referirse al propio personaje.`) }
   const object = (id: string) => { if (!objectIds.has(id)) errors.push(`La pista ${clue.id} referencia un objeto inexistente: ${id}.`) }
   const zone = (id: string) => { if (!zoneIds.has(id)) errors.push(`La pista ${clue.id} referencia una zona inexistente: ${id}.`) }
   const featureType = (type: unknown) => { if (!isEdgeFeatureType(type)) errors.push(`La pista ${clue.id} tiene un tipo de edge feature inválido.`); else if (!edgeFeatureTypes.has(type)) errors.push(`La pista ${clue.id} referencia un edge feature inexistente: ${type}.`) }
+  const trait = (id: string, companion: boolean) => {
+    if (!traitIds.has(id)) errors.push(`La pista ${clue.id} referencia un trait inexistente: ${id}.`)
+    const owners = charactersWithTrait(caseData, id)
+    if (owners.length === 0) errors.push(`La pista ${clue.id} usa un trait no asignado: ${id}.`)
+    if (companion && !owners.some(character => character.id !== subjectId)) errors.push(`La pista ${clue.id} necesita otro personaje con el trait: ${id}.`)
+    return owners.filter(character => character.id !== subjectId).length
+  }
   const choices = (ids: string[], kind: 'zona' | 'objeto') => { if (ids.length < 2) errors.push(`La pista ${clue.id} debe incluir al menos dos ${kind}s.`); if (new Set(ids).size !== ids.length) errors.push(`La pista ${clue.id} no puede repetir ${kind}s.`); ids.forEach(kind === 'zona' ? zone : object) }
   switch (clue.type) {
     case 'row': if (clue.row < 1 || clue.row > caseData.rows) errors.push(`La pista ${clue.id} tiene una fila inválida.`); return
@@ -108,18 +146,21 @@ function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds
     case 'ownZoneOccupancyCount': if (!Number.isInteger(clue.count) || clue.count < 1 || clue.count > caseData.characters.length) errors.push(`La pista ${clue.id} tiene un conteo de ocupación inválido.`); return
     case 'cornerOfBoard': case 'cornerOfZone': case 'besideWall': case 'notBesideWall': return
     case 'besideEdgeFeature': case 'notBesideEdgeFeature': featureType(clue.featureType); return
+    case 'withTraitInZone': case 'withoutTraitInZone': trait(clue.traitId, true); return
+    case 'companionTraitCount': { const maximum = trait(clue.traitId, true); if (!Number.isInteger(clue.count) || clue.count < 1 || clue.count > maximum) errors.push(`La pista ${clue.id} tiene un conteo de compañeros con trait inválido.`); return }
     case 'rowOffsetFromCharacter': target(clue.targetCharacterId); if (!Number.isInteger(clue.rowOffset) || clue.rowOffset === 0 || Math.abs(clue.rowOffset) >= caseData.rows) errors.push(`La pista ${clue.id} tiene un offset de fila inválido.`); return
     case 'northOfCharacter': case 'southOfCharacter': case 'sameZoneAsCharacter': case 'besideCharacter': target(clue.targetCharacterId); return
     default: return exhaustive(clue)
   }
 }
 
-function validateGlobalClue(clue: GlobalClue, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, errors: string[]) {
+function validateGlobalClue(clue: GlobalClue, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, traitIds: Set<string>, errors: string[]) {
   const count = (value: number, maximum: number) => Number.isInteger(value) && value >= 0 && value <= maximum
   switch (clue.type) {
     case 'emptyZoneCount': if (!count(clue.count, caseData.zones.length)) errors.push(`La evidencia ${clue.id} tiene un conteo de zonas vacías inválido.`); return
     case 'zoneOccupancyCount': if (!zoneIds.has(clue.zoneId)) errors.push(`La evidencia ${clue.id} referencia una zona inexistente: ${clue.zoneId}.`); if (!count(clue.count, caseData.characters.length)) errors.push(`La evidencia ${clue.id} tiene un conteo de ocupación inválido.`); return
     case 'objectOccupancyCount': { const maximum = caseData.board.filter(cell => cell.occupiable && cell.object?.id === clue.objectId).length; if (!objectIds.has(clue.objectId)) errors.push(`La evidencia ${clue.id} referencia un objeto inexistente: ${clue.objectId}.`); if (!count(clue.count, Math.min(maximum, caseData.characters.length))) errors.push(`La evidencia ${clue.id} tiene un conteo de objeto inválido.`); return }
+    case 'zoneTraitCount': { const maximum = charactersWithTrait(caseData, clue.traitId).length; if (!zoneIds.has(clue.zoneId)) errors.push(`La evidencia ${clue.id} referencia una zona inexistente: ${clue.zoneId}.`); if (!traitIds.has(clue.traitId)) errors.push(`La evidencia ${clue.id} referencia un trait inexistente: ${clue.traitId}.`); if (maximum === 0) errors.push(`La evidencia ${clue.id} usa un trait no asignado: ${clue.traitId}.`); if (!count(clue.count, maximum)) errors.push(`La evidencia ${clue.id} tiene un conteo de trait inválido.`); return }
     default: return exhaustive(clue)
   }
 }

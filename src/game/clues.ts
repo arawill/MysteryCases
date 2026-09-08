@@ -1,6 +1,7 @@
 import { getCell, isBeside } from './rules'
 import { isBesideWall, isBoardCorner, isZoneCorner } from './spatial'
 import { isCellBesideEdgeFeature } from './edgeFeatures'
+import { characterHasTrait } from './traits'
 import type { Clue, GameCase, Placement } from './types'
 
 export type ClueEvaluation = 'satisfied' | 'violated' | 'undetermined'
@@ -11,6 +12,7 @@ const objectCells = (caseData: GameCase, objectId: string) => caseData.board.fil
 const besideAnyObject = (caseData: GameCase, subjectCell: NonNullable<ReturnType<typeof cellFor>>, objectId: string) => objectCells(caseData, objectId).some(objectCell => isBeside(subjectCell, objectCell, caseData.board))
 const zoneOccupancy = (caseData: GameCase, placements: Placement[], zoneId: string) => placements.filter(placement => getCell(caseData.board, placement.position)?.zoneId === zoneId).length
 const complete = (caseData: GameCase, placements: Placement[]) => placements.length === caseData.characters.length
+const companionsWithTrait = (caseData: GameCase, placements: Placement[], subjectId: string, zoneId: string, traitId: string) => placements.filter(placement => placement.characterId !== subjectId && getCell(caseData.board, placement.position)?.zoneId === zoneId && characterHasTrait(caseData.characters.find(character => character.id === placement.characterId) ?? { id: '', name: '', avatar: '', clues: [], isVictim: false }, traitId)).length
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
 
 export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: GameCase, placements: Placement[]): ClueEvaluation {
@@ -30,6 +32,9 @@ export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: G
     case 'notBesideWall': return !subjectCell ? 'undetermined' : isBesideWall(subjectCell, caseData.board) ? 'violated' : 'satisfied'
     case 'besideEdgeFeature': return !subjectCell ? 'undetermined' : (caseData.edgeFeatures ?? []).some(feature => feature.type === clue.featureType && isCellBesideEdgeFeature(subjectCell, feature, caseData.board)) ? 'satisfied' : 'violated'
     case 'notBesideEdgeFeature': return !subjectCell ? 'undetermined' : (caseData.edgeFeatures ?? []).some(feature => feature.type === clue.featureType && isCellBesideEdgeFeature(subjectCell, feature, caseData.board)) ? 'violated' : 'satisfied'
+    case 'withTraitInZone': { if (!subjectCell) return 'undetermined'; return companionsWithTrait(caseData, placements, subjectCharacterId, subjectCell.zoneId, clue.traitId) > 0 ? 'satisfied' : complete(caseData, placements) ? 'violated' : 'undetermined' }
+    case 'withoutTraitInZone': { if (!subjectCell) return 'undetermined'; return companionsWithTrait(caseData, placements, subjectCharacterId, subjectCell.zoneId, clue.traitId) > 0 ? 'violated' : complete(caseData, placements) ? 'satisfied' : 'undetermined' }
+    case 'companionTraitCount': { if (!subjectCell) return 'undetermined'; const current = companionsWithTrait(caseData, placements, subjectCharacterId, subjectCell.zoneId, clue.traitId); if (current > clue.count) return 'violated'; return complete(caseData, placements) ? current === clue.count ? 'satisfied' : 'violated' : 'undetermined' }
     case 'oneOfZones': return !subjectCell ? 'undetermined' : clue.zoneIds.includes(subjectCell.zoneId) ? 'satisfied' : 'violated'
     case 'oneOfObjects': return !subjectCell ? 'undetermined' : subjectCell.object && clue.objectIds.includes(subjectCell.object.id) ? 'satisfied' : 'violated'
     case 'aloneInZone': { if (!subjectCell) return 'undetermined'; const current = zoneOccupancy(caseData, placements, subjectCell.zoneId); if (current > 1) return 'violated'; return complete(caseData, placements) ? 'satisfied' : 'undetermined' }

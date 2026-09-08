@@ -8,7 +8,7 @@ export interface SolveStats { nodesVisited: number; candidateChecks: number; pru
 export interface SolveResultWithStats extends SolveResult { stats: SolveStats }
 type RelationalClue = Extract<Clue, { targetCharacterId: string }>
 const relational = (clue: Clue): clue is RelationalClue => clue.type === 'northOfCharacter' || clue.type === 'southOfCharacter' || clue.type === 'sameZoneAsCharacter' || clue.type === 'besideCharacter' || clue.type === 'rowOffsetFromCharacter'
-const occupancy = (clue: Clue) => clue.type === 'aloneInZone' || clue.type === 'notAloneInZone' || clue.type === 'ownZoneOccupancyCount'
+const occupancy = (clue: Clue) => clue.type === 'aloneInZone' || clue.type === 'notAloneInZone' || clue.type === 'ownZoneOccupancyCount' || clue.type === 'withTraitInZone' || clue.type === 'withoutTraitInZone' || clue.type === 'companionTraitCount'
 const emptyStats = (): SolveStats => ({ nodesVisited: 0, candidateChecks: 0, prunedByStaticDomain: 0, prunedByRelation: 0, forwardCheckPrunes: 0 })
 
 export function solveCaseWithStats(caseData: GameCase, options: SolveOptions = {}): SolveResultWithStats {
