@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import './styles/final.css'
 import './styles/game.css'
@@ -49,7 +49,7 @@ function ThemeController() {
 function CaseRoute() { return <div className="case-route"><AppHeader back /><GameScreen gameCase={case001} /></div> }
 
 export default function App() {
-  return <BrowserRouter><ThemeController /><Routes>
+  return <HashRouter><ThemeController /><Routes>
     <Route path="/" element={<HomeScreen />} />
     <Route path="/daily" element={<DailyScreen />} />
     <Route path="/normal" element={<NormalCasesScreen />} />
@@ -61,5 +61,5 @@ export default function App() {
     <Route path="/help" element={<HelpScreen />} />
     <Route path="/about" element={<AboutScreen />} />
     <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes></BrowserRouter>
+  </Routes></HashRouter>
 }

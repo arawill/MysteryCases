@@ -4,6 +4,17 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ## PWA / Offline
 
+## Despliegue web / GitHub Pages
+
+La publicación esperada es <https://arawill.github.io/MysteryCases/>. El workflow `Deploy GitHub Pages` se ejecuta desde `main` y crea una build específica para el subpath del repositorio:
+
+```bash
+npm run build:pages
+npm run verify:pages
+```
+
+`npm run build` sigue siendo la build local y de Capacitor, con base `/`; la build Pages usa `/MysteryCases/`.
+
 ## Android / Capacitor
 
 Sincroniza el bundle web dentro del proyecto Android:

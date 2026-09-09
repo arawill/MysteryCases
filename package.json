@@ -11,6 +11,8 @@
     "preview": "vite preview",
     "generate:pwa-assets": "pwa-assets-generator",
     "verify:pwa": "npm run build && node scripts/verify-pwa-build.mjs",
+    "build:pages": "tsc -b && vite build --mode pages",
+    "verify:pages": "npm run build:pages && node scripts/verify-pwa-build.mjs && node scripts/verify-pages-build.mjs",
     "android:sync": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:build:debug": "npm run android:sync && cd android && gradlew.bat assembleDebug",
