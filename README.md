@@ -17,6 +17,8 @@ npm run verify:pages
 
 ## Android / Capacitor
 
+El asset Android publicado en GitHub Releases debe llamarse exactamente `MysteryCases.apk`: la Home usa la URL estable `/releases/latest/download/MysteryCases.apk`.
+
 Sincroniza el bundle web dentro del proyecto Android:
 
 ```bash

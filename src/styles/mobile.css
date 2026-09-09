@@ -9,6 +9,8 @@
 @media(max-height:520px) and (orientation:landscape) and (max-width:900px){.game-screen{--mobile-toolbar-reserve:72px}.mobile-game-toolbar{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom))}.mobile-game-toolbar button{min-height:42px;padding:4px;font-size:9px}.mobile-character-strip{padding:7px}.mobile-character-strip button{flex-basis:54px;min-height:54px}.game-case-header{padding-top:18px;padding-bottom:14px}.investigation-brief{margin-bottom:14px}.desktop-actions .action-danger{margin-top:0}}
 @media (min-width:901px) and (pointer:coarse){.game-screen{--mobile-toolbar-reserve:0px;padding-bottom:0}.mobile-game-toolbar{display:none}.desktop-actions button:not(.action-danger){display:block}.desktop-actions .action-danger{flex-basis:auto;margin-top:0}}
 
+@media (max-width:760px){.android-download-card{grid-template-columns:1fr;gap:18px;padding:22px}.android-download-link{width:100%;white-space:normal}}
+
 /* Keep every layout item within the physical viewport; intentional strip scrolling stays local. */
 @media (max-width:760px){
   main,.simple-screen,.case-route>.app-header,.game-screen,.game-workspace,.workspace-scene,.investigation-brief,.board-wrap,.board-frame,.board-with-rows,.board,.action-panel,.section-heading,.board-plan-label,.secondary-nav,.difficulty-tabs,.normal-case-grid,.settings-panel,.info-card,.about-card,.modal{min-width:0;max-width:100%}
