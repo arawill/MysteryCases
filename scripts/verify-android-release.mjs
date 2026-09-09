@@ -79,15 +79,31 @@ const findApkSigner = () => {
     .find((candidate) => existsSync(candidate))
 }
 
+const verifyApkSignature = (apksigner, apkPath) => {
+  const args = ['verify', '--verbose', apkPath]
+
+  if (process.platform !== 'win32') {
+    return spawnSync(apksigner, args, { encoding: 'utf8' })
+  }
+
+  return spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/c', 'call', apksigner, ...args], { encoding: 'utf8' })
+}
+
 if (existsSync(releaseApk)) {
   if (statSync(releaseApk).size <= 0) {
     failures.push('Release APK exists but is empty.')
   } else {
     const apksigner = findApkSigner()
     if (apksigner) {
-      const verification = spawnSync(apksigner, ['verify', '--verbose', releaseApk], { encoding: 'utf8' })
-      if (verification.status !== 0) {
-        failures.push(`Release APK signature verification failed: ${verification.stderr || verification.stdout}`)
+      const verification = verifyApkSignature(apksigner, releaseApk)
+      if (verification.error) {
+        failures.push(`Could not launch apksigner: ${verification.error.message}`)
+      } else if (verification.status !== 0) {
+        const output = [verification.stderr, verification.stdout]
+          .filter((value) => value?.trim())
+          .join('\n')
+        const reason = output || `Process exited with status ${verification.status ?? 'unknown'}.`
+        failures.push(`Release APK signature verification failed: ${reason}`)
       }
     } else {
       console.log('apksigner was not found; skipped APK signature verification.')
