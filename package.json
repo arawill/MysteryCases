@@ -10,9 +10,16 @@
     "test": "vitest run",
     "preview": "vite preview",
     "generate:pwa-assets": "pwa-assets-generator",
-    "verify:pwa": "npm run build && node scripts/verify-pwa-build.mjs"
+    "verify:pwa": "npm run build && node scripts/verify-pwa-build.mjs",
+    "android:sync": "npm run build && npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:build:debug": "npm run android:sync && cd android && gradlew.bat assembleDebug",
+    "verify:android": "npm run build && npx cap sync android && node scripts/verify-android-build.mjs"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/cli": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
     "@fontsource/dm-mono": "^5.3.0",
     "@fontsource/playfair-display": "^5.3.0",
     "@fontsource/plus-jakarta-sans": "^5.3.0",
@@ -21,6 +28,7 @@
     "react-router-dom": "^7.18.3"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",

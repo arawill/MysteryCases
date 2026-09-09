@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MysteryCases</string>
+    <string name="title_activity_main">MysteryCases</string>
+    <string name="package_name">com.mysterycases.app</string>
+    <string name="custom_url_scheme">com.mysterycases.app</string>
+</resources>

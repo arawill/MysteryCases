@@ -4,6 +4,28 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ## PWA / Offline
 
+## Android / Capacitor
+
+Sincroniza el bundle web dentro del proyecto Android:
+
+```bash
+npm run android:sync
+```
+
+Para abrirlo en Android Studio:
+
+```bash
+npm run android:open
+```
+
+Para crear un APK debug de pruebas:
+
+```bash
+npm run android:build:debug
+```
+
+El APK se genera en `android/app/build/outputs/apk/debug/app-debug.apk`. Es un artefacto para pruebas o sideload; no es una release firmada para distribución pública.
+
 Desarrollo normal:
 
 ```bash
