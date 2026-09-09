@@ -79,9 +79,16 @@ describe('5.5E.3 procedural edge and trait evidence', () => {
     for (const candidate of pool.filter(candidate => 'traitId' in candidate.clue)) expect(evaluateClue(candidate.clue, candidate.characterId, { ...case001, traitDefinitions: template.traitDefinitions, characters: template.characters.map(character => ({ ...character, clues: [] })) }, traitSolution)).toBe('satisfied')
   })
 
-  it('does not count a trait-bearing subject as their own companion', () => {
+  it('skips trait companion evidence when the subject is the unique owner', () => {
     const template = traitTemplate()
     template.characters = template.characters.map(character => ({ ...character, ...(character.id === 'alma' ? { traitIds: ['staff'] } : { traitIds: [] }) }))
+    const almaStaff = buildTrueCluePool(template, case001.solution).filter(candidate => candidate.characterId === 'alma' && 'traitId' in candidate.clue && candidate.clue.traitId === 'staff')
+    expect(almaStaff).toHaveLength(0)
+  })
+
+  it('uses negative trait evidence when another owner exists in a different room', () => {
+    const template = traitTemplate()
+    template.characters = template.characters.map(character => ({ ...character, ...(character.id === 'alma' || character.id === 'mateo' ? { traitIds: ['staff'] } : { traitIds: [] }) }))
     const almaStaff = buildTrueCluePool(template, case001.solution).filter(candidate => candidate.characterId === 'alma' && 'traitId' in candidate.clue && candidate.clue.traitId === 'staff')
     expect(almaStaff.some(candidate => candidate.clue.type === 'withoutTraitInZone')).toBe(true)
     expect(almaStaff.some(candidate => candidate.clue.type === 'withTraitInZone' || candidate.clue.type === 'companionTraitCount')).toBe(false)

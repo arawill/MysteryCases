@@ -22,7 +22,7 @@ const traitLabel = (caseData: GameCase, traitId: string) => getTraitLabel(caseDa
 const clueCase = (template: GenerationTemplate, solution: Placement[]): GameCase => ({ ...template, zones: template.zones.map(zone => ({ ...zone })), board: template.board.map(cell => ({ ...cell, ...(cell.object ? { object: { ...cell.object } } : {}) })), characters: template.characters.map(character => ({ ...character, ...(character.traitIds ? { traitIds: [...character.traitIds] } : {}), clues: [] })), ...(template.edgeFeatures ? { edgeFeatures: template.edgeFeatures.map(feature => ({ ...feature, segments: feature.segments.map(segment => ({ position: { ...segment.position }, side: segment.side })) })) } : {}), ...(template.traitDefinitions ? { traitDefinitions: template.traitDefinitions.map(definition => ({ ...definition })) } : {}), solution: solution.map(placement => ({ characterId: placement.characterId, position: { ...placement.position } })) })
 const add = (pool: CandidateClue[], characterId: string, clue: Clue) => pool.push({ kind: 'character', characterId, clue })
 export function buildTrueCluePool(template: GenerationTemplate, solution: Placement[]): CandidateClue[] {
-  const pool: CandidateClue[] = []; const caseData = clueCase(template, solution); const ids = objectIds(template); const occupiableObjectIds = new Set(ids.filter(id => isObjectOccupiableSomewhere(template, id))); const occupiableZoneIds = new Set(template.zones.filter(zone => isZoneOccupiable(template, zone.id)).map(zone => zone.id)); const besidePossibleObjectIds = new Set(ids.filter(id => canStandBesideObject(template, id)))
+  const pool: CandidateClue[] = []; const caseData = clueCase(template, solution); const placementsByCharacter = new Map(solution.map(placement => [placement.characterId, placement])); const ids = objectIds(template); const occupiableObjectIds = new Set(ids.filter(id => isObjectOccupiableSomewhere(template, id))); const occupiableZoneIds = new Set(template.zones.filter(zone => isZoneOccupiable(template, zone.id)).map(zone => zone.id)); const besidePossibleObjectIds = new Set(ids.filter(id => canStandBesideObject(template, id)))
   for (const subject of template.characters) {
     const placement = solution.find(candidate => candidate.characterId === subject.id); if (!placement) throw new Error(`Missing generated placement for ${subject.id}.`)
     const cell = getCell(template.board, placement.position); if (!cell) throw new Error(`Missing board cell for ${subject.id}.`)
@@ -49,7 +49,12 @@ export function buildTrueCluePool(template: GenerationTemplate, solution: Placem
       add(pool, subject.id, beside ? { id: `gen-${subject.id}-beside-${featureType}`, type: 'besideEdgeFeature', text: `Estaba junto a una ${edgeLabel(featureType)}.`, featureType } : { id: `gen-${subject.id}-not-beside-${featureType}`, type: 'notBesideEdgeFeature', text: `No estaba junto a ninguna ${edgeLabel(featureType)}.`, featureType })
     }
     for (const definition of template.traitDefinitions ?? []) {
-      const companions = solution.filter(item => item.characterId !== subject.id && getCell(template.board, item.position)?.zoneId === cell.zoneId && characterHasTrait(template.characters.find(character => character.id === item.characterId) ?? { traitIds: [] }, definition.id)).length
+      const otherTraitOwners = template.characters.filter(character => character.id !== subject.id && characterHasTrait(character, definition.id))
+      if (otherTraitOwners.length === 0) continue
+      const companions = otherTraitOwners.filter(owner => {
+        const ownerPlacement = placementsByCharacter.get(owner.id)
+        return ownerPlacement ? getCell(template.board, ownerPlacement.position)?.zoneId === cell.zoneId : false
+      }).length
       const label = traitLabel(caseData, definition.id)
       if (companions === 0) add(pool, subject.id, { id: `gen-${subject.id}-without-trait-${definition.id}`, type: 'withoutTraitInZone', text: `No hab\u00EDa ninguna otra persona con el rasgo \u00AB${label}\u00BB en su habitaci\u00F3n.`, traitId: definition.id })
       else {
