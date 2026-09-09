@@ -16,7 +16,10 @@
     "android:sync": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:build:debug": "npm run android:sync && cd android && gradlew.bat assembleDebug",
-    "verify:android": "npm run build && npx cap sync android && node scripts/verify-android-build.mjs"
+    "android:build:release": "npm run android:sync && cd android && gradlew.bat assembleRelease",
+    "android:prepare:release": "node scripts/prepare-android-release.mjs",
+    "verify:android": "npm run build && npx cap sync android && node scripts/verify-android-build.mjs",
+    "verify:android:release": "npm run android:sync && node scripts/verify-android-release.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.1",

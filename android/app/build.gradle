@@ -1,5 +1,18 @@
 apply plugin: 'com.android.application'
 
+import java.util.Properties
+
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
+def releaseSigningKeys = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']
+def releaseKeystorePath = keystoreProperties.getProperty('storeFile', '').trim()
+def releaseKeystoreFile = releaseKeystorePath ? rootProject.file(releaseKeystorePath) : null
+def releaseSigningReady = releaseSigningKeys.every { key -> keystoreProperties.getProperty(key)?.trim() } && releaseKeystoreFile?.isFile()
+
 android {
     namespace = "com.mysterycases.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -8,7 +21,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,11 +29,28 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (releaseSigningReady) {
+                storeFile releaseKeystoreFile
+                storePassword keystoreProperties.getProperty('storePassword')
+                keyAlias keystoreProperties.getProperty('keyAlias')
+                keyPassword keystoreProperties.getProperty('keyPassword')
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    if (graph.allTasks.any { task -> task.name == 'assembleRelease' } && !releaseSigningReady) {
+        throw new GradleException('Release signing is not configured. Create android/keystore.properties with a valid local keystore before assembling a release.')
     }
 }
 

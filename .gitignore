@@ -27,3 +27,11 @@ dist-ssr
 android/.gradle/
 android/build/
 android/app/build/
+
+# Android release-signing material and generated distributables
+*.jks
+*.keystore
+android/keystore.properties
+android/keystore/
+release/
+artifacts/

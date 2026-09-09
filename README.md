@@ -39,6 +39,28 @@ npm run android:build:debug
 
 El APK se genera en `android/app/build/outputs/apk/debug/app-debug.apk`. Es un artefacto para pruebas o sideload; no es una release firmada para distribución pública.
 
+### Release firmada manual
+
+La primera publicación usa `versionCode 1` y `versionName 1.0.0`. Antes de cada nueva publicación, incrementa siempre `versionCode`; `versionName` es el texto visible que puedes actualizar según la versión publicada.
+
+Genera una keystore local una sola vez (no se incluye en Git):
+
+```bash
+keytool -genkeypair -v -keystore android/keystore/mysterycases-release.jks -alias mysterycases -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Copia `android/keystore.properties.example` como `android/keystore.properties` y rellena sus cuatro valores locales. La ruta `storeFile` es relativa a la carpeta `android`; el ejemplo apunta a `keystore/mysterycases-release.jks`. No compartas ni subas la keystore, las contraseñas ni `keystore.properties`.
+
+Con la firma configurada, crea y prepara el artefacto de distribución:
+
+```bash
+npm run android:build:release
+npm run verify:android:release
+npm run android:prepare:release
+```
+
+El APK firmado queda en `android/app/build/outputs/apk/release/app-release.apk`; la preparación genera la copia ignorada `release/MysteryCases.apk`. Sube manualmente ese archivo a una GitHub Release con el nombre exacto `MysteryCases.apk`, para que funcione el enlace de descarga de la Home.
+
 Desarrollo normal:
 
 ```bash
