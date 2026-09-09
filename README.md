@@ -2,6 +2,22 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
+## PWA / Offline
+
+Desarrollo normal:
+
+```bash
+npm run dev
+```
+
+Para comprobar el build PWA y sus assets offline:
+
+```bash
+npm run verify:pwa
+```
+
+Para probar el service worker real, usa `npm run build` y después `npm run preview`. El service worker no se prueba correctamente solo con `npm run dev`.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
