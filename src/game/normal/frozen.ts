@@ -5,7 +5,7 @@ import type { GeneratedProceduralCase } from '../generation/proceduralCase'
 import { scenarioPacks } from '../scenarios/catalog'
 import type { DifficultyRating, GameCase } from '../types'
 
-export const NORMAL_CASE_SET_VERSION = 1
+export const NORMAL_CASE_SET_VERSION = 2
 const packById = (id: string) => { const pack = scenarioPacks.find(candidate => candidate.id === id); if (!pack) throw new Error(`Frozen Normal case references unknown scenario pack: ${id}.`); return pack }
 const clone = <T,>(value: T): T => structuredClone(value)
 

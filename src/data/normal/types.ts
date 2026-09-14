@@ -24,4 +24,4 @@ export interface FrozenNormalCase {
   generation: { originalSeed: number; acceptedSeed: number; effectiveSeed: number; seedOffset: number; candidateAttempt: number; scenarioAttempts: number; stats: GenerationStats }
 }
 
-export interface FrozenNormalCaseSet { formatVersion: number; proceduralGenerationVersion: number; cases: FrozenNormalCase[] }
+export interface FrozenNormalCaseSet { formatVersion: number; caseSetVersion: number; proceduralGenerationVersion: number; cases: FrozenNormalCase[] }
