@@ -43,7 +43,7 @@ describe('resetAllProgress', () => {
     expect(loadDailySession(date, storage)).toBeNull()
     expect(loadInfiniteSession(storage)).toBeNull()
     expect(loadPlayerStats(storage)).toEqual({ saveVersion: 1, completedInfiniteCaseIds: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 } })
-    for (const caseId of caseIds) expect(loadCaseSave(caseId, storage)).toEqual({ saveVersion: 3, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 } })
+    for (const caseId of caseIds) expect(loadCaseSave(caseId, storage)).toEqual({ saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 }, checkpoints: [], positionChecksUsed: 0 })
     expect(loadSettings(storage)).toEqual({ saveVersion: 1, theme: 'light', autoCrossout: true })
   })
 })

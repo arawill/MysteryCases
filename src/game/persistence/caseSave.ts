@@ -1,9 +1,43 @@
-import type { Placement, Position } from '../types'
+import { isRecord, sanitiseBoardState, type InvestigationBoardState } from '../boardState'
+import { sanitiseCheckpoints, type CaseCheckpoint } from '../checkpoints'
+import type { GameCase } from '../types'
 export interface HintUsage { review: number; exclusion: number; reveal: number }
-export interface CaseSave { saveVersion: 3; placements: Placement[]; manualExcludedCells: Position[]; hintsUsed: HintUsage }
+export interface CaseSave extends InvestigationBoardState {
+  saveVersion: 4
+  hintsUsed: HintUsage
+  checkpoints: CaseCheckpoint[]
+  positionChecksUsed: number
+}
 const hints = (): HintUsage => ({ review: 0, exclusion: 0, reveal: 0 })
-const empty = (): CaseSave => ({ saveVersion: 3, placements: [], manualExcludedCells: [], hintsUsed: hints() })
+const empty = (): CaseSave => ({ saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: hints(), checkpoints: [], positionChecksUsed: 0 })
+const isCounter = (value: unknown): value is number => Number.isSafeInteger(value) && Number(value) >= 0
 export const getCaseSaveKey = (caseId: string) => `mystery-cases-${caseId}`
-export function loadCaseSave(caseId: string, storage: Storage = localStorage): CaseSave { try { const value: unknown = JSON.parse(storage.getItem(getCaseSaveKey(caseId)) ?? 'null'); if (!value || typeof value !== 'object') return empty(); const save = value as { saveVersion?: unknown; placements?: unknown; excludedCells?: unknown; manualExcludedCells?: unknown; hintsUsed?: Partial<HintUsage> }; if (![1,2,3].includes(save.saveVersion as number) || !Array.isArray(save.placements)) return empty(); const positions = (items: unknown): Position[] => Array.isArray(items) ? items.filter((item): item is Position => typeof item === 'object' && item !== null && typeof (item as Position).row === 'number' && typeof (item as Position).column === 'number').map(item => ({ ...item })) : []; const placements = save.placements.filter((item): item is Placement => typeof item === 'object' && item !== null && typeof (item as Placement).characterId === 'string' && typeof (item as Placement).position?.row === 'number' && typeof (item as Placement).position?.column === 'number').map(item => ({ characterId: item.characterId, position: { ...item.position } })); const usage = save.saveVersion === 3 && save.hintsUsed && [save.hintsUsed.review, save.hintsUsed.exclusion, save.hintsUsed.reveal].every(value => Number.isInteger(value) && (value as number) >= 0) ? save.hintsUsed as HintUsage : hints(); return { saveVersion: 3, placements, manualExcludedCells: positions(save.saveVersion === 1 ? save.excludedCells : save.manualExcludedCells), hintsUsed: { ...usage } } } catch { return empty() } }
-export function saveCase(caseId: string, save: Omit<CaseSave, 'saveVersion' | 'hintsUsed'> & { hintsUsed?: HintUsage }, storage: Storage = localStorage) { storage.setItem(getCaseSaveKey(caseId), JSON.stringify({ saveVersion: 3, placements: save.placements.map(item => ({ characterId: item.characterId, position: { ...item.position } })), manualExcludedCells: save.manualExcludedCells.map(item => ({ ...item })), hintsUsed: { ...(save.hintsUsed ?? hints()) } })) }
+function normalise(value: unknown, gameCase?: GameCase): CaseSave {
+  if (!isRecord(value) || ![1, 2, 3, 4].some(version => value.saveVersion === version) || !Array.isArray(value.placements)) return empty()
+  const usage = isRecord(value.hintsUsed) ? value.hintsUsed : {}
+  return {
+    saveVersion: 4,
+    ...sanitiseBoardState(value.placements, value.saveVersion === 1 ? value.excludedCells : value.manualExcludedCells, gameCase),
+    hintsUsed: {
+      review: isCounter(usage.review) ? usage.review : 0,
+      exclusion: isCounter(usage.exclusion) ? usage.exclusion : 0,
+      reveal: isCounter(usage.reveal) ? usage.reveal : 0,
+    },
+    checkpoints: value.saveVersion === 4 ? sanitiseCheckpoints(value.checkpoints, gameCase) : [],
+    positionChecksUsed: value.saveVersion === 4 && isCounter(value.positionChecksUsed) ? value.positionChecksUsed : 0,
+  }
+}
+
+export function loadCaseSave(caseId: string, storage: Storage = localStorage, gameCase?: GameCase): CaseSave {
+  try { return normalise(JSON.parse(storage.getItem(getCaseSaveKey(caseId)) ?? 'null'), gameCase) } catch { return empty() }
+}
+
+type SaveInput = InvestigationBoardState & Partial<Pick<CaseSave, 'hintsUsed' | 'checkpoints' | 'positionChecksUsed'>>
+
+export function saveCase(caseId: string, save: SaveInput, storage: Storage = localStorage) {
+  // Partial callers must not accidentally replenish checks or remove saved hypotheses.
+  const current = loadCaseSave(caseId, storage)
+  const safe = normalise({ ...current, ...save, saveVersion: 4 })
+  storage.setItem(getCaseSaveKey(caseId), JSON.stringify(safe))
+}
 export function clearCaseSave(caseId: string, storage: Storage = localStorage) { storage.removeItem(getCaseSaveKey(caseId)) }

@@ -22,7 +22,7 @@ const memory = () => {
   } as Storage
 }
 
-const emptySave = { saveVersion: 3, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 } }
+const emptySave = { saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 }, checkpoints: [], positionChecksUsed: 0 }
 
 describe('FASE 4A.1', () => {
   it('valida dificultad y formatea estrellas', () => {
@@ -45,7 +45,7 @@ describe('FASE 4A.1', () => {
     expect(manual).toEqual([{ row: 1, column: 1 }])
   })
 
-  it('migra saves V1/V2 y guarda V3', () => {
+  it('migra saves V1/V2 y guarda la versión actual', () => {
     const storage = memory()
     storage.setItem('mystery-cases-case001', JSON.stringify({ saveVersion: 1, placements: [], excludedCells: [{ row: 1, column: 1 }] }))
     expect(loadCaseSave('case001', storage)).toEqual({ ...emptySave, manualExcludedCells: [{ row: 1, column: 1 }] })
@@ -55,14 +55,14 @@ describe('FASE 4A.1', () => {
     expect(JSON.parse(storage.getItem('mystery-cases-case001') ?? '{}')).toEqual({ ...emptySave, manualExcludedCells: [{ row: 3, column: 3 }] })
   })
 
-  it('hace round-trip V3 sin compartir referencias', () => {
+  it('hace round-trip sin compartir referencias', () => {
     const storage = memory()
     const placements = [{ characterId: 'a', position: { row: 1, column: 1 } }]
     const excluded = [{ row: 2, column: 2 }]
     const hintsUsed = { review: 2, exclusion: 1, reveal: 3 }
     saveCase('roundtrip', { placements, manualExcludedCells: excluded, hintsUsed }, storage)
     const loaded = loadCaseSave('roundtrip', storage)
-    expect(loaded).toEqual({ saveVersion: 3, placements, manualExcludedCells: excluded, hintsUsed })
+    expect(loaded).toEqual({ ...emptySave, placements, manualExcludedCells: excluded, hintsUsed })
     expect(loaded.placements).not.toBe(placements)
     expect(loaded.manualExcludedCells).not.toBe(excluded)
     expect(loaded.hintsUsed).not.toBe(hintsUsed)
@@ -70,9 +70,9 @@ describe('FASE 4A.1', () => {
     expect(placements[0].position.row).toBe(1)
   })
 
-  it('devuelve save V3 vacío ante corrupción o versión desconocida', () => {
+  it('devuelve save vacío ante corrupción o versión desconocida', () => {
     const storage = memory()
-    for (const value of ['{', 'null', '{}', JSON.stringify({ saveVersion: 2, placements: {} }), JSON.stringify({ saveVersion: 4, placements: [] }), JSON.stringify({ saveVersion: 999, placements: [] }), JSON.stringify({ saveVersion: '3', placements: [] })]) {
+    for (const value of ['{', 'null', '{}', JSON.stringify({ saveVersion: 2, placements: {} }), JSON.stringify({ saveVersion: 5, placements: [] }), JSON.stringify({ saveVersion: 999, placements: [] }), JSON.stringify({ saveVersion: '3', placements: [] })]) {
       storage.setItem('mystery-cases-case001', value)
       expect(loadCaseSave('case001', storage)).toEqual(emptySave)
     }

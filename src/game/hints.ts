@@ -39,20 +39,3 @@ export function getExclusionHint(
   }
   return null
 }
-
-export function getRevealHint(
-  caseData: GameCase,
-  placements: Placement[],
-  selectedId: string | null,
-): PositionHint | null {
-  const isUnresolved = (characterId: string) => {
-    const canonical = caseData.solution.find(item => item.characterId === characterId)
-    const current = placements.find(item => item.characterId === characterId)
-    return !canonical || !current || canonical.position.row !== current.position.row || canonical.position.column !== current.position.column
-  }
-  const character = selectedId && isUnresolved(selectedId)
-    ? caseData.characters.find(item => item.id === selectedId)
-    : caseData.characters.find(item => isUnresolved(item.id))
-  const placement = character && caseData.solution.find(item => item.characterId === character.id)
-  return character && placement ? { characterId: character.id, position: { ...placement.position } } : null
-}

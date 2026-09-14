@@ -1,0 +1,19 @@
+/* Decorative floors never change hit targets, geometry, occupancy, or clue semantics. */
+.board{grid-template-columns:repeat(var(--columns),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr))}
+.board .cell{min-height:0;isolation:isolate;--floor-line:color-mix(in srgb,var(--text) 10%,transparent);--floor-soft:color-mix(in srgb,var(--text) 4%,transparent);--floor-pattern:none;--floor-size:auto}
+.board .cell::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background-image:var(--floor-pattern);background-size:var(--floor-size)}
+.board .surface-tile{--floor-pattern:linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),linear-gradient(var(--floor-line) 1px,transparent 1px);--floor-size:14px 14px}
+.board .surface-kitchenTile{--floor-pattern:repeating-conic-gradient(var(--floor-soft) 0% 25%,transparent 0% 50%);--floor-size:18px 18px}
+.board .surface-wood{--floor-pattern:repeating-linear-gradient(90deg,transparent 0 15px,var(--floor-line) 15px 16px),repeating-linear-gradient(0deg,transparent 0 4px,var(--floor-soft) 4px 5px)}
+.board .surface-industrial{--floor-pattern:linear-gradient(var(--floor-line) 1px,transparent 1px),linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),repeating-linear-gradient(135deg,transparent 0 5px,var(--floor-soft) 5px 6px);--floor-size:28px 28px,28px 28px,auto}
+.board .surface-grass{--floor-pattern:repeating-linear-gradient(115deg,transparent 0 7px,var(--floor-line) 7px 8px,transparent 8px 11px),repeating-linear-gradient(65deg,transparent 0 9px,var(--floor-soft) 9px 10px)}
+.board .surface-stairs{--floor-pattern:repeating-linear-gradient(0deg,transparent 0 9px,var(--floor-line) 9px 11px,var(--floor-soft) 11px 13px)}
+.board .surface-asphalt{--floor-pattern:radial-gradient(var(--floor-line) .7px,transparent .9px),linear-gradient(90deg,transparent 47%,var(--floor-line) 47% 50%,transparent 50%);--floor-size:5px 5px,auto}
+.board .surface-carpet{--floor-pattern:repeating-linear-gradient(45deg,transparent 0 3px,var(--floor-soft) 3px 4px),repeating-linear-gradient(-45deg,transparent 0 3px,var(--floor-soft) 3px 4px)}
+.board .surface-concrete{--floor-pattern:radial-gradient(var(--floor-line) .7px,transparent 1px);--floor-size:7px 7px}
+html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-background-light,var(--surface-soft))}
+/* Every icon URL can point to SVG, transparent PNG, or transparent WebP. */
+.board .cell .object{position:absolute;inset:0;z-index:1;display:grid;place-items:center;pointer-events:none;opacity:.9}
+.board .cell .object img{display:block;width:48%;height:48%;margin:0;object-fit:contain}
+.board .cell:has(.placed) .object-occupiable{opacity:.45;place-items:end start}
+.board .cell:has(.placed) .object-occupiable img{width:38%;height:38%;margin:0 0 3% 3%}

@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Board } from '../components/Board'
 import { CharacterCard } from '../components/CharacterCard'
+import { CheckpointModal } from '../components/CheckpointModal'
 import { ResultModal } from '../components/ResultModal'
 import { formatDifficultyStars } from '../game/difficulty'
 import { getAutomaticExcludedCells, mergeExcludedCells, positionKey } from '../game/exclusions'
-import { getExclusionHint, getRevealHint, reviewInvestigation } from '../game/hints'
+import { createCheckpoint, deleteCheckpoint, restoreCheckpoint, resetInvestigationBoard } from '../game/checkpoints'
+import { getExclusionHint, reviewInvestigation } from '../game/hints'
 import { resolveBoardPrimaryAction, type BoardInteractionMode } from '../game/interaction'
 import { recordCaseCompletion } from '../game/persistence/completion'
-import { loadCaseSave, saveCase } from '../game/persistence/caseSave'
+import { loadCaseSave, saveCase, type CaseSave } from '../game/persistence/caseSave'
+import { checkCharacterPosition, getPositionCheckLimit } from '../game/positionChecks'
 import { recordHintUse } from '../game/persistence/playerStats'
 import { loadSettings } from '../game/persistence/settings'
 import { canPlace, findKiller, isSolutionCorrect } from '../game/rules'
@@ -25,10 +28,13 @@ interface GameScreenProps {
 }
 
 function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseCompleted, recordGlobalCompletion = true, completionId }: GameScreenProps) {
-  const initial = useMemo(() => loadCaseSave(gameCase.id), [gameCase.id])
+  const initial = useMemo(() => loadCaseSave(gameCase.id, localStorage, gameCase), [gameCase])
   const [placements, setPlacements] = useState<Placement[]>(initial.placements)
   const [manualExcludedCells, setManualExcludedCells] = useState<Position[]>(initial.manualExcludedCells)
   const [hintsUsed, setHintsUsed] = useState(initial.hintsUsed)
+  const [checkpoints, setCheckpoints] = useState(initial.checkpoints)
+  const [positionChecksUsed, setPositionChecksUsed] = useState(initial.positionChecksUsed)
+  const [checkpointPanelOpen, setCheckpointPanelOpen] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(gameCase.characters[0]?.id ?? null)
   const [interactionMode, setInteractionMode] = useState<BoardInteractionMode>('place')
   const [selectedKillerId, setSelectedKillerId] = useState<string | null>(null)
@@ -43,8 +49,11 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const automatic = useMemo(() => getAutomaticExcludedCells(gameCase.board, placements), [gameCase.board, placements])
   const excluded = useMemo(() => mergeExcludedCells(manualExcludedCells, auto ? automatic : []), [manualExcludedCells, automatic, auto])
   const label = eyebrowLabel ?? `${gameCase.id.toUpperCase()} · DEDUCCIÓN ESPACIAL`
+  const positionCheckLimit = getPositionCheckLimit(gameCase)
+  const positionChecksRemaining = Math.max(0, positionCheckLimit - positionChecksUsed)
+  const currentSave: CaseSave = { saveVersion: 4, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed }
 
-  useEffect(() => { saveCase(gameCase.id, { placements, manualExcludedCells, hintsUsed }) }, [gameCase.id, placements, manualExcludedCells, hintsUsed])
+  useEffect(() => { saveCase(gameCase.id, { placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed }) }, [gameCase.id, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed])
   useEffect(() => {
     if (result) shown.current = true
     else if (shown.current) { shown.current = false; onCompletionAcknowledged?.() }
@@ -78,7 +87,22 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     setHistory(items => [...items, placements]); setPlacements(items => items.filter(item => item.characterId !== selectedId)); setMessage('Persona retirada del tablero.')
   }
   const undo = () => { const last = history.at(-1); if (!last) return setMessage('No hay movimientos que deshacer.'); setPlacements(last); setHistory(items => items.slice(0, -1)); setMessage('Último movimiento deshecho.') }
-  const reset = () => { if (!window.confirm('¿Reiniciar la investigación y quitar todas las personas y descartes?')) return; setHistory(items => [...items, placements]); setPlacements([]); setManualExcludedCells([]); setMessage('La escena está despejada.') }
+  const reset = () => {
+    if (!window.confirm('¿Reiniciar la investigación y quitar todas las personas y descartes?')) return
+    const cleared = resetInvestigationBoard(currentSave)
+    setHistory(items => [...items, placements]); setPlacements(cleared.placements); setManualExcludedCells(cleared.manualExcludedCells)
+    setMessage('La escena está despejada. Tus puntos de guardado y usos de ayudas se conservan.')
+  }
+  const saveCheckpoint = (name: string, description: string) => {
+    const checkpoint = createCheckpoint(currentSave, name, description)
+    setCheckpoints(items => [checkpoint, ...items])
+    setMessage('Punto de guardado creado.')
+  }
+  const restoreHypothesis = (id: string) => {
+    const restored = restoreCheckpoint(currentSave, id)
+    setPlacements(restored.placements); setManualExcludedCells(restored.manualExcludedCells); setHistory([])
+    setMessage('Hipótesis restaurada. Tus usos de ayudas y comprobaciones se conservan.')
+  }
   const chooseKiller = (id: string) => { setSelectedKillerId(id); const character = gameCase.characters.find(item => item.id === id); if (character) setMessage(`${character.name} señalado/a como sospechoso/a.`) }
   const review = () => {
     const hint = reviewInvestigation(gameCase, placements)
@@ -94,13 +118,23 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     const name = gameCase.characters.find(character => character.id === hint.characterId)?.name
     setMessage(`Puedes descartar fila ${hint.position.row}, columna ${hint.position.column} para ${name}.`)
   }
-  const reveal = () => {
-    if (!window.confirm('Esta ayuda revelará la posición exacta de un personaje. ¿Continuar?')) return
-    const hint = getRevealHint(gameCase, placements, selectedId)
-    if (!hint) return setMessage('Todas las posiciones ya son correctas.')
-    setHintsUsed(value => ({ ...value, reveal: value.reveal + 1 })); recordHintUse('reveal')
-    const name = gameCase.characters.find(character => character.id === hint.characterId)?.name
-    setMessage(`${name} estaba en fila ${hint.position.row}, columna ${hint.position.column}.`)
+  const checkPosition = () => {
+    const checked = checkCharacterPosition(gameCase, currentSave, selectedId)
+    switch (checked.status) {
+      case 'noSelection': return setMessage('Selecciona primero una persona.')
+      case 'unplaced': return setMessage('Coloca a la persona seleccionada antes de comprobar su posición.')
+      case 'exhausted': return setMessage('No quedan comprobaciones de posición disponibles en este caso.')
+      case 'unavailable': return setMessage('No se pudo comprobar esta posición. Revisa la definición del caso.')
+      case 'correct': case 'incorrect': {
+        const usage = { ...hintsUsed, reveal: hintsUsed.reveal + 1 }
+        // Persist the spent use immediately, even if the player leaves straight after checking.
+        saveCase(gameCase.id, { ...currentSave, hintsUsed: usage, positionChecksUsed: checked.positionChecksUsed })
+        setPositionChecksUsed(checked.positionChecksUsed); setHintsUsed(usage); recordHintUse('reveal')
+        setMessage(`La posición de ${selected?.name} ${checked.status === 'correct' ? 'es correcta' : 'no es correcta'}.`)
+        return
+      }
+      default: { const exhaustive: never = checked.status; return exhaustive }
+    }
   }
   const checkSolution = () => {
     if (placements.length < gameCase.characters.length) return setMessage('Debes colocar a todos los personajes.')
@@ -120,10 +154,10 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     <div className="game-workspace"><aside className="suspect-panel"><div className="section-heading"><div><p className="eyebrow">PERSONAS PRESENTES</p><h2>Declaraciones</h2></div><span className="count">{placements.length}/{gameCase.characters.length} EN ESCENA</span></div><div className="characters">{gameCase.characters.map(character => <CharacterCard key={character.id} character={character} traitLabels={getCharacterTraitLabels(character, gameCase.traitDefinitions)} selected={selectedId === character.id} placed={placements.some(placement => placement.characterId === character.id)} onSelect={() => selectCharacter(character)}/>)}</div></aside>
       <section className="scene workspace-scene"><div className="section-heading"><div><p className="eyebrow">RECONSTRUCCIÓN</p><h2>Plano de la escena</h2></div><span className="hint desktop-hint">CLICK DERECHO · DESCARTE</span><span className="hint mobile-hint">USA MARCAR X · DESCARTE</span></div>{quickSelector}<div className="board-mode" aria-label={`Modo del tablero: ${interactionMode === 'place' ? 'colocar persona' : 'marcar descarte'}`}><span>MODO DEL TABLERO</span><button className={interactionMode === 'place' ? 'active' : ''} onClick={() => setInteractionMode('place')} aria-pressed={interactionMode === 'place'}>COLOCAR</button><button className={interactionMode === 'exclude' ? 'active' : ''} onClick={() => setInteractionMode('exclude')} aria-pressed={interactionMode === 'exclude'}>MARCAR X</button></div>
         <Board board={gameCase.board} rows={gameCase.rows} columns={gameCase.columns} zones={gameCase.zones} edgeFeatures={gameCase.edgeFeatures ?? []} placements={placements} excludedCells={excluded} characters={gameCase.characters} selectedCharacterId={selectedId} interactionMode={interactionMode} onCellClick={primaryBoardAction} onCellContextMenu={toggle}/>
-        <div className="action-panel"><div className="active-character"><span className="active-label">FICHA ACTIVA</span><span className="active-avatar">{selected?.avatar}</span><strong>{selected?.name ?? 'Ninguno'}</strong></div><div className="actions desktop-actions"><button onClick={remove}>Quitar</button><button onClick={undo}>↶ Deshacer</button><button className="action-danger" onClick={reset}>Reiniciar</button></div><p className="feedback" role="status">{message}</p><div className="hint-actions"><p className="eyebrow">AYUDAS DE INVESTIGACIÓN</p><div className="actions"><button onClick={review}>Revisar investigación</button><button onClick={exclusion}>Pedir pista</button><button className="reveal-action" onClick={reveal}>Revelar posición</button></div></div><div className="killer-choice"><p className="eyebrow">ACUSACIÓN FINAL</p><h3>¿Quién es el asesino?</h3><div className="killer-options">{gameCase.characters.filter(character => !character.isVictim).map(character => <button key={character.id} className={selectedKillerId === character.id ? 'killer-selected' : ''} onClick={() => chooseKiller(character.id)} aria-pressed={selectedKillerId === character.id}><span>{character.avatar}</span><b>{character.name}</b>{selectedKillerId === character.id && <small>ACUSADO</small>}</button>)}</div></div><button className="primary check" onClick={checkSolution}>COMPROBAR SOLUCIÓN <span>→</span></button></div>
+        <div className="action-panel"><div className="active-character"><span className="active-label">FICHA ACTIVA</span><span className="active-avatar">{selected?.avatar}</span><strong>{selected?.name ?? 'Ninguno'}</strong></div><div className="actions desktop-actions"><button onClick={remove}>Quitar</button><button onClick={undo}>↶ Deshacer</button><button className="action-danger" onClick={reset}>Reiniciar</button></div><p className="feedback" role="status">{message}</p><div className="actions checkpoint-entry"><button onClick={() => setCheckpointPanelOpen(true)}>PUNTOS DE GUARDADO <small>{checkpoints.length} GUARDADOS</small></button></div><div className="hint-actions"><p className="eyebrow">AYUDAS DE INVESTIGACIÓN</p><div className="actions"><button onClick={review}>Revisar investigación</button><button onClick={exclusion}>Pedir pista</button><button className="position-check-action" onClick={checkPosition} disabled={positionChecksRemaining === 0}>COMPROBAR POSICIÓN<small>{positionChecksRemaining} / {positionCheckLimit} disponibles</small></button></div></div><div className="killer-choice"><p className="eyebrow">ACUSACIÓN FINAL</p><h3>¿Quién es el asesino?</h3><div className="killer-options">{gameCase.characters.filter(character => !character.isVictim).map(character => <button key={character.id} className={selectedKillerId === character.id ? 'killer-selected' : ''} onClick={() => chooseKiller(character.id)} aria-pressed={selectedKillerId === character.id}><span>{character.avatar}</span><b>{character.name}</b>{selectedKillerId === character.id && <small>ACUSADO</small>}</button>)}</div></div><button className="primary check" onClick={checkSolution}>COMPROBAR SOLUCIÓN <span>→</span></button></div>
       </section>
     </div>
-    <div className="mobile-game-toolbar"><button onClick={remove}>QUITAR</button><button onClick={undo}>↶ DESHACER</button><button className={interactionMode === 'place' ? 'active' : ''} onClick={() => setInteractionMode('place')} aria-pressed={interactionMode === 'place'}>COLOCAR</button><button className={interactionMode === 'exclude' ? 'active' : ''} onClick={() => setInteractionMode('exclude')} aria-pressed={interactionMode === 'exclude'}>MARCAR X</button></div><footer>Una historia original</footer>{result && killer && <ResultModal killer={killer} onClose={() => setResult(false)}/>}</main>
+    <div className="mobile-game-toolbar"><button onClick={remove}>QUITAR</button><button onClick={undo}>↶ DESHACER</button><button className={interactionMode === 'place' ? 'active' : ''} onClick={() => setInteractionMode('place')} aria-pressed={interactionMode === 'place'}>COLOCAR</button><button className={interactionMode === 'exclude' ? 'active' : ''} onClick={() => setInteractionMode('exclude')} aria-pressed={interactionMode === 'exclude'}>MARCAR X</button></div><footer>Una historia original</footer>{result && killer && <ResultModal killer={killer} onClose={() => setResult(false)}/>}{checkpointPanelOpen && <CheckpointModal checkpoints={checkpoints} onCreate={saveCheckpoint} onRestore={restoreHypothesis} onDelete={id => setCheckpoints(items => deleteCheckpoint(items, id))} onClose={() => setCheckpointPanelOpen(false)} />}</main>
 }
 
 export function GameScreen(props: GameScreenProps) { return <GameSession key={props.gameCase.id} {...props}/> }

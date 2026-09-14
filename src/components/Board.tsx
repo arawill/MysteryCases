@@ -2,6 +2,8 @@ import { isCellBesideEdgeFeature } from '../game/edgeFeatures'
 import type { BoardCell, Character, EdgeFeature, Placement, Position, Zone } from '../game/types'
 import { getCell } from '../game/rules'
 import { fallbackZoneTheme, zoneTheme } from '../game/zones/theme'
+import { resolveZoneSurface } from '../game/zones/surfaces'
+import '../styles/surfaces.css'
 import type { BoardInteractionMode } from '../game/interaction'
 
 interface BoardProps {
@@ -32,9 +34,9 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
             const adjacentFeatureTypes = [...new Set(edgeFeatures.filter(feature => isCellBesideEdgeFeature(cell, feature, board)).map(feature => feature.type === 'window' ? 'ventana' : 'puerta'))]
             const action = interactionMode === 'exclude' ? 'Tocar para marcar descarte' : 'Tocar para colocar persona'
             const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, excluded ? 'descartada' : '', cell.object?.label, ...adjacentFeatureTypes.map(type => `junto a ${type}`), action].filter(Boolean).join(', ')
-            return <button key={`${cell.row}-${cell.column}`} style={{ '--zone-background': theme.background } as React.CSSProperties} className={`cell zone-themed ${!cell.occupiable ? 'blocked' : ''} ${excluded ? 'excluded' : ''} ${top && top.zoneId !== cell.zoneId ? 'wall-top' : ''} ${left && left.zoneId !== cell.zoneId ? 'wall-left' : ''}`} onClick={() => onCellClick(cell)} onContextMenu={event => { event.preventDefault(); onCellContextMenu(cell) }} aria-label={description}>
+            return <button key={`${cell.row}-${cell.column}`} style={{ '--zone-background': theme.background, '--zone-background-light': theme.lightBackground } as React.CSSProperties} className={`cell zone-themed surface-${resolveZoneSurface(zone)} ${!cell.occupiable ? 'blocked' : ''} ${excluded ? 'excluded' : ''} ${top && top.zoneId !== cell.zoneId ? 'wall-top' : ''} ${left && left.zoneId !== cell.zoneId ? 'wall-left' : ''}`} onClick={() => onCellClick(cell)} onContextMenu={event => { event.preventDefault(); onCellContextMenu(cell) }} aria-label={description}>
               {edgeFeatures.flatMap(feature => feature.segments.filter(segment => segment.position.row === cell.row && segment.position.column === cell.column).map((segment, index) => <span key={`${feature.id}-${index}-${segment.side}`} className={`edge-feature edge-feature-${feature.type} edge-feature-${segment.side.toLowerCase()}`} aria-hidden="true" />))}
-              <span className="object">{cell.object && <img src={cell.object.icon} alt="" />}</span>
+              {cell.object && <span className={`object ${cell.object.occupiable ? 'object-occupiable' : 'object-blocking'}`} aria-hidden="true"><img src={cell.object.icon} alt="" /></span>}
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
               {excluded && !character && <span className="exclude-mark" aria-hidden="true">×</span>}
               {character && <span className={`placed ${character.isVictim ? 'placed-victim' : ''} ${character.id === selectedCharacterId ? 'placed-selected' : ''}`}><b>{character.avatar}</b><i>{character.name}</i></span>}

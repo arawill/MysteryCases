@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
-import { getExclusionHint, getRevealHint, reviewInvestigation } from '../hints'
+import { getExclusionHint, reviewInvestigation } from '../hints'
+import { checkCharacterPosition } from '../positionChecks'
 
 describe('hints', () => {
   it('revisa únicamente contradicciones reales de pistas', () => {
@@ -29,10 +30,10 @@ describe('hints', () => {
     expect(placements).toEqual(originalPlacements)
   })
 
-  it('revela solo una posición canónica y nunca coloca automáticamente', () => {
+  it('comprueba una posición sin revelar coordenadas ni colocar automáticamente', () => {
     const placements = [{ characterId: 'lucia', position: { row: 1, column: 1 } }]
-    expect(getRevealHint(case001, placements, 'lucia')).toEqual({ characterId: 'lucia', position: { row: 1, column: 3 } })
+    expect(checkCharacterPosition(case001, { placements, positionChecksUsed: 0 }, 'lucia')).toEqual({ status: 'incorrect', positionChecksUsed: 1 })
     expect(placements).toEqual([{ characterId: 'lucia', position: { row: 1, column: 1 } }])
-    expect(getRevealHint(case001, case001.solution, 'lucia')).toBeNull()
+    expect(checkCharacterPosition(case001, { placements: case001.solution, positionChecksUsed: 0 }, 'lucia')).toEqual({ status: 'correct', positionChecksUsed: 1 })
   })
 })
