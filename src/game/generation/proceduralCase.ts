@@ -3,7 +3,8 @@ import { getDifficultyPreset } from '../difficultyPresets'
 import type { DifficultyRating, GameCase } from '../types'
 import { generatePuzzle } from './generator'
 import type { GenerationStats } from './types'
-import { hasReadableClues } from './clueQuality'
+import { validateHumanClueQuality } from './clueQuality'
+import { getMinimumCluesPerCharacter } from './clueSemantics'
 import { createDifficultyScenarioProfile } from './difficultyProfile'
 import { generateScenarioTemplate } from './scenario/generator'
 import { getVersionedProceduralCaseId } from './version'
@@ -19,9 +20,9 @@ export function generateProceduralCase({ id, title, intro, difficulty, seed }: {
     const effectiveSeed = (seed + offset) >>> 0
     try {
       const scenario = generateScenarioTemplate(profile, { seed: effectiveSeed })
-      const puzzle = generatePuzzle(scenario.template, { seed: effectiveSeed, minCluesPerCharacter: 2, minimizeClues: false })
+      const puzzle = generatePuzzle(scenario.template, { seed: effectiveSeed, minCluesPerCharacter: getMinimumCluesPerCharacter(difficulty), minimizeClues: false, procedural: true })
       const caseData = { ...puzzle.caseData, id: getVersionedProceduralCaseId(id) }
-      if (!hasReadableClues(caseData)) continue
+      if (validateHumanClueQuality(caseData).length > 0) continue
       return { caseData, baseSeed: seed, effectiveSeed, seedOffset: offset, killerId: puzzle.killerId, scenarioAttempts: scenario.stats.scenarioAttempts, stats: puzzle.stats }
     } catch { continue }
   }
