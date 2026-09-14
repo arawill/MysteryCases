@@ -4,6 +4,8 @@ import type { GameCase } from './types'
 
 export const CHECKPOINT_NAME_LIMIT = 40
 export const CHECKPOINT_DESCRIPTION_LIMIT = 160
+export const MAX_CHECKPOINTS_PER_CASE = 20
+export const CHECKPOINT_LIMIT_MESSAGE = 'Has alcanzado el límite de 20 puntos de guardado. Elimina uno para crear otro.'
 
 export interface CaseCheckpoint extends InvestigationBoardState {
   id: string
@@ -23,11 +25,21 @@ export function createCheckpoint(state: InvestigationBoardState, name: string, d
   }
 }
 
+export function addCheckpoint(
+  checkpoints: readonly CaseCheckpoint[],
+  state: InvestigationBoardState,
+  name: string,
+  description = '',
+): CaseCheckpoint[] {
+  if (checkpoints.length >= MAX_CHECKPOINTS_PER_CASE) throw new Error(CHECKPOINT_LIMIT_MESSAGE)
+  return [createCheckpoint(state, name, description), ...checkpoints]
+}
+
 export function sanitiseCheckpoints(value: unknown, gameCase?: GameCase): CaseCheckpoint[] {
   if (!Array.isArray(value)) return []
-  const checkpoints: CaseCheckpoint[] = [], ids = new Set<string>()
+  const checkpoints: CaseCheckpoint[] = []
   for (const item of value) {
-    if (!isRecord(item) || typeof item.id !== 'string' || !item.id.trim() || item.id.length > 100 || ids.has(item.id)) continue
+    if (!isRecord(item) || typeof item.id !== 'string' || !item.id.trim() || item.id.length > 100) continue
     if (typeof item.name !== 'string' || !item.name.trim() || item.name.trim().length > CHECKPOINT_NAME_LIMIT) continue
     if (item.description !== undefined && (typeof item.description !== 'string' || item.description.length > CHECKPOINT_DESCRIPTION_LIMIT)) continue
     if (typeof item.createdAt !== 'string' || !Number.isFinite(Date.parse(item.createdAt)) || new Date(item.createdAt).toISOString() !== item.createdAt) continue
@@ -35,14 +47,21 @@ export function sanitiseCheckpoints(value: unknown, gameCase?: GameCase): CaseCh
     const board = sanitiseBoardState(item.placements, item.manualExcludedCells, gameCase)
     // A corrupt snapshot is discarded as a whole rather than restoring a different hypothesis.
     if (board.placements.length !== item.placements.length || board.manualExcludedCells.length !== item.manualExcludedCells.length) continue
-    ids.add(item.id)
     checkpoints.push({
       id: item.id, name: item.name.trim(), createdAt: item.createdAt,
       ...(typeof item.description === 'string' && item.description.trim() ? { description: item.description.trim() } : {}),
       ...board,
     })
   }
-  return checkpoints.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+  const ids = new Set<string>()
+  return checkpoints
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+    .filter(checkpoint => {
+      if (ids.has(checkpoint.id)) return false
+      ids.add(checkpoint.id)
+      return true
+    })
+    .slice(0, MAX_CHECKPOINTS_PER_CASE)
 }
 
 export function deleteCheckpoint(checkpoints: readonly CaseCheckpoint[], id: string): CaseCheckpoint[] {

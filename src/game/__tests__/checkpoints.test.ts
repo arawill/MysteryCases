@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createCheckpoint, deleteCheckpoint, restoreCheckpoint, resetInvestigationBoard, sanitiseCheckpoints } from '../checkpoints'
+import { addCheckpoint, createCheckpoint, deleteCheckpoint, MAX_CHECKPOINTS_PER_CASE, restoreCheckpoint, resetInvestigationBoard, sanitiseCheckpoints } from '../checkpoints'
 import { loadCaseSave } from '../persistence/caseSave'
 import { MemoryStorage } from './storage'
 
@@ -61,5 +61,31 @@ describe('checkpoints', () => {
     expect(sanitiseCheckpoints(source).map(item => item.name)).toEqual(['Segunda', 'Primera'])
     expect(source).toEqual([first, second, first])
     expect(sanitiseCheckpoints(null)).toEqual([])
+  })
+
+  it('allows 20 checkpoints, rejects number 21, and allows another after deletion', () => {
+    let checkpoints = sanitiseCheckpoints([])
+    for (let index = 0; index < MAX_CHECKPOINTS_PER_CASE; index += 1) {
+      checkpoints = addCheckpoint(checkpoints, boardState(), `Hipótesis ${index + 1}`)
+    }
+    expect(checkpoints).toHaveLength(20)
+    expect(() => addCheckpoint(checkpoints, boardState(), 'Hipótesis 21')).toThrow('límite de 20')
+    checkpoints = deleteCheckpoint(checkpoints, checkpoints[0].id)
+    expect(() => addCheckpoint(checkpoints, boardState(), 'Hipótesis nueva')).not.toThrow()
+    expect(addCheckpoint(checkpoints, boardState(), 'Hipótesis nueva')).toHaveLength(20)
+  })
+
+  it('keeps at most the 20 newest valid checkpoints from manipulated data', () => {
+    const source = Array.from({ length: 25 }, (_, index) => ({
+      ...createCheckpoint(boardState(), `Hipótesis ${index}`),
+      id: `checkpoint-${index}`,
+      createdAt: new Date(Date.UTC(2026, 0, index + 1)).toISOString(),
+    }))
+    const safe = sanitiseCheckpoints(source)
+    expect(safe).toHaveLength(MAX_CHECKPOINTS_PER_CASE)
+    expect(safe.map(checkpoint => checkpoint.id)).toEqual(
+      Array.from({ length: 20 }, (_, index) => `checkpoint-${24 - index}`),
+    )
+    expect(source).toHaveLength(25)
   })
 })

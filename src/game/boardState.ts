@@ -19,6 +19,25 @@ export function copyBoardState(state: InvestigationBoardState): InvestigationBoa
   }
 }
 
+export function recordBoardState(
+  history: readonly InvestigationBoardState[],
+  state: InvestigationBoardState,
+): InvestigationBoardState[] {
+  return [...history, copyBoardState(state)]
+}
+
+export function undoBoardState<T extends InvestigationBoardState>(
+  state: T,
+  history: readonly InvestigationBoardState[],
+): { state: T; history: InvestigationBoardState[] } | null {
+  const previous = history.at(-1)
+  if (!previous) return null
+  return {
+    state: { ...state, ...copyBoardState(previous) },
+    history: history.slice(0, -1).map(copyBoardState),
+  }
+}
+
 /** Accepts only legal coordinates; case context additionally checks IDs and the actual board. */
 export function sanitiseBoardState(placements: unknown, excluded: unknown, gameCase?: GameCase): InvestigationBoardState {
   const safePlacements: Placement[] = []

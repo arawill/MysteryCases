@@ -3,9 +3,10 @@ import { Board } from '../components/Board'
 import { CharacterCard } from '../components/CharacterCard'
 import { CheckpointModal } from '../components/CheckpointModal'
 import { ResultModal } from '../components/ResultModal'
+import { recordBoardState, undoBoardState, type InvestigationBoardState } from '../game/boardState'
 import { formatDifficultyStars } from '../game/difficulty'
 import { getAutomaticExcludedCells, mergeExcludedCells, positionKey } from '../game/exclusions'
-import { createCheckpoint, deleteCheckpoint, restoreCheckpoint, resetInvestigationBoard } from '../game/checkpoints'
+import { addCheckpoint, deleteCheckpoint, restoreCheckpoint, resetInvestigationBoard } from '../game/checkpoints'
 import { getExclusionHint, reviewInvestigation } from '../game/hints'
 import { resolveBoardPrimaryAction, type BoardInteractionMode } from '../game/interaction'
 import { recordCaseCompletion } from '../game/persistence/completion'
@@ -39,7 +40,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const [interactionMode, setInteractionMode] = useState<BoardInteractionMode>('place')
   const [selectedKillerId, setSelectedKillerId] = useState<string | null>(null)
   const [message, setMessage] = useState('Elige una persona y toca una celda del escenario.')
-  const [history, setHistory] = useState<Placement[][]>([])
+  const [history, setHistory] = useState<InvestigationBoardState[]>([])
   const [killer, setKiller] = useState<Character | null>(null)
   const [result, setResult] = useState(false)
   const shown = useRef(false)
@@ -52,6 +53,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const positionCheckLimit = getPositionCheckLimit(gameCase)
   const positionChecksRemaining = Math.max(0, positionCheckLimit - positionChecksUsed)
   const currentSave: CaseSave = { saveVersion: 4, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed }
+  const rememberBoard = () => setHistory(items => recordBoardState(items, currentSave))
 
   useEffect(() => { saveCase(gameCase.id, { placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed }) }, [gameCase.id, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed])
   useEffect(() => {
@@ -63,7 +65,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     if (!selectedId) return setMessage('Selecciona primero una persona.')
     const check = canPlace(selectedId, cell, placements, gameCase.board)
     if (!check.ok) return setMessage(check.reason)
-    setHistory(items => [...items, placements])
+    rememberBoard()
     setPlacements(items => [...items.filter(item => item.characterId !== selectedId), { characterId: selectedId, position: { row: cell.row, column: cell.column } }])
     setManualExcludedCells(items => items.filter(item => positionKey(item) !== positionKey(cell)))
     setMessage(`${selected?.name} ocupa la fila ${cell.row}, columna ${cell.column}.`)
@@ -74,6 +76,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     const automaticExcluded = automatic.some(position => positionKey(position) === positionKey(cell))
     const manuallyExcluded = manualExcludedCells.some(position => positionKey(position) === positionKey(cell))
     if (auto && automaticExcluded && !manuallyExcluded) return setMessage('Esta casilla está descartada automáticamente.')
+    rememberBoard()
     setManualExcludedCells(items => manuallyExcluded ? items.filter(item => positionKey(item) !== positionKey(cell)) : [...items, { row: cell.row, column: cell.column }])
     setMessage('Anotación de descarte actualizada.')
   }
@@ -84,18 +87,22 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const selectCharacter = (character: Character) => { setSelectedId(character.id); setInteractionMode('place'); setMessage(`${character.name} seleccionado/a. Ahora toca una celda.`) }
   const remove = () => {
     if (!selectedId || !placements.some(placement => placement.characterId === selectedId)) return setMessage('Selecciona una persona que esté en escena.')
-    setHistory(items => [...items, placements]); setPlacements(items => items.filter(item => item.characterId !== selectedId)); setMessage('Persona retirada del tablero.')
+    rememberBoard(); setPlacements(items => items.filter(item => item.characterId !== selectedId)); setMessage('Persona retirada del tablero.')
   }
-  const undo = () => { const last = history.at(-1); if (!last) return setMessage('No hay movimientos que deshacer.'); setPlacements(last); setHistory(items => items.slice(0, -1)); setMessage('Último movimiento deshecho.') }
+  const undo = () => {
+    const undone = undoBoardState(currentSave, history)
+    if (!undone) return setMessage('No hay movimientos que deshacer.')
+    setPlacements(undone.state.placements); setManualExcludedCells(undone.state.manualExcludedCells); setHistory(undone.history)
+    setMessage('Último movimiento deshecho.')
+  }
   const reset = () => {
     if (!window.confirm('¿Reiniciar la investigación y quitar todas las personas y descartes?')) return
     const cleared = resetInvestigationBoard(currentSave)
-    setHistory(items => [...items, placements]); setPlacements(cleared.placements); setManualExcludedCells(cleared.manualExcludedCells)
+    rememberBoard(); setPlacements(cleared.placements); setManualExcludedCells(cleared.manualExcludedCells)
     setMessage('La escena está despejada. Tus puntos de guardado y usos de ayudas se conservan.')
   }
   const saveCheckpoint = (name: string, description: string) => {
-    const checkpoint = createCheckpoint(currentSave, name, description)
-    setCheckpoints(items => [checkpoint, ...items])
+    setCheckpoints(addCheckpoint(checkpoints, currentSave, name, description))
     setMessage('Punto de guardado creado.')
   }
   const restoreHypothesis = (id: string) => {

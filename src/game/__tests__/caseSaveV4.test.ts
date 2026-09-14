@@ -83,4 +83,17 @@ describe('save V4', () => {
     saveCase('test', { placements: [], manualExcludedCells: [] }, storage)
     expect(loadCaseSave('test', storage)).toMatchObject({ checkpoints: [checkpoint], positionChecksUsed: 1, hintsUsed })
   })
+
+  it('loads only the 20 newest valid checkpoints from manipulated storage', () => {
+    const storage = new MemoryStorage()
+    const checkpoints = Array.from({ length: 25 }, (_, index) => ({
+      ...createCheckpoint(state(), `Hipótesis ${index}`),
+      id: `saved-${index}`,
+      createdAt: new Date(Date.UTC(2026, 0, index + 1)).toISOString(),
+    }))
+    storage.setItem(getCaseSaveKey(case001.id), JSON.stringify({ saveVersion: 4, ...state(), checkpoints }))
+    expect(loadCaseSave(case001.id, storage, case001).checkpoints.map(item => item.id)).toEqual(
+      Array.from({ length: 20 }, (_, index) => `saved-${24 - index}`),
+    )
+  })
 })
