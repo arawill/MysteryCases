@@ -1,0 +1,3 @@
+.character-role{display:block;color:var(--text-faint);font:9px 'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;font-style:normal}
+.victim-summary .character-role,.active-character .character-role{margin-top:3px}
+.modal .character-role{margin:0 auto 16px}

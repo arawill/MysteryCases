@@ -31,4 +31,18 @@ export const hospitalPack: ScenarioPack = {
     { id: 'medicine_cabinet', label: 'un armario de medicinas', occupiable: false, icon: object_medicine_cabinet },
     { id: 'instrument_tray', label: 'una bandeja de instrumental', occupiable: false, icon: object_instrument_tray },
   ],
+  roles: [
+    { id: 'doctor', maleLabel: 'Médico', femaleLabel: 'Médica', maxPerCase: 3 },
+    { id: 'nurse', maleLabel: 'Enfermero', femaleLabel: 'Enfermera', maxPerCase: 4 },
+    { id: 'patient', maleLabel: 'Paciente', femaleLabel: 'Paciente', maxPerCase: 5 },
+    { id: 'orderly', maleLabel: 'Celador', femaleLabel: 'Celadora', maxPerCase: 3 },
+    { id: 'lab_technician', maleLabel: 'Técnico de laboratorio', femaleLabel: 'Técnica de laboratorio', maxPerCase: 3 },
+    { id: 'receptionist', maleLabel: 'Recepcionista', femaleLabel: 'Recepcionista', maxPerCase: 2 },
+    { id: 'visitor', maleLabel: 'Visitante', femaleLabel: 'Visitante', maxPerCase: 4 },
+    { id: 'maintenance', maleLabel: 'Personal de mantenimiento', femaleLabel: 'Personal de mantenimiento', maxPerCase: 2 },
+    { id: 'cleaner', maleLabel: 'Personal de limpieza', femaleLabel: 'Personal de limpieza', maxPerCase: 2 },
+    { id: 'physiotherapist', maleLabel: 'Fisioterapeuta', femaleLabel: 'Fisioterapeuta', maxPerCase: 2 },
+    { id: 'nursing_assistant', maleLabel: 'Auxiliar de enfermería', femaleLabel: 'Auxiliar de enfermería', maxPerCase: 3 },
+    { id: 'administrative', maleLabel: 'Administrativo', femaleLabel: 'Administrativa', maxPerCase: 2 },
+  ],
 }

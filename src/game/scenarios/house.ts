@@ -31,4 +31,18 @@ export const housePack: ScenarioPack = {
     { id: 'house_plant', label: 'una planta', occupiable: false, icon: object_house_plant },
     { id: 'armchair', label: 'un sillón', occupiable: true, icon: object_armchair },
   ],
+  roles: [
+    { id: 'owner', maleLabel: 'Propietario', femaleLabel: 'Propietaria', maxPerCase: 2 },
+    { id: 'relative', maleLabel: 'Familiar', femaleLabel: 'Familiar', maxPerCase: 4 },
+    { id: 'guest', maleLabel: 'Invitado', femaleLabel: 'Invitada', maxPerCase: 4 },
+    { id: 'neighbor', maleLabel: 'Vecino', femaleLabel: 'Vecina', maxPerCase: 2 },
+    { id: 'gardener', maleLabel: 'Jardinero', femaleLabel: 'Jardinera', maxPerCase: 1 },
+    { id: 'cleaner', maleLabel: 'Personal de limpieza', femaleLabel: 'Personal de limpieza', maxPerCase: 2 },
+    { id: 'caregiver', maleLabel: 'Cuidador', femaleLabel: 'Cuidadora', maxPerCase: 2 },
+    { id: 'delivery', maleLabel: 'Repartidor', femaleLabel: 'Repartidora', maxPerCase: 2 },
+    { id: 'technician', maleLabel: 'Técnico', femaleLabel: 'Técnica', maxPerCase: 2 },
+    { id: 'family_friend', maleLabel: 'Amigo de la familia', femaleLabel: 'Amiga de la familia', maxPerCase: 4 },
+    { id: 'decorator', maleLabel: 'Decorador', femaleLabel: 'Decoradora', maxPerCase: 1 },
+    { id: 'maintenance', maleLabel: 'Personal de mantenimiento', femaleLabel: 'Personal de mantenimiento', maxPerCase: 2 },
+  ],
 }

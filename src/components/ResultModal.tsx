@@ -11,6 +11,7 @@ export function ResultModal({ killer, onClose }: { killer: Character; onClose: (
       <div className="killer-avatar" aria-hidden="true"><CharacterAvatar character={killer} /></div>
       <p className="eyebrow">EL ASESINO ES</p>
       <h3>{killer.name}</h3>
+      {killer.roleLabel && <p className="character-role">{killer.roleLabel}</p>}
       <button className="primary" onClick={onClose}>VOLVER AL CASO</button>
     </div>
   </div>

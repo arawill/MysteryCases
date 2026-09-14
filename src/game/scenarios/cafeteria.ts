@@ -27,4 +27,18 @@ export const cafeteriaPack: ScenarioPack = {
     { id: 'register', label: 'una caja registradora', occupiable: false, icon: object_register },
     { id: 'puddle', label: 'un charco', occupiable: true, icon: object_puddle },
   ],
+  roles: [
+    { id: 'barista', maleLabel: 'Barista', femaleLabel: 'Barista', maxPerCase: 2 },
+    { id: 'waiter', maleLabel: 'Camarero', femaleLabel: 'Camarera', maxPerCase: 2 },
+    { id: 'cook', maleLabel: 'Cocinero', femaleLabel: 'Cocinera', maxPerCase: 2 },
+    { id: 'manager', maleLabel: 'Encargado', femaleLabel: 'Encargada', maxPerCase: 1 },
+    { id: 'delivery', maleLabel: 'Repartidor', femaleLabel: 'Repartidora', maxPerCase: 2 },
+    { id: 'customer', maleLabel: 'Cliente', femaleLabel: 'Cliente', maxPerCase: 4 },
+    { id: 'supplier', maleLabel: 'Proveedor', femaleLabel: 'Proveedora', maxPerCase: 2 },
+    { id: 'cleaner', maleLabel: 'Personal de limpieza', femaleLabel: 'Personal de limpieza', maxPerCase: 2 },
+    { id: 'technician', maleLabel: 'Técnico', femaleLabel: 'Técnica', maxPerCase: 1 },
+    { id: 'owner', maleLabel: 'Propietario', femaleLabel: 'Propietaria', maxPerCase: 1 },
+    { id: 'baker', maleLabel: 'Repostero', femaleLabel: 'Repostera', maxPerCase: 1 },
+    { id: 'security', maleLabel: 'Vigilante', femaleLabel: 'Vigilante', maxPerCase: 1 },
+  ],
 }

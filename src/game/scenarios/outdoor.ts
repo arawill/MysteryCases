@@ -31,4 +31,18 @@ export const outdoorPack: ScenarioPack = {
     { id: 'hose', label: 'una manguera', occupiable: false, icon: object_hose },
     { id: 'mud_puddle', label: 'un charco de barro', occupiable: true, icon: object_mud_puddle },
   ],
+  roles: [
+    { id: 'gardener', maleLabel: 'Jardinero', femaleLabel: 'Jardinera', maxPerCase: 2 },
+    { id: 'mechanic', maleLabel: 'Mecánico', femaleLabel: 'Mecánica', maxPerCase: 2 },
+    { id: 'security', maleLabel: 'Vigilante', femaleLabel: 'Vigilante', maxPerCase: 2 },
+    { id: 'driver', maleLabel: 'Conductor', femaleLabel: 'Conductora', maxPerCase: 3 },
+    { id: 'delivery', maleLabel: 'Repartidor', femaleLabel: 'Repartidora', maxPerCase: 2 },
+    { id: 'neighbor', maleLabel: 'Vecino', femaleLabel: 'Vecina', maxPerCase: 3 },
+    { id: 'technician', maleLabel: 'Técnico', femaleLabel: 'Técnica', maxPerCase: 2 },
+    { id: 'owner', maleLabel: 'Propietario', femaleLabel: 'Propietaria', maxPerCase: 2 },
+    { id: 'visitor', maleLabel: 'Visitante', femaleLabel: 'Visitante', maxPerCase: 4 },
+    { id: 'maintenance', maleLabel: 'Personal de mantenimiento', femaleLabel: 'Personal de mantenimiento', maxPerCase: 3 },
+    { id: 'landscaper', maleLabel: 'Paisajista', femaleLabel: 'Paisajista', maxPerCase: 2 },
+    { id: 'courier', maleLabel: 'Mensajero', femaleLabel: 'Mensajera', maxPerCase: 2 },
+  ],
 }

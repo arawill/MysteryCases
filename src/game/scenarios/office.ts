@@ -31,4 +31,18 @@ export const officePack: ScenarioPack = {
     { id: 'bin', label: 'una papelera', occupiable: false, icon: object_bin },
     { id: 'office_plant', label: 'una planta', occupiable: false, icon: object_office_plant },
   ],
+  roles: [
+    { id: 'director', maleLabel: 'Director', femaleLabel: 'Directora', maxPerCase: 1 },
+    { id: 'administrative', maleLabel: 'Administrativo', femaleLabel: 'Administrativa', maxPerCase: 3 },
+    { id: 'accountant', maleLabel: 'Contable', femaleLabel: 'Contable', maxPerCase: 2 },
+    { id: 'human_resources', maleLabel: 'Personal de RR. HH.', femaleLabel: 'Personal de RR. HH.', maxPerCase: 2 },
+    { id: 'it', maleLabel: 'Técnico informático', femaleLabel: 'Técnica informática', maxPerCase: 2 },
+    { id: 'receptionist', maleLabel: 'Recepcionista', femaleLabel: 'Recepcionista', maxPerCase: 2 },
+    { id: 'sales', maleLabel: 'Comercial', femaleLabel: 'Comercial', maxPerCase: 3 },
+    { id: 'consultant', maleLabel: 'Consultor', femaleLabel: 'Consultora', maxPerCase: 3 },
+    { id: 'client', maleLabel: 'Cliente', femaleLabel: 'Cliente', maxPerCase: 4 },
+    { id: 'maintenance', maleLabel: 'Personal de mantenimiento', femaleLabel: 'Personal de mantenimiento', maxPerCase: 2 },
+    { id: 'cleaner', maleLabel: 'Personal de limpieza', femaleLabel: 'Personal de limpieza', maxPerCase: 2 },
+    { id: 'courier', maleLabel: 'Mensajero', femaleLabel: 'Mensajera', maxPerCase: 2 },
+  ],
 }

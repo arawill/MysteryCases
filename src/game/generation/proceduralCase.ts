@@ -1,4 +1,4 @@
-import { selectCharactersForDifficulty } from '../characters/selector'
+import { buildCharacterRoster } from '../characters/roster'
 import { getDifficultyPreset } from '../difficultyPresets'
 import type { DifficultyRating, GameCase } from '../types'
 import { generatePuzzle } from './generator'
@@ -7,13 +7,14 @@ import { hasReadableClues } from './clueQuality'
 import { createDifficultyScenarioProfile } from './difficultyProfile'
 import { generateScenarioTemplate } from './scenario/generator'
 import { getVersionedProceduralCaseId } from './version'
+import { selectScenarioPack } from '../scenarios/catalog'
 
 export interface GeneratedProceduralCase { caseData: GameCase; baseSeed: number; effectiveSeed: number; seedOffset: number; killerId: string; scenarioAttempts: number; stats: GenerationStats }
 
 export function generateProceduralCase({ id, title, intro, difficulty, seed }: { id: string; title: string; intro: string; difficulty: DifficultyRating; seed: number }): GeneratedProceduralCase {
-  const preset = getDifficultyPreset(difficulty), characters = selectCharactersForDifficulty(difficulty, seed)
+  const preset = getDifficultyPreset(difficulty), scenarioPack = selectScenarioPack(seed), characters = buildCharacterRoster({ difficulty, seed, scenarioPack })
   if (characters.length !== preset.characterCount) throw new Error('Character roster does not match difficulty preset.')
-  const profile = createDifficultyScenarioProfile({ id, title, intro, difficulty, characters, seed })
+  const profile = createDifficultyScenarioProfile({ id, title, intro, difficulty, characters, scenarioPack })
   for (let offset = 0; offset < 100; offset += 1) {
     const effectiveSeed = (seed + offset) >>> 0
     try {

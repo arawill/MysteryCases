@@ -31,4 +31,18 @@ export const hotelPack: ScenarioPack = {
     { id: 'side_table', label: 'una mesa auxiliar', occupiable: false, icon: object_side_table },
     { id: 'table_lamp', label: 'una lámpara de mesa', occupiable: false, icon: object_table_lamp },
   ],
+  roles: [
+    { id: 'guest', maleLabel: 'Huésped', femaleLabel: 'Huésped', maxPerCase: 5 },
+    { id: 'receptionist', maleLabel: 'Recepcionista', femaleLabel: 'Recepcionista', maxPerCase: 2 },
+    { id: 'bellhop', maleLabel: 'Botones', femaleLabel: 'Botones', maxPerCase: 2 },
+    { id: 'waiter', maleLabel: 'Camarero', femaleLabel: 'Camarera', maxPerCase: 3 },
+    { id: 'cook', maleLabel: 'Cocinero', femaleLabel: 'Cocinera', maxPerCase: 2 },
+    { id: 'cleaner', maleLabel: 'Personal de limpieza', femaleLabel: 'Personal de limpieza', maxPerCase: 3 },
+    { id: 'manager', maleLabel: 'Gerente', femaleLabel: 'Gerente', maxPerCase: 1 },
+    { id: 'security', maleLabel: 'Vigilante', femaleLabel: 'Vigilante', maxPerCase: 2 },
+    { id: 'maintenance', maleLabel: 'Personal de mantenimiento', femaleLabel: 'Personal de mantenimiento', maxPerCase: 2 },
+    { id: 'concierge', maleLabel: 'Conserje', femaleLabel: 'Conserje', maxPerCase: 2 },
+    { id: 'supplier', maleLabel: 'Proveedor', femaleLabel: 'Proveedora', maxPerCase: 2 },
+    { id: 'event_staff', maleLabel: 'Personal de eventos', femaleLabel: 'Personal de eventos', maxPerCase: 3 },
+  ],
 }

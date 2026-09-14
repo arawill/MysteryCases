@@ -1,6 +1,9 @@
-import { getDifficultyPreset } from '../difficultyPresets'
-import { createSeededRandom, shuffle } from '../generation/random'
-import type { GenerationCharacter } from '../generation/types'
+import { selectScenarioPack } from '../scenarios/catalog'
 import type { DifficultyRating } from '../types'
-import { characterCatalog } from './catalog'
-export function selectCharactersForDifficulty(difficulty: DifficultyRating, seed: number): GenerationCharacter[] { const count = getDifficultyPreset(difficulty).characterCount; const roster = shuffle(characterCatalog, createSeededRandom(seed)).slice(0, count); const victimIndex = Math.floor(createSeededRandom((seed + 1) >>> 0)() * roster.length); return roster.map((character, index) => ({ ...character, isVictim: index === victimIndex })) }
+import type { GenerationCharacter } from '../generation/types'
+import { buildCharacterRoster } from './roster'
+
+/** Compatibility entry point for callers that do not already have a pack. */
+export function selectCharactersForDifficulty(difficulty: DifficultyRating, seed: number): GenerationCharacter[] {
+  return buildCharacterRoster({ difficulty, seed, scenarioPack: selectScenarioPack(seed) })
+}
