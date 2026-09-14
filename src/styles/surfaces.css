@@ -1,19 +1,20 @@
 /* Decorative floors never change hit targets, geometry, occupancy, or clue semantics. */
 .board{grid-template-columns:repeat(var(--columns),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr))}
-.board .cell{min-height:0;isolation:isolate;--floor-line:color-mix(in srgb,var(--text) 10%,transparent);--floor-soft:color-mix(in srgb,var(--text) 4%,transparent);--floor-pattern:none;--floor-size:auto}
+.board .cell{min-height:0;isolation:isolate;--floor-line:color-mix(in srgb,var(--text) 8%,transparent);--floor-soft:color-mix(in srgb,var(--text) 3%,transparent);--floor-pattern:none;--floor-size:auto}
 .board .cell::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background-image:var(--floor-pattern);background-size:var(--floor-size)}
-.board .surface-tile{--floor-pattern:linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),linear-gradient(var(--floor-line) 1px,transparent 1px);--floor-size:14px 14px}
-.board .surface-kitchenTile{--floor-pattern:repeating-conic-gradient(var(--floor-soft) 0% 25%,transparent 0% 50%);--floor-size:18px 18px}
-.board .surface-wood{--floor-pattern:repeating-linear-gradient(90deg,transparent 0 15px,var(--floor-line) 15px 16px),repeating-linear-gradient(0deg,transparent 0 4px,var(--floor-soft) 4px 5px)}
-.board .surface-industrial{--floor-pattern:linear-gradient(var(--floor-line) 1px,transparent 1px),linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),repeating-linear-gradient(135deg,transparent 0 5px,var(--floor-soft) 5px 6px);--floor-size:28px 28px,28px 28px,auto}
-.board .surface-grass{--floor-pattern:repeating-linear-gradient(115deg,transparent 0 7px,var(--floor-line) 7px 8px,transparent 8px 11px),repeating-linear-gradient(65deg,transparent 0 9px,var(--floor-soft) 9px 10px)}
-.board .surface-stairs{--floor-pattern:repeating-linear-gradient(0deg,transparent 0 9px,var(--floor-line) 9px 11px,var(--floor-soft) 11px 13px)}
-.board .surface-asphalt{--floor-pattern:radial-gradient(var(--floor-line) .7px,transparent .9px),linear-gradient(90deg,transparent 47%,var(--floor-line) 47% 50%,transparent 50%);--floor-size:5px 5px,auto}
-.board .surface-carpet{--floor-pattern:repeating-linear-gradient(45deg,transparent 0 3px,var(--floor-soft) 3px 4px),repeating-linear-gradient(-45deg,transparent 0 3px,var(--floor-soft) 3px 4px)}
-.board .surface-concrete{--floor-pattern:radial-gradient(var(--floor-line) .7px,transparent 1px);--floor-size:7px 7px}
+.board .surface-tile{--floor-pattern:linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),linear-gradient(var(--floor-line) 1px,transparent 1px),linear-gradient(135deg,var(--floor-soft),transparent 60%);--floor-size:24px 24px,24px 24px,auto}
+.board .surface-kitchenTile{--floor-pattern:linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),linear-gradient(var(--floor-line) 1px,transparent 1px),repeating-conic-gradient(var(--floor-soft) 0% 25%,transparent 0% 50%);--floor-size:12px 12px,12px 12px,24px 24px}
+.board .surface-wood{--floor-pattern:repeating-linear-gradient(90deg,transparent 0 18px,var(--floor-line) 18px 19px),repeating-linear-gradient(0deg,transparent 0 38px,var(--floor-line) 38px 39px),repeating-linear-gradient(92deg,transparent 0 5px,var(--floor-soft) 6px,transparent 7px 12px)}
+.board .surface-industrial{--floor-pattern:linear-gradient(var(--floor-line) 1px,transparent 1px),linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),radial-gradient(var(--floor-soft) 1px,transparent 1.5px);--floor-size:36px 36px,36px 36px,8px 8px}
+.board .surface-grass{--floor-pattern:radial-gradient(ellipse at 25% 30%,var(--floor-line),transparent 65%),repeating-linear-gradient(115deg,transparent 0 10px,var(--floor-soft) 10px 11px,transparent 11px 17px),repeating-linear-gradient(65deg,transparent 0 14px,var(--floor-soft) 14px 15px);--floor-size:38px 32px,auto,auto}
+.board .surface-stairs{--floor-pattern:repeating-linear-gradient(0deg,transparent 0 14px,var(--floor-line) 14px 16px,var(--floor-soft) 16px 19px,transparent 19px 20px)}
+.board .surface-asphalt{--floor-pattern:radial-gradient(var(--floor-line) .6px,transparent 1px),radial-gradient(var(--floor-soft) 1px,transparent 1.5px);--floor-size:7px 9px,13px 11px}
+.board .surface-carpet{--floor-pattern:repeating-linear-gradient(45deg,transparent 0 4px,var(--floor-soft) 4px 5px),repeating-linear-gradient(-45deg,transparent 0 4px,var(--floor-soft) 4px 5px),linear-gradient(135deg,var(--floor-soft),transparent)}
+.board .surface-concrete{--floor-pattern:radial-gradient(ellipse at 10% 20%,var(--floor-soft),transparent 70%),radial-gradient(var(--floor-soft) .7px,transparent 1px);--floor-size:auto,11px 13px}
+.board .surface-generic{--floor-pattern:linear-gradient(135deg,var(--floor-soft),transparent 65%)}
 html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-background-light,var(--surface-soft))}
 /* Every icon URL can point to SVG, transparent PNG, or transparent WebP. */
 .board .cell .object{position:absolute;inset:0;z-index:1;display:grid;place-items:center;pointer-events:none;opacity:.9}
-.board .cell .object img{display:block;width:48%;height:48%;margin:0;object-fit:contain}
+.board .cell .object img{display:block;width:56%;height:56%;margin:0;object-fit:contain;filter:drop-shadow(0 3px 2px #0003)}
 .board .cell:has(.placed) .object-occupiable{opacity:.45;place-items:end start}
-.board .cell:has(.placed) .object-occupiable img{width:38%;height:38%;margin:0 0 3% 3%}
+.board .cell:has(.placed) .object-occupiable img{width:30%;height:30%;margin:0 0 3% 3%}

@@ -7,11 +7,11 @@ import '../styles/surfaces.css'
 import type { BoardInteractionMode } from '../game/interaction'
 
 interface BoardProps {
-  board: BoardCell[]; rows: number; columns: number; zones: Zone[]; edgeFeatures?: EdgeFeature[]; placements: Placement[]; excludedCells: Position[]; characters: Character[]; selectedCharacterId?: string | null; interactionMode?: BoardInteractionMode
+  board: BoardCell[]; rows: number; columns: number; zones: Zone[]; edgeFeatures?: EdgeFeature[]; placements: Placement[]; excludedCells: Position[]; manualExcludedCells?: Position[]; characters: Character[]; selectedCharacterId?: string | null; interactionMode?: BoardInteractionMode
   onCellClick: (cell: BoardCell) => void; onCellContextMenu: (cell: BoardCell) => void
 }
 
-export function Board({ board, rows, columns, zones, edgeFeatures = [], placements, excludedCells, characters, selectedCharacterId, interactionMode = 'place', onCellClick, onCellContextMenu }: BoardProps) {
+export function Board({ board, rows, columns, zones, edgeFeatures = [], placements, excludedCells, manualExcludedCells, characters, selectedCharacterId, interactionMode = 'place', onCellClick, onCellContextMenu }: BoardProps) {
   const labels = Array.from({ length: rows }, (_, index) => index + 1)
   return <div className="board-wrap">
     <div className="board-plan-label"><span>PLANO DE LA ESCENA</span><small>{rows} × {columns} · COORDENADAS</small></div>
@@ -25,6 +25,8 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
             const person = placements.find(item => item.position.row === cell.row && item.position.column === cell.column)
             const character = person && characters.find(item => item.id === person.characterId)
             const excluded = excludedCells.some(item => item.row === cell.row && item.column === cell.column)
+            const manual = manualExcludedCells === undefined || manualExcludedCells.some(item => item.row === cell.row && item.column === cell.column)
+            const exclusionClass = excluded ? (manual ? 'excluded-manual' : 'excluded-auto') : ''
             const top = getCell(board, { row: cell.row - 1, column: cell.column })
             const left = getCell(board, { row: cell.row, column: cell.column - 1 })
             const zone = zones.find(item => item.id === cell.zoneId)
@@ -33,13 +35,13 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
             const firstZoneCell = first?.row === cell.row && first.column === cell.column
             const adjacentFeatureTypes = [...new Set(edgeFeatures.filter(feature => isCellBesideEdgeFeature(cell, feature, board)).map(feature => feature.type === 'window' ? 'ventana' : 'puerta'))]
             const action = interactionMode === 'exclude' ? 'Tocar para marcar descarte' : 'Tocar para colocar persona'
-            const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, excluded ? 'descartada' : '', cell.object?.label, ...adjacentFeatureTypes.map(type => `junto a ${type}`), action].filter(Boolean).join(', ')
-            return <button key={`${cell.row}-${cell.column}`} style={{ '--zone-background': theme.background, '--zone-background-light': theme.lightBackground } as React.CSSProperties} className={`cell zone-themed surface-${resolveZoneSurface(zone)} ${!cell.occupiable ? 'blocked' : ''} ${excluded ? 'excluded' : ''} ${top && top.zoneId !== cell.zoneId ? 'wall-top' : ''} ${left && left.zoneId !== cell.zoneId ? 'wall-left' : ''}`} onClick={() => onCellClick(cell)} onContextMenu={event => { event.preventDefault(); onCellContextMenu(cell) }} aria-label={description}>
+            const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, character?.id === selectedCharacterId ? 'persona activa' : '', excluded ? (manual ? 'descarte manual' : 'descarte automático') : '', !cell.occupiable ? 'no ocupable' : '', cell.object?.label, ...adjacentFeatureTypes.map(type => `junto a ${type}`), action].filter(Boolean).join(', ')
+            return <button key={`${cell.row}-${cell.column}`} style={{ '--zone-background': theme.background, '--zone-background-light': theme.lightBackground } as React.CSSProperties} className={`cell zone-themed surface-${resolveZoneSurface(zone)} ${!cell.occupiable ? 'blocked' : 'cell-occupiable'} ${character?.id === selectedCharacterId ? 'cell-selected' : ''} ${excluded ? 'excluded' : ''} ${exclusionClass} ${top && top.zoneId !== cell.zoneId ? 'wall-top' : ''} ${left && left.zoneId !== cell.zoneId ? 'wall-left' : ''}`} onClick={() => onCellClick(cell)} onContextMenu={event => { event.preventDefault(); onCellContextMenu(cell) }} aria-label={description}>
               {edgeFeatures.flatMap(feature => feature.segments.filter(segment => segment.position.row === cell.row && segment.position.column === cell.column).map((segment, index) => <span key={`${feature.id}-${index}-${segment.side}`} className={`edge-feature edge-feature-${feature.type} edge-feature-${segment.side.toLowerCase()}`} aria-hidden="true" />))}
               {cell.object && <span className={`object ${cell.object.occupiable ? 'object-occupiable' : 'object-blocking'}`} aria-hidden="true"><img src={cell.object.icon} alt="" /></span>}
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
-              {excluded && !character && <span className="exclude-mark" aria-hidden="true">×</span>}
-              {character && <span className={`placed ${character.isVictim ? 'placed-victim' : ''} ${character.id === selectedCharacterId ? 'placed-selected' : ''}`}><b>{character.avatar}</b><i>{character.name}</i></span>}
+              {excluded && !character && <span className="exclude-mark" aria-hidden="true">×{!manual && <small>A</small>}</span>}
+              {character && <span className={`placed ${character.isVictim ? 'placed-victim' : ''} ${character.id === selectedCharacterId ? 'placed-selected' : ''}`}><b>{character.avatar}</b><i>{character.name}</i>{character.isVictim && <small className="token-victim" aria-hidden="true">V</small>}</span>}
             </button>
           })}
         </div>

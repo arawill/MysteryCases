@@ -31,4 +31,18 @@ describe('visual board surfaces', () => {
     const markup = renderToStaticMarkup(<Board {...case001} board={board} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect(markup).toContain(`src="${icon}"`)
   })
+
+  it('distinguishes manual and automatic notes without altering placements or exclusions', () => {
+    const manual = [{ row: 1, column: 1 }], excluded = [...manual, { row: 2, column: 1 }]
+    const before = structuredClone(excluded)
+    const markup = renderToStaticMarkup(<Board {...case001} placements={case001.solution} selectedCharacterId="alma" excludedCells={excluded} manualExcludedCells={manual} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect(markup).toContain('excluded-manual')
+    expect(markup).toContain('excluded-auto')
+    expect(markup).toContain('descarte manual')
+    expect(markup).toContain('descarte automático')
+    expect(markup).toContain('<small>A</small>')
+    expect(markup).toContain('token-victim')
+    expect(markup).toContain('cell-selected')
+    expect(excluded).toEqual(before)
+  })
 })
