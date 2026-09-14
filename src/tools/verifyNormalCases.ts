@@ -7,6 +7,7 @@ import { boardSignature, boardSimilarity, caseFingerprint, clueSignature, soluti
 import { findKiller } from '../game/rules'
 import { solveCase } from '../game/solver'
 import { validateCaseDefinition } from '../game/validation'
+import { validateHumanClueQuality } from '../game/generation/clueQuality'
 
 const PACK_IDS = ['cafeteria', 'house', 'office', 'outdoor', 'hotel', 'hospital'] as const
 const expected = {
@@ -16,7 +17,7 @@ const expected = {
   4: { cafeteria: 14, house: 13, office: 14, outdoor: 13, hotel: 13, hospital: 13 },
   5: { cafeteria: 13, house: 14, office: 13, outdoor: 14, hotel: 13, hospital: 13 },
 } as const
-if (NORMAL_CASE_SET_VERSION !== 1 || frozenNormalCaseSet.formatVersion !== 1 || frozenNormalCaseSet.proceduralGenerationVersion !== 6 || frozenNormalCaseSet.cases.length !== 399) throw new Error('Frozen Normal case set metadata is invalid.')
+if (NORMAL_CASE_SET_VERSION !== 2 || frozenNormalCaseSet.formatVersion !== 1 || frozenNormalCaseSet.caseSetVersion !== 2 || frozenNormalCaseSet.proceduralGenerationVersion !== 7 || frozenNormalCaseSet.cases.length !== 399) throw new Error('Frozen Normal case set metadata is invalid.')
 const all = [{ caseData: case001, difficulty: 1, caseNumber: 1, scenarioPackId: 'cafeteria', killerId: 'bruno', roster: case001.characters.map(character => ({ id: character.id, name: character.name, isVictim: character.isVictim })) }, ...frozenNormalCaseSet.cases.map(item => ({ caseData: hydrateFrozenNormalCase(item), difficulty: item.difficulty, caseNumber: item.caseNumber, scenarioPackId: item.scenarioPackId, killerId: item.killerId, roster: item.characters }))] as const
 const fingerprints = new Set<string>()
 for (const item of all) {
@@ -26,6 +27,7 @@ for (const item of all) {
   const analysis = analyzeCase(item.caseData)
   if (solved.solutionsFound !== 1 || analysis.status !== 'unique' || analysis.matchesCanonical !== true) throw new Error(`${item.caseData.id}: puzzle is not uniquely canonical.`)
   if (findKiller(item.caseData, item.caseData.solution)?.id !== item.killerId) throw new Error(`${item.caseData.id}: frozen killer mismatch.`)
+  if (item.caseData.id !== 'case001' && (validateHumanClueQuality(item.caseData).length > 0 || item.caseData.characters.some(character => character.clues.some(clue => clue.type === 'row' || clue.type === 'column')))) throw new Error(`${item.caseData.id}: procedural human quality mismatch.`)
   const preset = getDifficultyPreset(item.difficulty as 1 | 2 | 3 | 4 | 5)
   if (item.caseData.rows !== preset.rows || item.caseData.columns !== preset.columns || item.caseData.characters.length !== preset.characterCount) throw new Error(`${item.caseData.id}: difficulty dimensions are invalid.`)
   const fingerprint = caseFingerprint(item.caseData, item.scenarioPackId, item.killerId, item.roster)

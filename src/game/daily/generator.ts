@@ -1,6 +1,7 @@
 import { generatePuzzle } from '../generation/generator'
 import type { GenerationStats } from '../generation/types'
 import { hasReadableClues } from '../generation/clueQuality'
+import { getMinimumCluesPerCharacter } from '../generation/clueSemantics'
 import { createDifficultyScenarioProfile } from '../generation/difficultyProfile'
 import { generateScenarioTemplate } from '../generation/scenario/generator'
 import type { GameCase } from '../types'
@@ -19,7 +20,7 @@ export function generateDailyCase(date: Date, difficulty: DifficultyRating = 1):
     const effectiveSeed = (baseSeed + offset) >>> 0
     try {
       const scenario = generateScenarioTemplate(profile, { seed: effectiveSeed })
-      const puzzle = generatePuzzle(scenario.template, { seed: effectiveSeed, minCluesPerCharacter: 2, minimizeClues: false })
+      const puzzle = generatePuzzle(scenario.template, { seed: effectiveSeed, minCluesPerCharacter: getMinimumCluesPerCharacter(difficulty), minimizeClues: false, procedural: true })
       const caseData = { ...puzzle.caseData, id: getVersionedProceduralCaseId(getDailyPuzzleId(date, difficulty)) }
       if (!hasReadableClues(caseData)) continue
       return { caseData, dateKey, baseSeed, effectiveSeed, seedOffset: offset, killerId: puzzle.killerId, scenarioAttempts: scenario.stats.scenarioAttempts, stats: puzzle.stats }

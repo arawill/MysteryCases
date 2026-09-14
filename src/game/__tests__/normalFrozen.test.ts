@@ -18,12 +18,12 @@ const expected = {
 describe('frozen Normal case set', () => {
   const all = [{ difficulty: 1, caseNumber: 1, scenarioPackId: 'cafeteria', caseData: case001 }, ...frozenNormalCaseSet.cases.map(item => ({ difficulty: item.difficulty, caseNumber: item.caseNumber, scenarioPackId: item.scenarioPackId, caseData: hydrateFrozenNormalCase(item) }))]
 
-  it('contains the manual case plus exactly 399 literal g6 frozen records', () => {
-    expect(NORMAL_CASE_SET_VERSION).toBe(1)
-    expect(frozenNormalCaseSet).toMatchObject({ formatVersion: 1, proceduralGenerationVersion: 6 })
+  it('contains the manual case plus exactly 399 literal g7 frozen records', () => {
+    expect(NORMAL_CASE_SET_VERSION).toBe(2)
+    expect(frozenNormalCaseSet).toMatchObject({ formatVersion: 1, caseSetVersion: 2, proceduralGenerationVersion: 7 })
     expect(frozenNormalCaseSet.cases).toHaveLength(399)
     expect(all).toHaveLength(400)
-    expect(frozenNormalCaseSet.cases.every(item => item.id === `normal-d${item.difficulty}-c${String(item.caseNumber).padStart(2, '0')}-g6`)).toBe(true)
+    expect(frozenNormalCaseSet.cases.every(item => item.id === `normal-d${item.difficulty}-c${String(item.caseNumber).padStart(2, '0')}-g7`)).toBe(true)
     for (const difficulty of [1, 2, 3, 4, 5] as const) expect(all.filter(item => item.difficulty === difficulty).map(item => item.caseNumber).sort((a, b) => a - b)).toEqual(Array.from({ length: 80 }, (_, index) => index + 1))
   })
 

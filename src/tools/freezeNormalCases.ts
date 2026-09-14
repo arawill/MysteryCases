@@ -14,6 +14,7 @@ import { selectScenarioPack } from '../game/scenarios/catalog'
 import type { DifficultyRating, GameCase } from '../game/types'
 import { validateCaseDefinition } from '../game/validation'
 import { validateHumanClueQuality } from '../game/generation/clueQuality'
+import { clueFamily, isNegativeClue } from '../game/generation/clueSemantics'
 
 const ROOT = resolve(import.meta.dirname, '../..')
 const FROZEN_PATH = resolve(ROOT, 'src/data/normal/frozen.ts')
@@ -99,7 +100,7 @@ for (const difficulty of [1, 2, 3, 4, 5] as const) {
     }
     if (!acceptedCase) throw new Error(`Unable to freeze Normal case D${difficulty}/C${caseNumber} after 500 candidates.`)
     accepted.push(acceptedCase)
-    process.stdout.write(`Frozen D${difficulty}/C${String(caseNumber).padStart(2, '0')} (${targetPack})\n`)
+    if (caseNumber % 10 === 0 || caseNumber === start) process.stdout.write(`Frozen D${difficulty}/C${String(caseNumber).padStart(2, '0')} (${targetPack})\n`)
   }
   if (accepted.length !== 80) throw new Error(`Difficulty ${difficulty} did not produce 80 cases.`)
   const packCounts = Object.fromEntries(PACK_IDS.map(pack => [pack, accepted.filter(item => item.scenarioPackId === pack).length]))
@@ -116,11 +117,12 @@ for (const frozen of allFrozen) {
   const analysis = analyzeCase(caseData)
   if (analysis.status !== 'unique' || analysis.matchesCanonical !== true) throw new Error(`Case ${frozen.id} is not uniquely canonical.`)
   if (findKiller(caseData, caseData.solution)?.id !== frozen.killerId) throw new Error(`Case ${frozen.id} has an invalid frozen killer.`)
+  if (frozen.id !== 'case001' && validateHumanClueQuality(caseData).length > 0) throw new Error(`Case ${frozen.id} does not satisfy human clue quality.`)
   const fingerprint = caseFingerprint(caseData, frozen.scenarioPackId, frozen.killerId, frozenRoster(frozen))
   if (fullFingerprints.has(fingerprint)) throw new Error(`Duplicate frozen fingerprint: ${frozen.id}`)
   fullFingerprints.add(fingerprint)
 }
-const summary = (cases: FrozenNormalCase[]) => { const clues = cases.flatMap(item => item.characters.flatMap(character => character.clues)); return { totalClues: clues.length, averageCluesPerCharacter: clues.length / cases.reduce((total, item) => total + item.characters.length, 0), clueTypeCounts: Object.fromEntries([...new Set(clues.map(clue => clue.type))].map(type => [type, clues.filter(clue => clue.type === type).length])), negativeClueCount: clues.filter(clue => ['notZone', 'notOnObject', 'notBesideObject', 'notBesideWall', 'notBesideEdgeFeature', 'withoutTraitInZone'].includes(clue.type)).length } }
+const summary = (cases: FrozenNormalCase[]) => { const clues = cases.flatMap(item => item.characters.flatMap(character => character.clues)), negativeClueCount = clues.filter(isNegativeClue).length; return { totalClues: clues.length, averageCluesPerCharacter: clues.length / cases.reduce((total, item) => total + item.characters.length, 0), clueTypeCounts: Object.fromEntries([...new Set(clues.map(clue => clue.type))].map(type => [type, clues.filter(clue => clue.type === type).length])), clueFamilyCounts: Object.fromEntries([...new Set(clues.map(clueFamily))].map(family => [family, clues.filter(clue => clueFamily(clue) === family).length])), negativeClueCount, negativeRatio: clues.length === 0 ? 0 : negativeClueCount / clues.length } }
 const report = { freezeFormatVersion: 1, normalCaseSetVersion: 2, proceduralGenerationVersion: PROCEDURAL_GENERATION_VERSION, totalCases: 400, generatedCases: 399, manualCases: 1, candidatesEvaluated, rejects, humanClueQualityRejects: rejects.humanClueQuality, difficulties: Object.fromEntries([...perDifficulty.entries()].map(([difficulty, cases]) => [difficulty, { count: cases.length, packs: Object.fromEntries(PACK_IDS.map(pack => [pack, cases.filter(item => item.scenarioPackId === pack).length])), candidateAttempts: cases.map(item => item.generation.candidateAttempt), seedOffsets: cases.map(item => item.generation.seedOffset), ...summary(cases) }])), globalPacks: Object.fromEntries(PACK_IDS.map(pack => [pack, allFrozen.filter(item => item.scenarioPackId === pack).length])), fingerprints: [...fullFingerprints], duplicateCount: 0, nearDuplicateRejects: rejects.nearDuplicate, frozenSourceBytes: Buffer.byteLength(source(data)) }
 replaceAtomically(FROZEN_PATH, source(data)); replaceAtomically(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`)
 process.stdout.write(`Frozen 399 generated cases plus case001. Source: ${statSync(FROZEN_PATH).size} bytes.\n`)

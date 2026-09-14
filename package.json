@@ -12,6 +12,8 @@
     "generate:pwa-assets": "pwa-assets-generator",
     "freeze:normal-cases": "node scripts/run-vite-module.mjs /src/tools/freezeNormalCases.ts",
     "verify:normal-cases": "node scripts/run-vite-module.mjs /src/tools/verifyNormalCases.ts",
+    "verify:clue-quality": "node scripts/run-vite-module.mjs /src/tools/verifyClueQuality.ts",
+    "profile:d5": "node scripts/run-vite-module.mjs /src/tools/profileD5.ts",
     "verify:pwa": "npm run build && node scripts/verify-pwa-build.mjs",
     "build:pages": "tsc -b && vite build --mode pages",
     "verify:pages": "npm run build:pages && node scripts/verify-pwa-build.mjs && node scripts/verify-pages-build.mjs",

@@ -25,4 +25,5 @@ export const isPersonRelation = (clue: Pick<Clue, 'type'>) => clueFamily(clue) =
 export const allowedProceduralClueTypes = (difficulty: DifficultyRating) => new Set<Clue['type']>([...base, ...(difficulty >= 2 ? d2 : []), ...(difficulty >= 3 ? d3 : []), ...(difficulty >= 4 ? d4 : []), ...(difficulty >= 5 ? d5 : [])])
 export const allowsProceduralClue = (difficulty: DifficultyRating, clue: Clue) => allowedProceduralClueTypes(difficulty).has(clue.type)
 export const getMinimumCluesPerCharacter = (difficulty: DifficultyRating) => difficulty <= 3 ? 3 : 2
+export const getInitialTargetCluesPerCharacter = (_difficulty: DifficultyRating) => 3
 export const getMaxNegativeRatio = (difficulty: DifficultyRating) => [0, 0, .2, .25, .3, .35][difficulty]
