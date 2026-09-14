@@ -1,0 +1,1728 @@
+{
+  "padding": 8,
+  "pixelVerification": "all visible RGBA pixels preserved exactly",
+  "sheets": [
+    {
+      "source": "pack_02_house_sheet.png",
+      "sourceBytes": 1077150,
+      "sha256": "f8cf3c039afe816df9f814ca2e6274d66446292964f1df8aacdd0238f68b4370",
+      "outputs": [
+        {
+          "path": "src/assets/scenarios/house/zones/living_room.png",
+          "cell": [
+            0,
+            0,
+            386,
+            362
+          ],
+          "alphaBBox": [
+            57,
+            21,
+            368,
+            359
+          ],
+          "size": [
+            327,
+            354
+          ],
+          "bytes": 120112
+        },
+        {
+          "path": "src/assets/scenarios/house/zones/bedroom.png",
+          "cell": [
+            386,
+            0,
+            724,
+            362
+          ],
+          "alphaBBox": [
+            7,
+            31,
+            338,
+            359
+          ],
+          "size": [
+            347,
+            344
+          ],
+          "bytes": 105417
+        },
+        {
+          "path": "src/assets/scenarios/house/zones/bathroom.png",
+          "cell": [
+            724,
+            0,
+            1086,
+            362
+          ],
+          "alphaBBox": [
+            1,
+            12,
+            352,
+            360
+          ],
+          "size": [
+            367,
+            364
+          ],
+          "bytes": 108243
+        },
+        {
+          "path": "src/assets/scenarios/house/zones/dining_room.png",
+          "cell": [
+            1086,
+            0,
+            1448,
+            362
+          ],
+          "alphaBBox": [
+            5,
+            25,
+            356,
+            362
+          ],
+          "size": [
+            367,
+            353
+          ],
+          "bytes": 118545
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/sofa.png",
+          "cell": [
+            0,
+            362,
+            386,
+            724
+          ],
+          "alphaBBox": [
+            0,
+            16,
+            386,
+            359
+          ],
+          "size": [
+            402,
+            359
+          ],
+          "bytes": 87785
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/tv.png",
+          "cell": [
+            386,
+            362,
+            724,
+            724
+          ],
+          "alphaBBox": [
+            0,
+            19,
+            338,
+            361
+          ],
+          "size": [
+            354,
+            358
+          ],
+          "bytes": 49399
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/bed.png",
+          "cell": [
+            724,
+            362,
+            1086,
+            724
+          ],
+          "alphaBBox": [
+            1,
+            6,
+            338,
+            340
+          ],
+          "size": [
+            353,
+            350
+          ],
+          "bytes": 78216
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/nightstand.png",
+          "cell": [
+            1086,
+            362,
+            1448,
+            724
+          ],
+          "alphaBBox": [
+            3,
+            0,
+            334,
+            362
+          ],
+          "size": [
+            347,
+            378
+          ],
+          "bytes": 52008
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/wardrobe.png",
+          "cell": [
+            0,
+            724,
+            386,
+            1086
+          ],
+          "alphaBBox": [
+            81,
+            4,
+            374,
+            330
+          ],
+          "size": [
+            309,
+            342
+          ],
+          "bytes": 61536
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/lamp.png",
+          "cell": [
+            386,
+            724,
+            724,
+            1086
+          ],
+          "alphaBBox": [
+            33,
+            0,
+            338,
+            328
+          ],
+          "size": [
+            321,
+            344
+          ],
+          "bytes": 61251
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/house_plant.png",
+          "cell": [
+            724,
+            724,
+            1086,
+            1086
+          ],
+          "alphaBBox": [
+            1,
+            4,
+            354,
+            324
+          ],
+          "size": [
+            369,
+            336
+          ],
+          "bytes": 93560
+        },
+        {
+          "path": "src/assets/scenarios/house/objects/armchair.png",
+          "cell": [
+            1086,
+            724,
+            1448,
+            1086
+          ],
+          "alphaBBox": [
+            3,
+            0,
+            342,
+            326
+          ],
+          "size": [
+            355,
+            342
+          ],
+          "bytes": 71893
+        }
+      ]
+    },
+    {
+      "source": "pack_03_office_sheet.png",
+      "sourceBytes": 1151666,
+      "sha256": "f24125036d06a1cee1a8a96baf7fa58ac975022e58757b33210f2f025cde8dda",
+      "outputs": [
+        {
+          "path": "src/assets/scenarios/office/zones/reception.png",
+          "cell": [
+            0,
+            0,
+            362,
+            362
+          ],
+          "alphaBBox": [
+            85,
+            48,
+            358,
+            355
+          ],
+          "size": [
+            289,
+            323
+          ],
+          "bytes": 93667
+        },
+        {
+          "path": "src/assets/scenarios/office/zones/office.png",
+          "cell": [
+            362,
+            0,
+            724,
+            362
+          ],
+          "alphaBBox": [
+            33,
+            73,
+            352,
+            343
+          ],
+          "size": [
+            335,
+            286
+          ],
+          "bytes": 96845
+        },
+        {
+          "path": "src/assets/scenarios/office/zones/meeting_room.png",
+          "cell": [
+            724,
+            0,
+            1086,
+            362
+          ],
+          "alphaBBox": [
+            1,
+            71,
+            338,
+            340
+          ],
+          "size": [
+            353,
+            285
+          ],
+          "bytes": 100806
+        },
+        {
+          "path": "src/assets/scenarios/office/zones/archive.png",
+          "cell": [
+            1086,
+            0,
+            1448,
+            362
+          ],
+          "alphaBBox": [
+            9,
+            65,
+            298,
+            340
+          ],
+          "size": [
+            305,
+            291
+          ],
+          "bytes": 101361
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/desk.png",
+          "cell": [
+            0,
+            362,
+            417,
+            720
+          ],
+          "alphaBBox": [
+            93,
+            19,
+            417,
+            358
+          ],
+          "size": [
+            340,
+            355
+          ],
+          "bytes": 100020
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/office_chair.png",
+          "cell": [
+            417,
+            362,
+            724,
+            720
+          ],
+          "alphaBBox": [
+            0,
+            20,
+            294,
+            349
+          ],
+          "size": [
+            310,
+            345
+          ],
+          "bytes": 72879
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/laptop.png",
+          "cell": [
+            724,
+            362,
+            1086,
+            720
+          ],
+          "alphaBBox": [
+            1,
+            16,
+            292,
+            288
+          ],
+          "size": [
+            307,
+            288
+          ],
+          "bytes": 61364
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/printer.png",
+          "cell": [
+            1086,
+            362,
+            1448,
+            720
+          ],
+          "alphaBBox": [
+            38,
+            10,
+            268,
+            345
+          ],
+          "size": [
+            246,
+            351
+          ],
+          "bytes": 66063
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/filing_cabinet.png",
+          "cell": [
+            0,
+            720,
+            362,
+            1086
+          ],
+          "alphaBBox": [
+            110,
+            0,
+            334,
+            326
+          ],
+          "size": [
+            240,
+            342
+          ],
+          "bytes": 61087
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/bookshelf.png",
+          "cell": [
+            362,
+            720,
+            724,
+            1086
+          ],
+          "alphaBBox": [
+            17,
+            7,
+            331,
+            346
+          ],
+          "size": [
+            330,
+            355
+          ],
+          "bytes": 106192
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/bin.png",
+          "cell": [
+            724,
+            720,
+            1086,
+            1086
+          ],
+          "alphaBBox": [
+            9,
+            25,
+            334,
+            366
+          ],
+          "size": [
+            341,
+            357
+          ],
+          "bytes": 99946
+        },
+        {
+          "path": "src/assets/scenarios/office/objects/office_plant.png",
+          "cell": [
+            1086,
+            720,
+            1448,
+            1086
+          ],
+          "alphaBBox": [
+            1,
+            7,
+            360,
+            366
+          ],
+          "size": [
+            375,
+            375
+          ],
+          "bytes": 108370
+        }
+      ]
+    },
+    {
+      "source": "pack_04_outdoor_sheet.png",
+      "sourceBytes": 1333124,
+      "sha256": "62cc0830cd1c1094a5988ccdbec51ceda8767b689a68f3e0dc5e9ef792940777",
+      "outputs": [
+        {
+          "path": "src/assets/scenarios/outdoor/zones/garden.png",
+          "cell": [
+            0,
+            0,
+            368,
+            362
+          ],
+          "alphaBBox": [
+            59,
+            19,
+            340,
+            340
+          ],
+          "size": [
+            297,
+            337
+          ],
+          "bytes": 136252
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/zones/garage.png",
+          "cell": [
+            368,
+            0,
+            724,
+            362
+          ],
+          "alphaBBox": [
+            37,
+            23,
+            356,
+            338
+          ],
+          "size": [
+            335,
+            331
+          ],
+          "bytes": 104837
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/zones/patio.png",
+          "cell": [
+            724,
+            0,
+            1086,
+            362
+          ],
+          "alphaBBox": [
+            1,
+            63,
+            326,
+            339
+          ],
+          "size": [
+            341,
+            292
+          ],
+          "bytes": 139877
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/zones/porch.png",
+          "cell": [
+            1086,
+            0,
+            1448,
+            362
+          ],
+          "alphaBBox": [
+            21,
+            62,
+            304,
+            339
+          ],
+          "size": [
+            299,
+            293
+          ],
+          "bytes": 117166
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/tree.png",
+          "cell": [
+            0,
+            362,
+            368,
+            729
+          ],
+          "alphaBBox": [
+            41,
+            29,
+            368,
+            367
+          ],
+          "size": [
+            343,
+            354
+          ],
+          "bytes": 156012
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/bench.png",
+          "cell": [
+            368,
+            362,
+            724,
+            713
+          ],
+          "alphaBBox": [
+            0,
+            28,
+            343,
+            335
+          ],
+          "size": [
+            359,
+            323
+          ],
+          "bytes": 55952
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/car.png",
+          "cell": [
+            724,
+            362,
+            1086,
+            743
+          ],
+          "alphaBBox": [
+            13,
+            8,
+            346,
+            381
+          ],
+          "size": [
+            349,
+            389
+          ],
+          "bytes": 102413
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/flower_pot.png",
+          "cell": [
+            1086,
+            362,
+            1448,
+            724
+          ],
+          "alphaBBox": [
+            23,
+            60,
+            300,
+            327
+          ],
+          "size": [
+            293,
+            283
+          ],
+          "bytes": 119288
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/toolbox.png",
+          "cell": [
+            0,
+            729,
+            368,
+            1086
+          ],
+          "alphaBBox": [
+            0,
+            0,
+            358,
+            357
+          ],
+          "size": [
+            374,
+            373
+          ],
+          "bytes": 59846
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/street_lamp.png",
+          "cell": [
+            368,
+            713,
+            724,
+            1086
+          ],
+          "alphaBBox": [
+            11,
+            1,
+            354,
+            373
+          ],
+          "size": [
+            359,
+            388
+          ],
+          "bytes": 64839
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/hose.png",
+          "cell": [
+            724,
+            743,
+            1086,
+            1086
+          ],
+          "alphaBBox": [
+            9,
+            0,
+            324,
+            343
+          ],
+          "size": [
+            331,
+            359
+          ],
+          "bytes": 105521
+        },
+        {
+          "path": "src/assets/scenarios/outdoor/objects/mud_puddle.png",
+          "cell": [
+            1086,
+            724,
+            1448,
+            1086
+          ],
+          "alphaBBox": [
+            24,
+            58,
+            330,
+            309
+          ],
+          "size": [
+            322,
+            267
+          ],
+          "bytes": 95666
+        }
+      ]
+    },
+    {
+      "source": "pack_05_hotel_sheet.png",
+      "sourceBytes": 1241086,
+      "sha256": "57a096e2bbea5a05d29030351b1bd6ef9dd58d08fcb0fd50bfab7230f967c921",
+      "outputs": [
+        {
+          "path": "src/assets/scenarios/hotel/zones/lobby.png",
+          "cell": [
+            0,
+            0,
+            362,
+            362
+          ],
+          "alphaBBox": [
+            0,
+            19,
+            362,
+            351
+          ],
+          "size": [
+            378,
+            348
+          ],
+          "bytes": 135566
+        },
+        {
+          "path": "src/assets/scenarios/hotel/zones/guest_room.png",
+          "cell": [
+            362,
+            0,
+            724,
+            362
+          ],
+          "alphaBBox": [
+            1,
+            35,
+            352,
+            362
+          ],
+          "size": [
+            367,
+            343
+          ],
+          "bytes": 107473
+        },
+        {
+          "path": "src/assets/scenarios/hotel/zones/hallway.png",
+          "cell": [
+            724,
+            0,
+            1086,
+            362
+          ],
+          "alphaBBox": [
+            11,
+            19,
+            354,
+            343
+          ],
+          "size": [
+            359,
+            340
+          ],
+          "bytes": 118095
+        },
+        {
+          "path": "src/assets/scenarios/hotel/zones/hotel_bathroom.png",
+          "cell": [
+            1086,
+            0,
+            1448,
+            362
+          ],
+          "alphaBBox": [
+            11,
+            23,
+            342,
+            362
+          ],
+          "size": [
+            347,
+            355
+          ],
+          "bytes": 117157
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/armchair_hotel.png",
+          "cell": [
+            0,
+            362,
+            362,
+            724
+          ],
+          "alphaBBox": [
+            25,
+            4,
+            355,
+            361
+          ],
+          "size": [
+            346,
+            373
+          ],
+          "bytes": 86170
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/suitcase.png",
+          "cell": [
+            362,
+            362,
+            724,
+            724
+          ],
+          "alphaBBox": [
+            7,
+            0,
+            326,
+            362
+          ],
+          "size": [
+            335,
+            378
+          ],
+          "bytes": 79174
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/luxury_bed.png",
+          "cell": [
+            724,
+            362,
+            1086,
+            724
+          ],
+          "alphaBBox": [
+            31,
+            8,
+            332,
+            349
+          ],
+          "size": [
+            317,
+            357
+          ],
+          "bytes": 107357
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/luggage_cart.png",
+          "cell": [
+            1086,
+            362,
+            1448,
+            724
+          ],
+          "alphaBBox": [
+            51,
+            0,
+            326,
+            339
+          ],
+          "size": [
+            291,
+            355
+          ],
+          "bytes": 103322
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/mirror.png",
+          "cell": [
+            0,
+            724,
+            362,
+            1086
+          ],
+          "alphaBBox": [
+            0,
+            1,
+            356,
+            362
+          ],
+          "size": [
+            372,
+            377
+          ],
+          "bytes": 82328
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/statue.png",
+          "cell": [
+            362,
+            724,
+            724,
+            1086
+          ],
+          "alphaBBox": [
+            7,
+            0,
+            360,
+            362
+          ],
+          "size": [
+            369,
+            378
+          ],
+          "bytes": 76317
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/side_table.png",
+          "cell": [
+            724,
+            724,
+            1086,
+            1086
+          ],
+          "alphaBBox": [
+            9,
+            23,
+            344,
+            332
+          ],
+          "size": [
+            351,
+            325
+          ],
+          "bytes": 95855
+        },
+        {
+          "path": "src/assets/scenarios/hotel/objects/table_lamp.png",
+          "cell": [
+            1086,
+            724,
+            1448,
+            1086
+          ],
+          "alphaBBox": [
+            1,
+            4,
+            336,
+            346
+          ],
+          "size": [
+            351,
+            358
+          ],
+          "bytes": 73186
+        }
+      ]
+    },
+    {
+      "source": "pack_06_hospital_sheet.png",
+      "sourceBytes": 1245100,
+      "sha256": "5e4a07a695701a6e1c46c624175891c520e424ef71a96ca5815c9b563b24ebfe",
+      "outputs": [
+        {
+          "path": "src/assets/scenarios/hospital/zones/reception_medical.png",
+          "cell": [
+            0,
+            0,
+            362,
+            362
+          ],
+          "alphaBBox": [
+            45,
+            47,
+            362,
+            343
+          ],
+          "size": [
+            333,
+            312
+          ],
+          "bytes": 123112
+        },
+        {
+          "path": "src/assets/scenarios/hospital/zones/exam_room.png",
+          "cell": [
+            362,
+            0,
+            724,
+            362
+          ],
+          "alphaBBox": [
+            35,
+            35,
+            332,
+            345
+          ],
+          "size": [
+            313,
+            326
+          ],
+          "bytes": 112164
+        },
+        {
+          "path": "src/assets/scenarios/hospital/zones/patient_room.png",
+          "cell": [
+            724,
+            0,
+            1086,
+            362
+          ],
+          "alphaBBox": [
+            29,
+            44,
+            326,
+            343
+          ],
+          "size": [
+            313,
+            315
+          ],
+          "bytes": 118242
+        },
+        {
+          "path": "src/assets/scenarios/hospital/zones/laboratory.png",
+          "cell": [
+            1086,
+            0,
+            1448,
+            362
+          ],
+          "alphaBBox": [
+            1,
+            48,
+            319,
+            341
+          ],
+          "size": [
+            334,
+            309
+          ],
+          "bytes": 110023
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/hospital_bed.png",
+          "cell": [
+            0,
+            362,
+            362,
+            724
+          ],
+          "alphaBBox": [
+            65,
+            18,
+            346,
+            357
+          ],
+          "size": [
+            297,
+            355
+          ],
+          "bytes": 104080
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/stool.png",
+          "cell": [
+            362,
+            362,
+            724,
+            724
+          ],
+          "alphaBBox": [
+            9,
+            73,
+            272,
+            341
+          ],
+          "size": [
+            279,
+            284
+          ],
+          "bytes": 67114
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/patient_monitor.png",
+          "cell": [
+            724,
+            362,
+            1086,
+            724
+          ],
+          "alphaBBox": [
+            5,
+            2,
+            346,
+            362
+          ],
+          "size": [
+            357,
+            376
+          ],
+          "bytes": 79312
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/medical_cart.png",
+          "cell": [
+            1086,
+            362,
+            1448,
+            724
+          ],
+          "alphaBBox": [
+            41,
+            20,
+            300,
+            361
+          ],
+          "size": [
+            275,
+            357
+          ],
+          "bytes": 96361
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/privacy_screen.png",
+          "cell": [
+            0,
+            724,
+            362,
+            1086
+          ],
+          "alphaBBox": [
+            0,
+            4,
+            362,
+            362
+          ],
+          "size": [
+            378,
+            374
+          ],
+          "bytes": 99418
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/sink.png",
+          "cell": [
+            362,
+            724,
+            724,
+            1086
+          ],
+          "alphaBBox": [
+            3,
+            10,
+            316,
+            287
+          ],
+          "size": [
+            329,
+            293
+          ],
+          "bytes": 65762
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/medicine_cabinet.png",
+          "cell": [
+            724,
+            724,
+            1086,
+            1086
+          ],
+          "alphaBBox": [
+            17,
+            0,
+            362,
+            318
+          ],
+          "size": [
+            361,
+            334
+          ],
+          "bytes": 83501
+        },
+        {
+          "path": "src/assets/scenarios/hospital/objects/instrument_tray.png",
+          "cell": [
+            1086,
+            724,
+            1448,
+            1086
+          ],
+          "alphaBBox": [
+            3,
+            2,
+            314,
+            344
+          ],
+          "size": [
+            327,
+            358
+          ],
+          "bytes": 104760
+        }
+      ]
+    },
+    {
+      "source": "avatar_sheet_24.png",
+      "sourceBytes": 1393213,
+      "sha256": "6b019ae46b49bc115079b4425b2693fffd87f7404f8088c0f56d2079cc59b53e",
+      "outputs": [
+        {
+          "path": "src/assets/avatar/individuals/avatar_01.png",
+          "cell": [
+            0,
+            0,
+            270,
+            274
+          ],
+          "alphaBBox": [
+            78,
+            34,
+            270,
+            274
+          ],
+          "size": [
+            208,
+            256
+          ],
+          "bytes": 54879
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_02.png",
+          "cell": [
+            270,
+            0,
+            488,
+            274
+          ],
+          "alphaBBox": [
+            0,
+            32,
+            218,
+            274
+          ],
+          "size": [
+            234,
+            258
+          ],
+          "bytes": 53041
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_03.png",
+          "cell": [
+            488,
+            0,
+            724,
+            274
+          ],
+          "alphaBBox": [
+            28,
+            32,
+            224,
+            274
+          ],
+          "size": [
+            212,
+            258
+          ],
+          "bytes": 55221
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_04.png",
+          "cell": [
+            724,
+            0,
+            959,
+            274
+          ],
+          "alphaBBox": [
+            13,
+            34,
+            211,
+            274
+          ],
+          "size": [
+            214,
+            256
+          ],
+          "bytes": 55588
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_05.png",
+          "cell": [
+            959,
+            0,
+            1179,
+            274
+          ],
+          "alphaBBox": [
+            1,
+            32,
+            220,
+            274
+          ],
+          "size": [
+            235,
+            258
+          ],
+          "bytes": 53560
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_06.png",
+          "cell": [
+            1179,
+            0,
+            1448,
+            274
+          ],
+          "alphaBBox": [
+            0,
+            34,
+            193,
+            274
+          ],
+          "size": [
+            209,
+            256
+          ],
+          "bytes": 51680
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_07.png",
+          "cell": [
+            0,
+            274,
+            270,
+            543
+          ],
+          "alphaBBox": [
+            78,
+            0,
+            270,
+            261
+          ],
+          "size": [
+            208,
+            277
+          ],
+          "bytes": 55637
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_08.png",
+          "cell": [
+            270,
+            274,
+            488,
+            543
+          ],
+          "alphaBBox": [
+            0,
+            0,
+            218,
+            261
+          ],
+          "size": [
+            234,
+            277
+          ],
+          "bytes": 54307
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_09.png",
+          "cell": [
+            488,
+            274,
+            724,
+            543
+          ],
+          "alphaBBox": [
+            28,
+            0,
+            222,
+            261
+          ],
+          "size": [
+            210,
+            277
+          ],
+          "bytes": 54463
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_10.png",
+          "cell": [
+            724,
+            274,
+            959,
+            543
+          ],
+          "alphaBBox": [
+            14,
+            0,
+            235,
+            265
+          ],
+          "size": [
+            237,
+            281
+          ],
+          "bytes": 48095
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_11.png",
+          "cell": [
+            959,
+            274,
+            1179,
+            543
+          ],
+          "alphaBBox": [
+            0,
+            0,
+            220,
+            263
+          ],
+          "size": [
+            236,
+            279
+          ],
+          "bytes": 58459
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_12.png",
+          "cell": [
+            1179,
+            274,
+            1448,
+            543
+          ],
+          "alphaBBox": [
+            0,
+            0,
+            193,
+            261
+          ],
+          "size": [
+            209,
+            277
+          ],
+          "bytes": 50300
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_13.png",
+          "cell": [
+            0,
+            543,
+            270,
+            809
+          ],
+          "alphaBBox": [
+            78,
+            8,
+            270,
+            252
+          ],
+          "size": [
+            208,
+            260
+          ],
+          "bytes": 53226
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_14.png",
+          "cell": [
+            270,
+            543,
+            488,
+            809
+          ],
+          "alphaBBox": [
+            0,
+            7,
+            217,
+            251
+          ],
+          "size": [
+            233,
+            260
+          ],
+          "bytes": 51682
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_15.png",
+          "cell": [
+            488,
+            543,
+            724,
+            809
+          ],
+          "alphaBBox": [
+            28,
+            8,
+            222,
+            251
+          ],
+          "size": [
+            210,
+            259
+          ],
+          "bytes": 53250
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_16.png",
+          "cell": [
+            724,
+            543,
+            959,
+            809
+          ],
+          "alphaBBox": [
+            13,
+            7,
+            209,
+            251
+          ],
+          "size": [
+            212,
+            260
+          ],
+          "bytes": 53956
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_17.png",
+          "cell": [
+            959,
+            543,
+            1179,
+            809
+          ],
+          "alphaBBox": [
+            1,
+            8,
+            220,
+            251
+          ],
+          "size": [
+            235,
+            259
+          ],
+          "bytes": 56691
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_18.png",
+          "cell": [
+            1179,
+            543,
+            1448,
+            809
+          ],
+          "alphaBBox": [
+            0,
+            8,
+            192,
+            253
+          ],
+          "size": [
+            208,
+            261
+          ],
+          "bytes": 53017
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_19.png",
+          "cell": [
+            0,
+            809,
+            270,
+            1086
+          ],
+          "alphaBBox": [
+            78,
+            1,
+            270,
+            247
+          ],
+          "size": [
+            208,
+            262
+          ],
+          "bytes": 53632
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_20.png",
+          "cell": [
+            270,
+            809,
+            488,
+            1086
+          ],
+          "alphaBBox": [
+            0,
+            1,
+            218,
+            249
+          ],
+          "size": [
+            234,
+            264
+          ],
+          "bytes": 56958
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_21.png",
+          "cell": [
+            488,
+            809,
+            724,
+            1086
+          ],
+          "alphaBBox": [
+            0,
+            1,
+            221,
+            247
+          ],
+          "size": [
+            237,
+            262
+          ],
+          "bytes": 66394
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_22.png",
+          "cell": [
+            724,
+            809,
+            959,
+            1086
+          ],
+          "alphaBBox": [
+            13,
+            1,
+            235,
+            247
+          ],
+          "size": [
+            238,
+            262
+          ],
+          "bytes": 50482
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_23.png",
+          "cell": [
+            959,
+            809,
+            1179,
+            1086
+          ],
+          "alphaBBox": [
+            0,
+            1,
+            220,
+            247
+          ],
+          "size": [
+            236,
+            262
+          ],
+          "bytes": 52844
+        },
+        {
+          "path": "src/assets/avatar/individuals/avatar_24.png",
+          "cell": [
+            1179,
+            809,
+            1448,
+            1086
+          ],
+          "alphaBBox": [
+            0,
+            1,
+            192,
+            247
+          ],
+          "size": [
+            208,
+            262
+          ],
+          "bytes": 53370
+        }
+      ]
+    }
+  ]
+}

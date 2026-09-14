@@ -5,6 +5,7 @@ import { fallbackZoneTheme, zoneTheme } from '../game/zones/theme'
 import { resolveZoneSurface } from '../game/zones/surfaces'
 import '../styles/surfaces.css'
 import type { BoardInteractionMode } from '../game/interaction'
+import { CharacterAvatar } from './CharacterAvatar'
 
 interface BoardProps {
   board: BoardCell[]; rows: number; columns: number; zones: Zone[]; edgeFeatures?: EdgeFeature[]; placements: Placement[]; excludedCells: Position[]; manualExcludedCells?: Position[]; characters: Character[]; selectedCharacterId?: string | null; interactionMode?: BoardInteractionMode
@@ -42,7 +43,7 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
               {cell.object && <span className={`object object-${cell.object.id} ${cell.object.occupiable ? 'object-occupiable' : 'object-blocking'}`} aria-hidden="true"><img src={cell.object.icon} alt="" /></span>}
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
               {excluded && !character && <span className="exclude-mark" aria-hidden="true">×{!manual && <small>A</small>}</span>}
-              {character && <span className={`placed ${character.isVictim ? 'placed-victim' : ''} ${character.id === selectedCharacterId ? 'placed-selected' : ''}`}><b>{character.avatar}</b><i>{character.name}</i>{character.isVictim && <small className="token-victim" aria-hidden="true">V</small>}</span>}
+              {character && <span className={`placed ${character.isVictim ? 'placed-victim' : ''} ${character.id === selectedCharacterId ? 'placed-selected' : ''}`}><b><CharacterAvatar character={character} /></b><i>{character.name}</i>{character.isVictim && <small className="token-victim" aria-hidden="true">V</small>}</span>}
             </button>
           })}
         </div>

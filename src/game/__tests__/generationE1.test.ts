@@ -16,8 +16,8 @@ import { getVersionedProceduralCaseId, PROCEDURAL_GENERATION_VERSION } from '../
 
 describe('5.5E.1 procedural vocabulary', () => {
   it('versions procedural save IDs without changing logical normal IDs', () => {
-    expect(PROCEDURAL_GENERATION_VERSION).toBe(4)
-    expect(getVersionedProceduralCaseId('normal-d2-c01')).toBe('normal-d2-c01-g4')
+    expect(PROCEDURAL_GENERATION_VERSION).toBe(5)
+    expect(getVersionedProceduralCaseId('normal-d2-c01')).toBe('normal-d2-c01-g5')
     expect(getNormalCaseId(2, 1)).toBe('normal-d2-c01')
     expect(case001.id).toBe('case001')
   })
@@ -27,9 +27,9 @@ describe('5.5E.1 procedural vocabulary', () => {
     expect(generateNormalCase({ difficulty: 1, caseNumber: 2 }).caseData.id).toBe(getVersionedProceduralCaseId(getNormalCaseId(1, 2)))
     expect(generateDailyCase(date).caseData.id).toBe(getVersionedProceduralCaseId(getDailyPuzzleId(date, 1)))
     expect(generateInfiniteCase({ difficulty: 1, seed: 42 }).caseData.id).toBe(getVersionedProceduralCaseId(getInfiniteCaseId(1, 42)))
-    expect(getNormalCaseId(1, 2)).not.toContain('-g4')
-    expect(getDailyPuzzleId(date, 1)).not.toContain('-g4')
-    expect(getInfiniteCaseId(1, 42)).not.toContain('-g4')
+    expect(getNormalCaseId(1, 2)).not.toContain('-g5')
+    expect(getDailyPuzzleId(date, 1)).not.toContain('-g5')
+    expect(getInfiniteCaseId(1, 42)).not.toContain('-g5')
   })
 
   it('builds only canonical-true advanced and global candidates', () => {

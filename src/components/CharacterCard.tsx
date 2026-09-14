@@ -1,9 +1,10 @@
 import type { Character } from '../game/types'
+import { CharacterAvatar } from './CharacterAvatar'
 
 export function CharacterCard({ character, traitLabels = [], selected, placed, onSelect }: { character: Character; traitLabels?: string[]; selected: boolean; placed: boolean; onSelect: () => void }) {
   const state = selected ? 'SELECCIONADO' : placed ? 'EN ESCENA' : 'SIN COLOCAR'
   return <button className={`character-card ${selected ? 'selected' : ''} ${placed ? 'placed-card' : ''} ${character.isVictim ? 'victim' : ''}`} onClick={onSelect} aria-pressed={selected}>
-    <span className="avatar" aria-hidden="true">{character.avatar}</span>
+    <span className="avatar" aria-hidden="true"><CharacterAvatar character={character} /></span>
     <span className="character-info">
       <span className="character-heading"><strong>{character.name}</strong><em>{state}</em></span>
       {character.isVictim && <small>VÍCTIMA</small>}

@@ -39,7 +39,7 @@ describe('visual board surfaces', () => {
       expect(object?.icon).toMatch(new RegExp(`/objects/${id}\\.png$`))
     }
     for (const id of ['cafe', 'kitchen', 'storage', 'bathroom']) {
-      expect(case001.zones.find(zone => zone.id === id)?.icon).toMatch(new RegExp(`/objects/${id}\\.png$`))
+      expect(case001.zones.find(zone => zone.id === id)?.icon).toMatch(new RegExp(`/zones/${id}\\.png$`))
     }
     expect(case001.board.length).toBe(before.cells)
     expect(case001.solution).toEqual(before.solution)

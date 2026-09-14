@@ -13,7 +13,7 @@ export interface GeneratedProceduralCase { caseData: GameCase; baseSeed: number;
 export function generateProceduralCase({ id, title, intro, difficulty, seed }: { id: string; title: string; intro: string; difficulty: DifficultyRating; seed: number }): GeneratedProceduralCase {
   const preset = getDifficultyPreset(difficulty), characters = selectCharactersForDifficulty(difficulty, seed)
   if (characters.length !== preset.characterCount) throw new Error('Character roster does not match difficulty preset.')
-  const profile = createDifficultyScenarioProfile({ id, title, intro, difficulty, characters })
+  const profile = createDifficultyScenarioProfile({ id, title, intro, difficulty, characters, seed })
   for (let offset = 0; offset < 100; offset += 1) {
     const effectiveSeed = (seed + offset) >>> 0
     try {

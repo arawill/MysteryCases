@@ -15,7 +15,7 @@
 html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-background-light,var(--surface-soft))}
 /* Every icon URL can point to SVG, transparent PNG, or transparent WebP. */
 .board .cell .object{position:absolute;inset:0;z-index:1;display:grid;place-items:center;pointer-events:none;opacity:.9}
-.board .cell .object img{display:block;width:56%;height:56%;margin:0;object-fit:contain;filter:drop-shadow(0 3px 2px #0003)}
+.board .cell .object img{display:block;width:min(76%,100%);height:min(76%,100%);max-width:100%;max-height:100%;margin:0;object-fit:contain;filter:drop-shadow(0 3px 2px #0003)}
 .board .cell .object-table img{width:82%;height:82%}
 .board .cell .object-plant img{width:76%;height:76%}
 .board .cell .object-crate img{width:74%;height:74%}

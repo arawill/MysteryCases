@@ -44,6 +44,6 @@ export interface ZoneOccupancyCountGlobalClue extends BaseGlobalClue { type: 'zo
 export interface ObjectOccupancyCountGlobalClue extends BaseGlobalClue { type: 'objectOccupancyCount'; objectId: string; count: number }
 export interface ZoneTraitCountGlobalClue extends BaseGlobalClue { type: 'zoneTraitCount'; zoneId: string; traitId: string; count: number }
 export type GlobalClue = EmptyZoneCountGlobalClue | ZoneOccupancyCountGlobalClue | ObjectOccupancyCountGlobalClue | ZoneTraitCountGlobalClue
-export interface Character { id: string; name: string; avatar: string; clues: Clue[]; isVictim: boolean; traitIds?: string[] }
+export interface Character { id: string; name: string; avatar: string; avatarImage?: string; clues: Clue[]; isVictim: boolean; traitIds?: string[] }
 export interface Placement { characterId: string; position: Position }
 export interface GameCase { id: string; title: string; intro: string; difficulty: DifficultyRating; rows: number; columns: number; zones: Zone[]; board: BoardCell[]; characters: Character[]; solution: Placement[]; globalClues?: GlobalClue[]; edgeFeatures?: EdgeFeature[]; traitDefinitions?: TraitDefinition[] }
