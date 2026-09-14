@@ -1,6 +1,7 @@
 import type { Clue, DifficultyRating, GlobalClue } from '../types'
+import { allowsProceduralClue } from './clueSemantics'
 
-export const spatialAdvancedTypes = new Set<Clue['type']>(['cornerOfBoard', 'cornerOfZone', 'besideWall', 'notBesideWall'])
+export const spatialAdvancedTypes = new Set<Clue['type']>(['cornerOfBoard', 'notBesideWall'])
 export const logicAdvancedTypes = new Set<Clue['type']>(['rowOffsetFromCharacter', 'oneOfZones', 'oneOfObjects', 'aloneInZone', 'notAloneInZone', 'ownZoneOccupancyCount'])
 export const edgeAdvancedTypes = new Set<Clue['type']>(['besideEdgeFeature', 'notBesideEdgeFeature'])
 export const traitAdvancedTypes = new Set<Clue['type']>(['withTraitInZone', 'withoutTraitInZone', 'companionTraitCount'])
@@ -14,7 +15,7 @@ export const isClassicProceduralGlobal = (clue: GlobalClue) => !isTraitGlobal(cl
 
 /** Final procedural vocabulary: legacy; spatial; logic; edge + classic global; trait + trait global. */
 export const difficultyRequirements = (difficulty: DifficultyRating) => ({
-  spatial: difficulty >= 2 ? 1 : 0,
+  spatial: 0,
   logic: difficulty >= 3 ? 1 : 0,
   edge: difficulty >= 4 ? 1 : 0,
   trait: difficulty >= 5 ? 1 : 0,
@@ -27,5 +28,5 @@ export const allowsClue = (difficulty: DifficultyRating, clue: Clue) => {
   if (isTraitAdvanced(clue)) return difficulty >= 5
   if (isSpatialAdvanced(clue)) return difficulty >= 2
   if (isLogicAdvanced(clue)) return difficulty >= 3
-  return true
+  return allowsProceduralClue(difficulty, clue)
 }

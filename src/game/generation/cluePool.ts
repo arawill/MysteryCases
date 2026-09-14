@@ -69,8 +69,8 @@ export function buildTrueCluePool(template: GenerationTemplate, solution: Placem
       const targetCell = getCell(template.board, targetPlacement.position); if (!targetCell) continue
       if (cell.row < targetCell.row) add(pool, subject.id, { id: `gen-${subject.id}-north-of-${target.id}`, type: 'northOfCharacter', text: `Estaba al norte de ${target.name}.`, targetCharacterId: target.id })
       if (cell.row > targetCell.row) add(pool, subject.id, { id: `gen-${subject.id}-south-of-${target.id}`, type: 'southOfCharacter', text: `Estaba al sur de ${target.name}.`, targetCharacterId: target.id })
-      const offset = cell.row - targetCell.row, direction = offset > 0 ? 'al sur' : 'al norte', amount = Math.abs(offset), distance = amount === 1 ? 'una fila' : `${amount} filas`
-      add(pool, subject.id, { id: `gen-${subject.id}-row-offset-${target.id}`, type: 'rowOffsetFromCharacter', text: `Estaba exactamente ${distance} ${direction} de ${target.name}.`, targetCharacterId: target.id, rowOffset: offset })
+      const offset = cell.row - targetCell.row
+      if (offset !== 0) { const direction = offset > 0 ? 'al sur' : 'al norte', amount = Math.abs(offset), distance = amount === 1 ? 'una fila' : `${amount} filas`; add(pool, subject.id, { id: `gen-${subject.id}-row-offset-${target.id}`, type: 'rowOffsetFromCharacter', text: `Estaba exactamente ${distance} ${direction} de ${target.name}.`, targetCharacterId: target.id, rowOffset: offset }) }
       if (cell.zoneId === targetCell.zoneId) add(pool, subject.id, { id: `gen-${subject.id}-same-zone-${target.id}`, type: 'sameZoneAsCharacter', text: `Estaba en la misma habitación que ${target.name}.`, targetCharacterId: target.id })
       if (isBeside(cell, targetCell, template.board)) add(pool, subject.id, { id: `gen-${subject.id}-beside-${target.id}`, type: 'besideCharacter', text: `Estaba junto a ${target.name}.`, targetCharacterId: target.id })
     }
