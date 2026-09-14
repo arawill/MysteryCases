@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       }),
     ],
