@@ -1,0 +1,16 @@
+Pack 03 - Office
+Hoja base incluida: pack_03_office_sheet.png
+Zonas previstas:
+- reception.png
+- office.png
+- meeting_room.png
+- archive.png
+Objetos previstos:
+- desk.png
+- office_chair.png
+- laptop.png
+- printer.png
+- filing_cabinet.png
+- bookshelf.png
+- bin.png
+- office_plant.png

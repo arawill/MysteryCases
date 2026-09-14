@@ -1,0 +1,16 @@
+Pack 04 - Outdoor / Garden / Garage
+Hoja base incluida: pack_04_outdoor_sheet.png
+Zonas previstas:
+- garden.png
+- garage.png
+- patio.png
+- porch.png
+Objetos previstos:
+- tree.png
+- bench.png
+- car.png
+- toolbox.png
+- street_lamp.png
+- hose.png
+- flower_pot.png
+- mud_puddle.png

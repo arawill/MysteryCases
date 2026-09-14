@@ -1,0 +1,16 @@
+Pack 05 - Hotel / Elegant Building
+Hoja base incluida: pack_05_hotel_sheet.png
+Zonas previstas:
+- lobby.png
+- guest_room.png
+- hallway.png
+- hotel_bathroom.png
+Objetos previstos:
+- luxury_bed.png
+- armchair_hotel.png
+- suitcase.png
+- luggage_cart.png
+- mirror.png
+- statue.png
+- side_table.png
+- table_lamp.png
