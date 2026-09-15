@@ -21,6 +21,7 @@ import { SettingsScreen } from './screens/SettingsScreen'
 import { StatsScreen } from './screens/StatsScreen'
 import { applyTheme, isTheme, type Theme } from './theme'
 import { AchievementToastHost } from './components/AchievementToastHost'
+import { PwaUpdatePrompt } from './components/PwaUpdatePrompt'
 import { reconcileCurrentAchievements } from './game/achievements/runtime'
 
 function ThemeController() {
@@ -54,7 +55,7 @@ function CaseRoute() { return <div className="case-route"><AppHeader back /><Gam
 export default function App() {
   const [, setAchievementBootstrapVersion] = useState(0)
   useEffect(() => { reconcileCurrentAchievements(); const timer = window.setTimeout(() => setAchievementBootstrapVersion(version => version + 1), 0); return () => window.clearTimeout(timer) }, [])
-  return <HashRouter><ThemeController /><AchievementToastHost /><Routes>
+  return <HashRouter><ThemeController /><AchievementToastHost /><PwaUpdatePrompt /><Routes>
     <Route path="/" element={<HomeScreen />} />
     <Route path="/daily" element={<DailyScreen />} />
     <Route path="/normal" element={<NormalCasesScreen />} />

@@ -13,8 +13,8 @@ if (!existsSync(dist)) {
 } else {
   const manifestPath = join(dist, 'manifest.webmanifest')
   const serviceWorkerPath = join(dist, 'sw.js')
-  if (!existsSync(manifestPath)) fail('manifest.webmanifest is missing.')
   if (!existsSync(serviceWorkerPath)) fail('sw.js is missing.')
+  if (!existsSync(manifestPath)) fail('manifest.webmanifest is missing.')
   if (existsSync(manifestPath)) {
     let manifest
     try { manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) } catch { fail('manifest.webmanifest is not valid JSON.') }
