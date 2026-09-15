@@ -7,6 +7,7 @@ import { loadNormalProgress, NORMAL_PROGRESS_KEY } from '../persistence/normalPr
 import { loadPlayerStats, PLAYER_STATS_KEY } from '../persistence/playerStats'
 import { loadProgress, PROGRESS_KEY } from '../persistence/progress'
 import { resetAllProgress } from '../persistence/resetProgress'
+import { INVESTIGATION_HISTORY_KEY } from '../persistence/investigationHistory'
 import { loadSettings, saveSettings } from '../persistence/settings'
 
 class MemoryStorage {
@@ -29,6 +30,7 @@ describe('resetAllProgress', () => {
     storage.setItem(DAILY_SESSION_KEY, JSON.stringify({ saveVersion: 1, dateKey: '2026-09-08', difficulty: 2 }))
     storage.setItem(INFINITE_SESSION_KEY, JSON.stringify({ saveVersion: 1, generationVersion: 1, difficulty: 2, seed: 42, status: 'active' }))
     storage.setItem(PLAYER_STATS_KEY, JSON.stringify({ saveVersion: 1, completedInfiniteCaseIds: ['infinite-d2-s42'], hintsUsed: { review: 2, exclusion: 1, reveal: 3 } }))
+    storage.setItem(INVESTIGATION_HISTORY_KEY, JSON.stringify({ saveVersion: 1, records: [] }))
     caseIds.forEach(caseId => saveCase(caseId, { placements: [{ characterId: 'a', position: { row: 1, column: 1 } }], manualExcludedCells: [{ row: 1, column: 2 }], hintsUsed: { review: 1, exclusion: 1, reveal: 1 } }, storage))
     saveSettings({ saveVersion: 1, theme: 'light', autoCrossout: true }, storage)
     storage.setItem('some-other-app-data', 'keep')
@@ -43,6 +45,7 @@ describe('resetAllProgress', () => {
     expect(loadDailySession(date, storage)).toBeNull()
     expect(loadInfiniteSession(storage)).toBeNull()
     expect(loadPlayerStats(storage)).toEqual({ saveVersion: 1, completedInfiniteCaseIds: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 } })
+    expect(storage.getItem(INVESTIGATION_HISTORY_KEY)).toBeNull()
     for (const caseId of caseIds) expect(loadCaseSave(caseId, storage)).toEqual({ saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 }, checkpoints: [], positionChecksUsed: 0 })
     expect(loadSettings(storage)).toEqual({ saveVersion: 1, theme: 'light', autoCrossout: true })
   })

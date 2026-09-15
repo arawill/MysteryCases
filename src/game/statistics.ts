@@ -3,6 +3,7 @@ import { countCompletedFirstForty, countCompletedNormalCases, getUnlockedDifficu
 import type { PlayerStats } from './persistence/playerStats'
 import type { Progress } from './persistence/progress'
 import type { DifficultyRating } from './types'
+import { countPerfectInvestigations, countPerfectUniqueInvestigations, countTrackedCompletions, type InvestigationHistory } from './persistence/investigationHistory'
 
 const datePattern = /^(\d{4})-(\d{2})-(\d{2})$/
 
@@ -44,7 +45,7 @@ export function calculateDailyStreaks(dateKeys: string[], today: Date) {
   return { current, best }
 }
 
-export function buildPlayerStatistics({ normalProgress, progress, playerStats, today }: { normalProgress: NormalModeProgress; progress: Progress; playerStats: PlayerStats; today: Date }) {
+export function buildPlayerStatistics({ normalProgress, progress, playerStats, investigationHistory, today }: { normalProgress: NormalModeProgress; progress: Progress; playerStats: PlayerStats; investigationHistory?: InvestigationHistory; today: Date }) {
   const unlocked = getUnlockedDifficulties(normalProgress)
   const byDifficulty = ([1, 2, 3, 4, 5] as DifficultyRating[]).map(difficulty => ({
     difficulty,
@@ -64,5 +65,6 @@ export function buildPlayerStatistics({ normalProgress, progress, playerStats, t
     daily: { completed: dateKeys.length, currentStreak: daily.current, bestStreak: daily.best },
     infinite: { completed: playerStats.completedInfiniteCaseIds.length },
     hints: { ...hints, total: hints.review + hints.exclusion + hints.reveal },
+    performance: { trackedUnique: investigationHistory?.records.length ?? 0, trackedCompletions: investigationHistory ? countTrackedCompletions(investigationHistory) : 0, perfectUnique: investigationHistory ? countPerfectUniqueInvestigations(investigationHistory) : 0, perfectRuns: investigationHistory ? countPerfectInvestigations(investigationHistory) : 0 },
   }
 }

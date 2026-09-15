@@ -20,11 +20,12 @@ import { isTouchBoardLayout } from '../game/touchLayout'
 import { getCharacterTraitLabels } from '../game/traits'
 import type { BoardCell, Character, GameCase, Placement, Position } from '../game/types'
 
+export interface CaseCompletionPerformance { review: number; exclusion: number; positionChecks: number }
 interface GameScreenProps {
   gameCase: GameCase
   eyebrowLabel?: string
   onCompletionAcknowledged?: () => void
-  onCaseCompleted?: () => void
+  onCaseCompleted?: (performance: CaseCompletionPerformance) => void
   recordGlobalCompletion?: boolean
   completionId?: string
 }
@@ -45,6 +46,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const [killer, setKiller] = useState<Character | null>(null)
   const [result, setResult] = useState(false)
   const shown = useRef(false)
+  const completionRecorded = useRef(false)
   const victim = gameCase.characters.find(character => character.isVictim)
   const selected = gameCase.characters.find(character => character.id === selectedId)
   const auto = loadSettings().autoCrossout
@@ -151,7 +153,8 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     const found = findKiller(gameCase, placements)
     if (!found) return setMessage('Error interno: la solución no identifica un asesino coherente.')
     if (selectedKillerId !== found.id) return setMessage('La reconstrucción encaja, pero tu acusación no.')
-    recordCaseCompletion(completionId ?? gameCase.id, recordGlobalCompletion); onCaseCompleted?.(); setKiller(found); setResult(true)
+    if (!completionRecorded.current) { completionRecorded.current = true; recordCaseCompletion(completionId ?? gameCase.id, recordGlobalCompletion); onCaseCompleted?.({ review: hintsUsed.review, exclusion: hintsUsed.exclusion, positionChecks: positionChecksUsed }) }
+    setKiller(found); setResult(true)
   }
   const globalEvidence = gameCase.globalClues?.length ? <section className="global-evidence"><p className="eyebrow">EVIDENCIA GENERAL</p>{gameCase.globalClues.map(clue => <p key={clue.id}>{clue.text}</p>)}</section> : null
   const quickSelector = <>{globalEvidence}<div className="mobile-character-strip" aria-label="Selector rápido de personas"><p className="eyebrow">PERSONA ACTIVA</p><div>{gameCase.characters.map(character => { const descriptor = `${character.name}${character.roleLabel ? ` · ${character.roleLabel}` : ''}${character.isVictim ? ' · Víctima' : ''}`; return <button key={character.id} className={selectedId === character.id ? 'active' : ''} onClick={() => selectCharacter(character)} aria-pressed={selectedId === character.id} title={descriptor} aria-label={descriptor}><span><CharacterAvatar character={character} /></span><small>{character.name}</small>{character.isVictim && <i>V</i>}{placements.some(item => item.characterId === character.id) && <b>✓</b>}</button> })}</div></div></>
