@@ -8,6 +8,10 @@ export interface CompletionRecordState {
   current: boolean
 }
 
+export function shouldPersistGameSession(state: CompletionRecordState) {
+  return !state.current
+}
+
 export function notifyCaseCompletionOnce(
   state: CompletionRecordState,
   performance: CaseCompletionPerformance,

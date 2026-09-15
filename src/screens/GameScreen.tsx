@@ -11,7 +11,7 @@ import { addCheckpoint, deleteCheckpoint, restoreCheckpoint, resetInvestigationB
 import { getExclusionHint, reviewInvestigation } from '../game/hints'
 import { resolveBoardPrimaryAction, type BoardInteractionMode } from '../game/interaction'
 import { recordCaseCompletion } from '../game/persistence/completion'
-import { notifyCaseCompletionOnce, type CaseCompletionPerformance } from '../game/completionNotification'
+import { notifyCaseCompletionOnce, shouldPersistGameSession, type CaseCompletionPerformance } from '../game/completionNotification'
 import { loadCaseSave, saveCase, type CaseSave } from '../game/persistence/caseSave'
 import { checkCharacterPosition, getPositionCheckLimit } from '../game/positionChecks'
 import { recordHintUse } from '../game/persistence/playerStats'
@@ -59,7 +59,10 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const currentSave: CaseSave = { saveVersion: 4, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed }
   const rememberBoard = () => setHistory(items => recordBoardState(items, currentSave))
 
-  useEffect(() => { saveCase(gameCase.id, { placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed }) }, [gameCase.id, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed])
+  useEffect(() => {
+    if (!shouldPersistGameSession(completionRecorded)) return
+    saveCase(gameCase.id, { placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed })
+  }, [gameCase.id, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed])
   useEffect(() => {
     if (result) shown.current = true
     else if (shown.current) { shown.current = false; onCompletionAcknowledged?.() }
