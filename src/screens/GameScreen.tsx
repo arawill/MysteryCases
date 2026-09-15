@@ -11,6 +11,7 @@ import { addCheckpoint, deleteCheckpoint, restoreCheckpoint, resetInvestigationB
 import { getExclusionHint, reviewInvestigation } from '../game/hints'
 import { resolveBoardPrimaryAction, type BoardInteractionMode } from '../game/interaction'
 import { recordCaseCompletion } from '../game/persistence/completion'
+import { notifyCaseCompletionOnce, type CaseCompletionPerformance } from '../game/completionNotification'
 import { loadCaseSave, saveCase, type CaseSave } from '../game/persistence/caseSave'
 import { checkCharacterPosition, getPositionCheckLimit } from '../game/positionChecks'
 import { recordHintUse } from '../game/persistence/playerStats'
@@ -20,7 +21,7 @@ import { isTouchBoardLayout } from '../game/touchLayout'
 import { getCharacterTraitLabels } from '../game/traits'
 import type { BoardCell, Character, GameCase, Placement, Position } from '../game/types'
 
-export interface CaseCompletionPerformance { review: number; exclusion: number; positionChecks: number }
+export type { CaseCompletionPerformance } from '../game/completionNotification'
 interface GameScreenProps {
   gameCase: GameCase
   eyebrowLabel?: string
@@ -153,7 +154,11 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     const found = findKiller(gameCase, placements)
     if (!found) return setMessage('Error interno: la solución no identifica un asesino coherente.')
     if (selectedKillerId !== found.id) return setMessage('La reconstrucción encaja, pero tu acusación no.')
-    if (!completionRecorded.current) { completionRecorded.current = true; recordCaseCompletion(completionId ?? gameCase.id, recordGlobalCompletion); onCaseCompleted?.({ review: hintsUsed.review, exclusion: hintsUsed.exclusion, positionChecks: positionChecksUsed }) }
+    const performance = { review: hintsUsed.review, exclusion: hintsUsed.exclusion, positionChecks: positionChecksUsed }
+    notifyCaseCompletionOnce(completionRecorded, performance, completedPerformance => {
+      recordCaseCompletion(completionId ?? gameCase.id, recordGlobalCompletion)
+      onCaseCompleted?.(completedPerformance)
+    })
     setKiller(found); setResult(true)
   }
   const globalEvidence = gameCase.globalClues?.length ? <section className="global-evidence"><p className="eyebrow">EVIDENCIA GENERAL</p>{gameCase.globalClues.map(clue => <p key={clue.id}>{clue.text}</p>)}</section> : null

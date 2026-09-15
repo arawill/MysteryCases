@@ -6,6 +6,8 @@ import { getNormalCaseId, getNormalCaseSeed } from '../normal/ids'
 import { getVersionedProceduralCaseId } from '../generation/version'
 import { NORMAL_PROGRESS_KEY, countCompletedFirstForty, getUnlockedDifficulties, isDifficultyUnlocked, loadNormalProgress, markNormalCaseCompleted, saveNormalProgress, setSelectedDifficulty } from '../persistence/normalProgress'
 import { recordCaseCompletion } from '../persistence/completion'
+import { clearCaseSave, loadCaseSave, saveCase } from '../persistence/caseSave'
+import { recordInvestigationCompletion } from '../persistence/investigationHistory'
 import { isCaseCompleted } from '../persistence/progress'
 import { findKiller } from '../rules'
 import { solveCase, solveCaseWithStats } from '../solver'
@@ -15,6 +17,16 @@ import { zoneTheme } from '../zones/theme'
 class MemoryStorage { private values = new Map<string, string>(); get length() { return this.values.size } clear() { this.values.clear() } getItem(key: string) { return this.values.get(key) ?? null } key(index: number) { return [...this.values.keys()][index] ?? null } removeItem(key: string) { this.values.delete(key) } setItem(key: string, value: string) { this.values.set(key, value) } }
 
 describe('normal progress', () => {
+  it('clears a solved Normal save after recording the run, so a replay starts empty', () => {
+    const storage = new MemoryStorage() as unknown as Storage
+    const caseSaveId = 'normal-d1-c02-g7'
+    saveCase(caseSaveId, { placements: [{ characterId: 'person-01', position: { row: 1, column: 1 } }], manualExcludedCells: [{ row: 2, column: 2 }], hintsUsed: { review: 2, exclusion: 1, reveal: 0 }, positionChecksUsed: 3 }, storage)
+    markNormalCaseCompleted(1, 2, storage)
+    recordInvestigationCompletion({ mode: 'normal', logicalId: 'normal-d1-c02', difficulty: 1, assists: { review: 2, exclusion: 1, positionChecks: 3 } }, storage)
+    clearCaseSave(caseSaveId, storage)
+    expect(loadCaseSave(caseSaveId, storage)).toEqual({ saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 }, checkpoints: [], positionChecksUsed: 0 })
+    expect(loadNormalProgress(storage).completedCaseNumbersByDifficulty[1]).toEqual([2])
+  })
   it('can record a completion without writing global progress', () => { const storage = new MemoryStorage() as unknown as Storage; recordCaseCompletion('normal-d1-c02', false, storage); expect(isCaseCompleted('normal-d1-c02', storage)).toBe(false); recordCaseCompletion('daily-2026-09-08', true, storage); expect(isCaseCompleted('daily-2026-09-08', storage)).toBe(true) })
   it('starts with one star only and unlocks each tier after the first forty', () => { const storage = new MemoryStorage() as unknown as Storage; let progress = loadNormalProgress(storage); expect(getUnlockedDifficulties(progress)).toEqual([1]); expect(isDifficultyUnlocked(2, progress)).toBe(false); for (let number = 1; number < 40; number += 1) progress = markNormalCaseCompleted(1, number, storage); expect(isDifficultyUnlocked(2, progress)).toBe(false); progress = markNormalCaseCompleted(1, 40, storage); expect(isDifficultyUnlocked(2, progress)).toBe(true); for (let number = 1; number <= 40; number += 1) progress = markNormalCaseCompleted(2, number, storage); expect(isDifficultyUnlocked(3, progress)).toBe(true) })
   it('keeps progress independent, persists selection and sanitises bad values', () => { const storage = new MemoryStorage() as unknown as Storage; let progress = markNormalCaseCompleted(1, 41, storage); expect(progress.completedCaseNumbersByDifficulty[2]).toEqual([]); progress = setSelectedDifficulty(1, storage); expect(loadNormalProgress(storage).selectedDifficulty).toBe(1); saveNormalProgress({ ...progress, selectedDifficulty: 5, completedCaseNumbersByDifficulty: { ...progress.completedCaseNumbersByDifficulty, 1: [1, 1, 0, 81, 42] } }, storage); expect(loadNormalProgress(storage).selectedDifficulty).toBe(1); expect(loadNormalProgress(storage).completedCaseNumbersByDifficulty[1]).toEqual([1, 42]); storage.setItem(NORMAL_PROGRESS_KEY, '{'); expect(loadNormalProgress(storage)).toEqual({ saveVersion: 1, selectedDifficulty: 1, completedCaseNumbersByDifficulty: { 1: [], 2: [], 3: [], 4: [], 5: [] } }) })
