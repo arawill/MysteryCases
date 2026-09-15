@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import './styles/final.css'
@@ -52,7 +52,8 @@ function ThemeController() {
 function CaseRoute() { return <div className="case-route"><AppHeader back /><GameScreen gameCase={case001} /></div> }
 
 export default function App() {
-  useEffect(() => { reconcileCurrentAchievements() }, [])
+  const [, setAchievementBootstrapVersion] = useState(0)
+  useEffect(() => { reconcileCurrentAchievements(); const timer = window.setTimeout(() => setAchievementBootstrapVersion(version => version + 1), 0); return () => window.clearTimeout(timer) }, [])
   return <HashRouter><ThemeController /><AchievementToastHost /><Routes>
     <Route path="/" element={<HomeScreen />} />
     <Route path="/daily" element={<DailyScreen />} />
