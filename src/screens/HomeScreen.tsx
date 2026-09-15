@@ -22,7 +22,7 @@ export function HomeScreen() {
     <section><div className="section-heading"><div><p className="eyebrow">ELIGE TU INVESTIGACIÓN</p><h2>Casos a investigar</h2></div></div><div className="investigation-mode-cards"><NormalModeCard progress={progress} /><InfiniteModeCard session={loadInfiniteSession()} maxDifficulty={max} /></div></section>
     <section><div className="section-heading"><div><p className="eyebrow">ARCHIVOS SELLADOS</p><h2>Casos extra</h2></div></div><div className="extra-grid">{Array.from({ length: 4 }, (_, index) => <ExtraCaseCard key={index} />)}</div></section>
     <AndroidDownloadCard />
-    <nav className="secondary-nav" aria-label="Menú principal"><Link to="/stats">ESTADÍSTICAS</Link><Link to="/settings">OPCIONES</Link><Link to="/help">AYUDA</Link><Link to="/about">SOBRE MYSTERYCASES</Link></nav>
+    <nav className="secondary-nav" aria-label="Menú principal"><Link to="/stats">PERFIL</Link><Link to="/settings">OPCIONES</Link><Link to="/help">AYUDA</Link><Link to="/about">SOBRE MYSTERYCASES</Link></nav>
     <footer>Una historia original</footer>
   </main>
 }
