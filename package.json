@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview",
+    "generate:branding-assets": "node scripts/generate-branding-assets.mjs",
     "generate:pwa-assets": "pwa-assets-generator",
     "freeze:normal-cases": "node scripts/run-vite-module.mjs /src/tools/freezeNormalCases.ts",
     "verify:normal-cases": "node scripts/run-vite-module.mjs /src/tools/verifyNormalCases.ts",

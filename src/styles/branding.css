@@ -1,0 +1,5 @@
+.brand-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;padding:0;border:0;transform:none}
+.brand-mark::after{display:none}
+.brand-mark img{display:block;width:100%;height:100%;object-fit:contain}
+.about-mark{display:grid;place-items:center;width:84px;height:84px;margin:28px auto 20px;border:0;box-shadow:none}
+.about-mark img{display:block;width:100%;height:100%;object-fit:contain}
