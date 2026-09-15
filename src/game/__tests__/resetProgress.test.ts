@@ -9,6 +9,7 @@ import { loadProgress, PROGRESS_KEY } from '../persistence/progress'
 import { resetAllProgress } from '../persistence/resetProgress'
 import { INVESTIGATION_HISTORY_KEY } from '../persistence/investigationHistory'
 import { loadSettings, saveSettings } from '../persistence/settings'
+import { ACHIEVEMENT_PROGRESS_KEY, loadAchievementProgress } from '../persistence/achievementProgress'
 
 class MemoryStorage {
   private values = new Map<string, string>()
@@ -31,13 +32,14 @@ describe('resetAllProgress', () => {
     storage.setItem(INFINITE_SESSION_KEY, JSON.stringify({ saveVersion: 1, generationVersion: 1, difficulty: 2, seed: 42, status: 'active' }))
     storage.setItem(PLAYER_STATS_KEY, JSON.stringify({ saveVersion: 1, completedInfiniteCaseIds: ['infinite-d2-s42'], hintsUsed: { review: 2, exclusion: 1, reveal: 3 } }))
     storage.setItem(INVESTIGATION_HISTORY_KEY, JSON.stringify({ saveVersion: 1, records: [] }))
+    storage.setItem(ACHIEVEMENT_PROGRESS_KEY, JSON.stringify({ saveVersion: 1, unlocked: [{ id: 'first-investigation', unlockedAt: '2026-09-15T00:00:00Z' }] }))
     caseIds.forEach(caseId => saveCase(caseId, { placements: [{ characterId: 'a', position: { row: 1, column: 1 } }], manualExcludedCells: [{ row: 1, column: 2 }], hintsUsed: { review: 1, exclusion: 1, reveal: 1 } }, storage))
     saveSettings({ saveVersion: 1, theme: 'light', autoCrossout: true }, storage)
     storage.setItem('some-other-app-data', 'keep')
 
     resetAllProgress(storage)
 
-    for (const key of [PROGRESS_KEY, NORMAL_PROGRESS_KEY, DAILY_SESSION_KEY, INFINITE_SESSION_KEY, PLAYER_STATS_KEY, ...caseIds.map(getCaseSaveKey)]) expect(storage.getItem(key)).toBeNull()
+    for (const key of [PROGRESS_KEY, NORMAL_PROGRESS_KEY, DAILY_SESSION_KEY, INFINITE_SESSION_KEY, PLAYER_STATS_KEY, ACHIEVEMENT_PROGRESS_KEY, ...caseIds.map(getCaseSaveKey)]) expect(storage.getItem(key)).toBeNull()
     expect(storage.getItem(SETTINGS_KEY)).not.toBeNull()
     expect(storage.getItem('some-other-app-data')).toBe('keep')
     expect(loadProgress(storage)).toEqual({ saveVersion: 1, completedCaseIds: [] })
@@ -46,6 +48,7 @@ describe('resetAllProgress', () => {
     expect(loadInfiniteSession(storage)).toBeNull()
     expect(loadPlayerStats(storage)).toEqual({ saveVersion: 1, completedInfiniteCaseIds: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 } })
     expect(storage.getItem(INVESTIGATION_HISTORY_KEY)).toBeNull()
+    expect(loadAchievementProgress(storage)).toEqual({ saveVersion: 1, unlocked: [] })
     for (const caseId of caseIds) expect(loadCaseSave(caseId, storage)).toEqual({ saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 }, checkpoints: [], positionChecksUsed: 0 })
     expect(loadSettings(storage)).toEqual({ saveVersion: 1, theme: 'light', autoCrossout: true })
   })

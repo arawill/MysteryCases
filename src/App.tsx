@@ -20,6 +20,8 @@ import { NormalCasesScreen } from './screens/NormalCasesScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { StatsScreen } from './screens/StatsScreen'
 import { applyTheme, isTheme, type Theme } from './theme'
+import { AchievementToastHost } from './components/AchievementToastHost'
+import { reconcileCurrentAchievements } from './game/achievements/runtime'
 
 function ThemeController() {
   useEffect(() => {
@@ -50,7 +52,8 @@ function ThemeController() {
 function CaseRoute() { return <div className="case-route"><AppHeader back /><GameScreen gameCase={case001} /></div> }
 
 export default function App() {
-  return <HashRouter><ThemeController /><Routes>
+  useEffect(() => { reconcileCurrentAchievements() }, [])
+  return <HashRouter><ThemeController /><AchievementToastHost /><Routes>
     <Route path="/" element={<HomeScreen />} />
     <Route path="/daily" element={<DailyScreen />} />
     <Route path="/normal" element={<NormalCasesScreen />} />

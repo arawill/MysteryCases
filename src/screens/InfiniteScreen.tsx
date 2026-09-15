@@ -10,6 +10,7 @@ import { recordInfiniteCompletion } from '../game/persistence/playerStats'
 import type { DifficultyRating } from '../game/types'
 import { GameScreen } from './GameScreen'
 import { recordInvestigationCompletion } from '../game/persistence/investigationHistory'
+import { announceAchievements, reconcileCurrentAchievements } from '../game/achievements/runtime'
 
 export function InfiniteScreen() {
   const progress = loadNormalProgress()
@@ -37,7 +38,7 @@ export function InfiniteScreen() {
       gameCase={generated.caseData}
       eyebrowLabel={`CASO INFINITO · ${formatDifficultyStars(session.difficulty)}`}
       recordGlobalCompletion={false}
-      onCaseCompleted={assists => { markInfiniteSessionCompleted(); recordInfiniteCompletion(generated.caseData.id); recordInvestigationCompletion({ mode: 'infinite', logicalId: getInfiniteCaseId(session.difficulty, session.seed), difficulty: session.difficulty, assists }) }}
+      onCaseCompleted={assists => { markInfiniteSessionCompleted(); recordInfiniteCompletion(generated.caseData.id); recordInvestigationCompletion({ mode: 'infinite', logicalId: getInfiniteCaseId(session.difficulty, session.seed), difficulty: session.difficulty, assists }); announceAchievements(reconcileCurrentAchievements().newlyUnlocked) }}
       onCompletionAcknowledged={() => setSession(current => current ? { ...current, status: 'completed' } : null)}
     />
   </div>

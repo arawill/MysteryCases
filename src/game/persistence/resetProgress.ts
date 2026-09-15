@@ -4,8 +4,9 @@ import { NORMAL_PROGRESS_KEY } from './normalProgress'
 import { PLAYER_STATS_KEY } from './playerStats'
 import { PROGRESS_KEY } from './progress'
 import { INVESTIGATION_HISTORY_KEY } from './investigationHistory'
+import { ACHIEVEMENT_PROGRESS_KEY } from './achievementProgress'
 
-const fixedProgressKeys = new Set([PROGRESS_KEY, NORMAL_PROGRESS_KEY, DAILY_SESSION_KEY, INFINITE_SESSION_KEY, PLAYER_STATS_KEY, INVESTIGATION_HISTORY_KEY])
+const fixedProgressKeys = new Set([PROGRESS_KEY, NORMAL_PROGRESS_KEY, DAILY_SESSION_KEY, INFINITE_SESSION_KEY, PLAYER_STATS_KEY, INVESTIGATION_HISTORY_KEY, ACHIEVEMENT_PROGRESS_KEY])
 
 const isCaseSaveKey = (key: string) =>
   key === 'mystery-cases-case001' ||
