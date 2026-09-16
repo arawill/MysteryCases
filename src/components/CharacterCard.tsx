@@ -11,7 +11,7 @@ export function CharacterCard({ character, traitLabels = [], selected, placed, o
       {character.roleLabel && <span className="character-role">{character.roleLabel}</span>}
       {character.isVictim && <small>VÍCTIMA</small>}
       {traitLabels.length > 0 && <span className="trait-list" aria-label={`Rasgos: ${traitLabels.join(', ')}`}>{traitLabels.map(label => <span className="trait-chip" key={label}>{label}</span>)}</span>}
-      <span className="clue-list">{character.clues.map(clue => <span className="clue" key={clue.id}>{clue.text}</span>)}</span>
+      {character.isVictim ? <span className="clue-list"><span className="clue victim-last-free">Estaba en la última casilla libre.</span></span> : <span className="clue-list">{character.clues.map(clue => <span className="clue" key={clue.id}>{clue.text}</span>)}</span>}
     </span>
   </button>
 }
