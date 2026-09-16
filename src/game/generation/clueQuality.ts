@@ -30,7 +30,7 @@ export const canAddProceduralClue = (difficulty: GameCase['difficulty'], selecte
 }
 const relationTarget = (clue: Clue) => 'targetCharacterId' in clue ? clue.targetCharacterId : undefined
 export function validateHumanClueQuality(caseData: GameCase): string[] {
-  const errors: string[] = [], difficulty = caseData.difficulty, all = caseData.characters.flatMap(character => character.clues)
+  const errors: string[] = [], difficulty = caseData.difficulty, activeCharacters = caseData.characters.filter(character => !character.isVictim), all = activeCharacters.flatMap(character => character.clues), victimIds = new Set(caseData.characters.filter(character => character.isVictim).map(character => character.id))
   if (caseData.characters.filter(character => character.isVictim).length !== 1) errors.push('Debe existir exactamente una víctima.')
   if (caseData.characters.some(character => character.isVictim && character.clues.length > 0)) errors.push('La víctima no puede tener pistas lógicas.')
   for (const reveal of findDirectKillerRevealClues(caseData)) errors.push(`${reveal.sourceCharacterId}: pista revela directamente al culpable (${reveal.clue.id}).`)
@@ -45,7 +45,10 @@ export function validateHumanClueQuality(caseData: GameCase): string[] {
     if (clues.filter(clue => clue.type === 'oneOfZones' || clue.type === 'oneOfObjects').length > 1) errors.push(`${character.id}: oneOf inválido.`)
     if (clues.filter(clue => clue.type === 'rowOffsetFromCharacter').length > 1 || clues.some(clue => clue.type === 'rowOffsetFromCharacter' && clue.rowOffset === 0)) errors.push(`${character.id}: rowOffset inválido.`)
     for (let index = 0; index < clues.length; index += 1) for (let other = 0; other < index; other += 1) if (areRedundantClues(clues[index], clues[other])) errors.push(`${character.id}: redundancia.`)
-    for (const clue of clues) if (evaluateClue(clue, character.id, caseData, caseData.solution) !== 'satisfied') errors.push(`${character.id}: pista no verdadera.`)
+    for (const clue of clues) {
+      if (isPersonRelation(clue) && relationTarget(clue) && victimIds.has(relationTarget(clue)!)) errors.push(`${character.id}: relación con la víctima prohibida.`)
+      if (evaluateClue(clue, character.id, caseData, caseData.solution) !== 'satisfied') errors.push(`${character.id}: pista no verdadera.`)
+    }
   }
   if (all.length === 0 || all.filter(isNegativeClue).length / all.length > getMaxNegativeRatio(difficulty)) errors.push('Proporción negativa inválida.')
   if (new Set(all.map(clueFamily)).size < (difficulty <= 2 ? 3 : 4)) errors.push('Diversidad global insuficiente.')
@@ -53,7 +56,7 @@ export function validateHumanClueQuality(caseData: GameCase): string[] {
   for (const clue of caseData.globalClues ?? []) if (evaluateGlobalClue(clue, caseData, caseData.solution) !== 'satisfied') errors.push('Pista global no verdadera.')
   const template = createGenerationTemplate(caseData), objectCandidateExists = buildTrueCluePool(template, caseData.solution).some(candidate => candidate.clue.type === 'onObject' || candidate.clue.type === 'besideObject')
   if (objectCandidateExists && !all.some(clue => clue.type === 'onObject' || clue.type === 'besideObject')) errors.push('Falta una pista positiva de objeto.')
-  const activeCharacters = caseData.characters.filter(character => !character.isVictim), links = new Map(activeCharacters.map(character => [character.id, new Set<string>()])), anchors = new Set(activeCharacters.filter(character => character.clues.some(isPositiveAnchor)).map(character => character.id))
+  const links = new Map(activeCharacters.map(character => [character.id, new Set<string>()])), anchors = new Set(activeCharacters.filter(character => character.clues.some(isPositiveAnchor)).map(character => character.id))
   for (const character of activeCharacters) for (const clue of character.clues) { const target = relationTarget(clue); if (target && links.has(target)) { links.get(character.id)?.add(target); links.get(target)?.add(character.id) } }
   for (const character of activeCharacters) { const todo = [character.id], seen = new Set<string>(); let anchored = false; while (todo.length) { const id = todo.pop()!; if (seen.has(id)) continue; seen.add(id); if (anchors.has(id)) { anchored = true; break }; for (const target of links.get(id) ?? []) todo.push(target) }; if (!anchored) { errors.push(`${character.id}: componente sin anchor.`); break } }
   return errors

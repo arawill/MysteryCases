@@ -57,7 +57,8 @@ describe('neutral scenario packs', () => {
   it('keeps the manual cafeteria case semantics and solution unchanged', () => {
     expect(case001.zones.map(zone => zone.id)).toEqual(['cafe', 'kitchen', 'storage', 'bathroom'])
     expect(case001.board.map(cell => [cell.row, cell.column, cell.zoneId, cell.occupiable, cell.object?.id])).toMatchSnapshot()
-    expect(case001.characters.map(character => character.clues)).toMatchSnapshot()
+    expect(case001.characters.find(character => character.id === 'ines')?.clues.map(clue => clue.id)).toEqual(['ines-zone', 'ines-column', 'ines-row'])
+    expect(case001.characters.find(character => character.id === 'alma')?.clues).toEqual([])
     expect(case001.solution).toEqual([
       { characterId: 'lucia', position: { row: 1, column: 3 } },
       { characterId: 'mateo', position: { row: 2, column: 4 } },

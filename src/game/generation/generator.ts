@@ -5,7 +5,7 @@ import { validateCaseDefinition } from '../validation'
 import { applyConstraints, buildTrueCluePool, buildTrueGlobalCluePool, evaluateCandidateConstraint, type CandidateCharacterClue, type CandidateConstraint } from './cluePool'
 import { createSeededRandom, shuffle } from './random'
 import { generateValidPlacement } from './placement'
-import { canAddProceduralClue, canAddReadableClue, isNegativeClue } from './clueQuality'
+import { canAddProceduralClue, canAddReadableClue, isNegativeClue, validateHumanClueQuality } from './clueQuality'
 import { isDirectKillerRevealRelation } from './directKillerReveal'
 import { clueFamily, getInitialTargetCluesPerCharacter, getMinimumCluesPerCharacter, isPersonRelation, isPositiveAnchor } from './clueSemantics'
 import { allowsClue, difficultyRequirements, isClassicProceduralGlobal, isEdgeAdvanced, isLogicAdvanced, isSpatialAdvanced, isTraitAdvanced, isTraitGlobal } from './clueDifficulty'
@@ -21,9 +21,12 @@ export const cluePriority = (candidate: CandidateCharacterClue) => { if (isNegat
 
 export function generatePuzzle(template: GenerationTemplate, options: GeneratePuzzleOptions): GeneratedPuzzle {
   validateSeed(options.seed); const maxPlacementAttempts = options.maxPlacementAttempts ?? 10000; const minCluesPerCharacter = options.minCluesPerCharacter ?? (options.procedural ? getMinimumCluesPerCharacter(template.difficulty) : 1); const minimizeClues = options.minimizeClues ?? true; validatePositiveInteger(maxPlacementAttempts, 'maxPlacementAttempts'); validateNonNegativeInteger(minCluesPerCharacter, 'minCluesPerCharacter')
-  const random = createSeededRandom(options.seed); const placement = generateValidPlacement(template, random, maxPlacementAttempts); const shuffledPool = shuffle(buildTrueCluePool(template, placement.solution).filter(candidate => !options.procedural || allowsClue(template.difficulty, candidate.clue)), random); const victimId = template.characters.find(character => character.isVictim)?.id; const pool = shuffledPool.filter(candidate => !isDirectKillerRevealRelation({ sourceCharacterId: candidate.characterId, clue: candidate.clue, victimId })); const globalPool = shuffle(buildTrueGlobalCluePool(template, placement.solution), random); const stats: GenerationStats = { placementAttempts: placement.attempts, candidateClues: pool.length + globalPool.length, selectedClues: 0, removedClues: 0, solverCalls: 0 }
+  const random = createSeededRandom(options.seed); const placement = generateValidPlacement(template, random, maxPlacementAttempts); const shuffledPool = shuffle(buildTrueCluePool(template, placement.solution).filter(candidate => !options.procedural || allowsClue(template.difficulty, candidate.clue)), random); const victimId = template.characters.find(character => character.isVictim)?.id
+  const targetsVictim = (candidate: CandidateCharacterClue) => isPersonRelation(candidate.clue) && 'targetCharacterId' in candidate.clue && candidate.clue.targetCharacterId === victimId
+  const pool = shuffledPool.filter(candidate => !isDirectKillerRevealRelation({ sourceCharacterId: candidate.characterId, clue: candidate.clue, victimId }) && (!options.procedural || (candidate.characterId !== victimId && !targetsVictim(candidate))))
+  const globalPool = shuffle(buildTrueGlobalCluePool(template, placement.solution), random); const stats: GenerationStats = { placementAttempts: placement.attempts, candidateClues: pool.length + globalPool.length, selectedClues: 0, removedClues: 0, solverCalls: 0 }
   const selected: CandidateConstraint[] = [], requirements = difficultyRequirements(template.difficulty)
-  const initialTarget = Math.max(minCluesPerCharacter, options.procedural ? getInitialTargetCluesPerCharacter(template.difficulty) + 1 : minCluesPerCharacter)
+  const initialTarget = Math.max(minCluesPerCharacter, options.procedural ? getInitialTargetCluesPerCharacter(template.difficulty) : minCluesPerCharacter)
   for (const character of template.characters) { if (character.isVictim) continue; const available = pool.filter(candidate => candidate.characterId === character.id).sort((a, b) => cluePriority(a) - cluePriority(b)); const chosen: CandidateCharacterClue[] = []; const take = (predicate: (candidate: CandidateCharacterClue) => boolean) => { const candidate = available.find(item => !chosen.some(selected => selected.clue.id === item.clue.id) && predicate(item) && (!options.procedural ? canAddReadableClue([...selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), ...chosen], item) : canAddProceduralClue(template.difficulty, [...selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), ...chosen], item))); if (candidate) chosen.push(candidate) }; take(candidate => isPositiveAnchor(candidate.clue)); take(candidate => isPersonRelation(candidate.clue) && !('targetCharacterId' in candidate.clue && candidate.clue.targetCharacterId === victimId)); take(candidate => chosen.length > 0 && clueFamily(candidate.clue) !== clueFamily(chosen[0].clue) && !isPersonRelation(candidate.clue)); while (chosen.length < initialTarget) take(() => true); if (chosen.length < minCluesPerCharacter) throw new Error(`Not enough readable candidate clues for ${character.id}.`); selected.push(...chosen) }
   const selectRequired = (predicate: (candidate: CandidateCharacterClue) => boolean, count: number) => { for (const candidate of pool.filter(predicate).sort((a, b) => cluePriority(a) - cluePriority(b))) { if (selected.some(item => item.kind === 'character' && item.clue.id === candidate.clue.id) || !canAddReadableClue(selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), candidate)) continue; selected.push(candidate); if (selected.filter(item => item.kind === 'character' && predicate(item)).length >= count) return } if (count > 0) throw new Error('Not enough advanced candidate clues.') }
   selectRequired(candidate => isSpatialAdvanced(candidate.clue), requirements.spatial)
@@ -44,7 +47,16 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   selectRequiredGlobals(candidate => candidate.kind === 'global' && isClassicProceduralGlobal(candidate.clue), requirements.classicGlobals)
   selectRequiredGlobals(candidate => candidate.kind === 'global' && isTraitGlobal(candidate.clue), requirements.traitGlobals)
   const remaining: CandidateConstraint[] = [...pool, ...globalPool].filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id)).sort((a, b) => a.kind === 'global' ? 2 : b.kind === 'global' ? -2 : cluePriority(a) - cluePriority(b))
-  const solveSelected = (candidates: readonly CandidateConstraint[]) => { stats.solverCalls += 1; return solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2 }) }
+  const solveCache = new Map<string, ReturnType<typeof solveCase>>()
+  const solveSelected = (candidates: readonly CandidateConstraint[]) => {
+    const signature = candidates.map(candidate => candidate.clue.id).sort().join('|')
+    const cached = solveCache.get(signature)
+    if (cached) return cached
+    stats.solverCalls += 1
+    const solved = solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2 })
+    solveCache.set(signature, solved)
+    return solved
+  }
   let result = solveSelected(selected)
   while (result.solutionsFound > 1) {
     const current = applyConstraints(template, placement.solution, selected)
@@ -63,7 +75,9 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
       for (const candidate of shuffle([...selected], random)) {
         if (candidate.kind === 'global' || clueCount(selected, candidate.characterId) <= minCluesPerCharacter) continue
         const trial = selected.filter(chosen => chosen.clue.id !== candidate.clue.id); const trialResult = solveSelected(trial)
-        if (trialResult.solutionsFound === 1 && placementsEqual(trialResult.solutions[0], placement.solution)) { const index = selected.findIndex(chosen => chosen.clue.id === candidate.clue.id); selected.splice(index, 1); stats.removedClues += 1; removedInPass = true }
+        const trialCase = applyConstraints(template, placement.solution, trial)
+        const preservesProceduralContract = !options.procedural || (validateHumanClueQuality(trialCase).length === 0 && findKiller(trialCase, trialCase.solution) !== null)
+        if (trialResult.solutionsFound === 1 && placementsEqual(trialResult.solutions[0], placement.solution) && preservesProceduralContract) { const index = selected.findIndex(chosen => chosen.clue.id === candidate.clue.id); selected.splice(index, 1); stats.removedClues += 1; removedInPass = true }
       }
     }
   }

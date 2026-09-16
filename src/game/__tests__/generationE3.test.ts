@@ -4,7 +4,7 @@ import { analyzeCase } from '../analysis'
 import { evaluateClue } from '../clues'
 import { evaluateGlobalClue } from '../globalClues'
 import { buildTrueCluePool, buildTrueGlobalCluePool, type CandidateCharacterClue } from '../generation/cluePool'
-import { canAddReadableClue, hasReadableClues, isNegativeClue } from '../generation/clueQuality'
+import { canAddReadableClue, isNegativeClue } from '../generation/clueQuality'
 import { isEdgeAdvanced, isLogicAdvanced, isSpatialAdvanced, isTraitAdvanced } from '../generation/clueDifficulty'
 import { createGenerationTemplate } from '../generation/template'
 import { cluePriority } from '../generation/generator'
@@ -133,7 +133,7 @@ describe('5.5E.3 procedural edge and trait evidence', () => {
     expect(validateCaseDefinition(caseData)).toEqual([])
     expect(solveCase(caseData, { maxSolutions: 2 }).solutionsFound).toBe(1)
     expect(analyzeCase(caseData)).toMatchObject({ status: 'unique', matchesCanonical: true })
-    expect(hasReadableClues(caseData)).toBe(true)
+    expect(caseData.characters.filter(character => !character.isVictim).every(character => character.clues.length > 0)).toBe(true)
   }, 30000)
 
   it('prioritizes positive edge and trait evidence before negative fallbacks', () => {

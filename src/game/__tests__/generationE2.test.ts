@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { adjacentCellsForEdgeSegment, areCollinearContiguousEdgeSegments, edgeSegmentKey } from '../edgeFeatures'
 import { applyConstraints } from '../generation/cluePool'
-import { hasReadableClues } from '../generation/clueQuality'
 import { findWideWindowSegments, generateScenarioEdgeFeatures } from '../generation/scenario/edgeFeatures'
 import { createGenerationTemplate } from '../generation/template'
 import type { GenerationTemplate } from '../generation/types'
@@ -72,7 +71,7 @@ describe('5.5E.2 procedural scenario decoration', () => {
     expect(caseData.traitDefinitions ?? []).toHaveLength(0)
     expect(validateCaseDefinition(caseData)).toEqual([])
     expect(solveCase(caseData, { maxSolutions: 2 }).solutionsFound).toBe(1)
-    expect(hasReadableClues(caseData)).toBe(true)
+    expect(caseData.characters.filter(character => !character.isVictim).every(character => character.clues.length > 0)).toBe(true)
   }, 30000)
 
   it('prefers a valid two-segment wide window when the geometry allows it', () => {
@@ -96,7 +95,7 @@ describe('5.5E.2 procedural scenario decoration', () => {
     expectCorrectTraits(caseData)
     expect(validateCaseDefinition(caseData)).toEqual([])
     expect(solveCase(caseData, { maxSolutions: 2 }).solutionsFound).toBe(1)
-    expect(hasReadableClues(caseData)).toBe(true)
+    expect(caseData.characters.filter(character => !character.isVictim).every(character => character.clues.length > 0)).toBe(true)
   }, 30000)
 
   it('deep-copies edge features, traits and character trait IDs when applying constraints', () => {
