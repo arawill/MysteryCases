@@ -32,7 +32,9 @@ function LoadedNormalCase({ difficulty, caseNumber }: { difficulty: DifficultyRa
   const progress = loadNormalProgress()
   const navigation = getNormalCaseNavigation({ difficulty, caseNumber, progress })
 
-  useEffect(() => { window.scrollTo(0, 0) }, [generated.caseData.id])
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [generated.caseData.id])
 
   const complete = (assists: { review: number; exclusion: number; positionChecks: number }) => {
     const before = loadNormalProgress()
@@ -59,5 +61,5 @@ export function NormalCaseScreen() {
   const valid = isDifficultyRating(difficulty) && Number.isInteger(caseNumber) && caseNumber >= 1 && caseNumber <= 80
   const progress = loadNormalProgress()
   if (!valid || !isDifficultyUnlocked(difficulty, progress)) return <Navigate to="/normal" replace />
-  return <LoadedNormalCase difficulty={difficulty} caseNumber={caseNumber} />
+  return <LoadedNormalCase key={`${difficulty}-${caseNumber}`} difficulty={difficulty} caseNumber={caseNumber} />
 }
