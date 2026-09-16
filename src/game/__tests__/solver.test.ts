@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
-import { solveCase } from '../solver'
+import { solveCase, solveCaseWithStats } from '../solver'
 import { analyzeCase } from '../analysis'
 import { placementsEqual } from '../rules'
 import type { GameCase } from '../types'
@@ -11,5 +11,6 @@ describe('solver', () => {
   it('detecta un caso ambiguo sin superar maxSolutions', () => { const result = solveCase(smallCase([[], []])); expect(result.solutionsFound).toBe(2) })
   it('respeta maxSolutions explícito y el valor predeterminado 2', () => { expect(solveCase(case001).solutionsFound).toBe(1); expect(solveCase(smallCase([[], []])).solutionsFound).toBe(2); expect(solveCase(smallCase([[], []]), { maxSolutions: 1 }).solutionsFound).toBe(1) })
   it.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])('rechaza maxSolutions inválido: %s', maxSolutions => { expect(() => solveCase(case001, { maxSolutions })).toThrow('maxSolutions must be a positive integer.') })
+  it('preserves truncated through the wrapper without stats', () => { const direct = solveCase(smallCase([[], []]), { maxNodes: 1 }), withStats = solveCaseWithStats(smallCase([[], []]), { maxNodes: 1 }); expect(withStats.truncated).toBe(true); expect(direct.truncated).toBe(true); expect(direct.solutions).toEqual(withStats.solutions); expect(direct.solutionsFound).toBe(withStats.solutionsFound) })
   it('detecta un caso imposible', () => { const result = solveCase(smallCase([[{ id: 'a-row', type: 'row', text: '', row: 1 }], [{ id: 'b-row', type: 'row', text: '', row: 1 }]])); expect(result.solutionsFound).toBe(0) })
 })

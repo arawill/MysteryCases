@@ -55,4 +55,4 @@ export function solveCaseWithStats(caseData: GameCase, options: SolveOptions = {
   search()
   return { solutions, solutionsFound: solutions.length, ...(truncated ? { truncated: true } : {}), stats }
 }
-export function solveCase(caseData: GameCase, options: SolveOptions = {}): SolveResult { const { solutions, solutionsFound } = solveCaseWithStats(caseData, options); return { solutions, solutionsFound } }
+export function solveCase(caseData: GameCase, options: SolveOptions = {}): SolveResult { const { stats: _stats, ...result } = solveCaseWithStats(caseData, options); return result }
