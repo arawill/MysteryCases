@@ -1,0 +1,5 @@
+.normal-case-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(var(--content-width),calc(100% - 48px));margin:0 auto 48px;padding-top:22px;border-top:1px solid var(--border)}
+.normal-case-navigation a,.normal-case-navigation span{display:flex;align-items:center;justify-content:center;min-height:46px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-soft);font:10px 'DM Mono';letter-spacing:.07em;text-align:center;text-decoration:none}
+.normal-case-navigation a:hover{border-color:var(--accent);color:var(--accent)}
+.normal-case-navigation span{color:var(--text-faint);background:var(--bg-elevated);cursor:not-allowed}
+@media(max-width:760px){.normal-case-navigation{grid-template-columns:1fr;width:min(100% - 28px,560px);margin-bottom:0;padding-bottom:calc(168px + env(safe-area-inset-bottom))}.normal-case-navigation a,.normal-case-navigation span{min-height:48px}}

@@ -48,8 +48,9 @@ describe('procedural people', () => {
     for (const preset of allDifficultyPresets) { const generated = generateProceduralCase({ id: `test-${preset.rating}`, title: 'Test', intro: 'Test', difficulty: preset.rating, seed: 4000 + preset.rating }), { caseData } = generated; expect(caseData.characters).toHaveLength(preset.characterCount); expect(validateCaseDefinition(caseData)).toEqual([]); expect(solveCase(caseData).solutionsFound).toBe(1); expect(analyzeCase(caseData)).toMatchObject({ status: 'unique', matchesCanonical: true }); expect(findKiller(caseData, caseData.solution)?.id).toBe(generated.killerId) }
     expect(case001).toEqual(before)
   }, 30000)
-  it('leaves Case001 canonical names, emoji avatars and logic untouched', () => {
-    expect(case001.characters.map(person => [person.name, person.avatar, person.avatarImage, person.gender, person.roleId])).toEqual([['Lucía', '🦊', undefined, undefined, undefined], ['Mateo', '🦉', undefined, undefined, undefined], ['Nora', '🐈', undefined, undefined, undefined], ['Bruno', '🦬', undefined, undefined, undefined], ['Inés', '🦋', undefined, undefined, undefined], ['Alma', '🌙', undefined, undefined, undefined]])
+  it('keeps Case001 canonical names, legacy emojis and logic while adding portraits', () => {
+    expect(case001.characters.map(person => [person.name, person.avatar, person.gender, person.roleId])).toEqual([['Lucía', '🦊', undefined, undefined], ['Mateo', '🦉', undefined, undefined], ['Nora', '🐈', undefined, undefined], ['Bruno', '🦬', undefined, undefined], ['Inés', '🦋', undefined, undefined], ['Alma', '🌙', undefined, undefined]])
+    expect(new Set(case001.characters.map(person => person.avatarImage)).size).toBe(6)
     expect(findKiller(case001, case001.solution)?.id).toBe('bruno'); expect(solveCase(case001).solutionsFound).toBe(1)
   })
 })
