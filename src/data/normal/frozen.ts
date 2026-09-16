@@ -355,10 +355,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-04-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Carlota.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-04-zone-bedroom",
+              "type": "zone",
+              "text": "Estaba en dormitorio.",
+              "zoneId": "bedroom"
             }
           ]
         },
@@ -854,10 +854,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "cafe"
             },
             {
-              "id": "gen-person-05-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Daniela.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-05-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-05-zone-corner",
@@ -2280,10 +2279,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "mirror"
             },
             {
-              "id": "gen-person-05-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Anna.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-05-zone-hallway",
+              "type": "zone",
+              "text": "Estaba en pasillo.",
+              "zoneId": "hallway"
             },
             {
               "id": "gen-person-05-beside-wall",
@@ -2724,10 +2723,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-04-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Nil.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-04-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-04-zone-porch",
@@ -3166,10 +3164,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Leo.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-02-zone-bedroom",
+              "type": "zone",
+              "text": "Estaba en dormitorio.",
+              "zoneId": "bedroom"
             },
             {
               "id": "gen-person-02-beside-object-house_plant",
@@ -4177,10 +4175,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "bench"
             },
             {
-              "id": "gen-person-04-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Ruth.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-04-south-of-person-01",
+              "type": "southOfCharacter",
+              "text": "Estaba al sur de Joaquín.",
+              "targetCharacterId": "person-01"
             },
             {
               "id": "gen-person-04-beside-object-car",
@@ -5530,10 +5528,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-01-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Andrea.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-01-zone-guest_room",
+              "type": "zone",
+              "text": "Estaba en habitación.",
+              "zoneId": "guest_room"
             }
           ]
         },
@@ -6033,9 +6031,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "cafe"
             },
             {
-              "id": "gen-person-02-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Gerard.",
+              "id": "gen-person-02-north-of-person-01",
+              "type": "northOfCharacter",
+              "text": "Estaba al norte de Gerard.",
               "targetCharacterId": "person-01"
             },
             {
@@ -6984,10 +6982,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "statue"
             },
             {
-              "id": "gen-person-02-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Samuel.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-02-zone-lobby",
+              "type": "zone",
+              "text": "Estaba en vestíbulo.",
+              "zoneId": "lobby"
             },
             {
               "id": "gen-person-02-beside-wall",
@@ -7571,10 +7569,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "medical_cart"
             },
             {
-              "id": "gen-person-06-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Mercè.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-06-zone-patient_room",
+              "type": "zone",
+              "text": "Estaba en habitación.",
+              "zoneId": "patient_room"
             },
             {
               "id": "gen-person-06-beside-wall",
@@ -8894,10 +8892,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "table"
             },
             {
-              "id": "gen-person-02-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Óscar.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-02-zone-bathroom",
+              "type": "zone",
+              "text": "Estaba en baño.",
+              "zoneId": "bathroom"
             },
             {
               "id": "gen-person-02-beside-wall",
@@ -11840,10 +11838,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-05-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Cristina.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-05-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-05-zone-cafe",
@@ -14138,10 +14135,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "office"
             },
             {
-              "id": "gen-person-01-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Sara.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-01-south-of-person-02",
+              "type": "southOfCharacter",
+              "text": "Estaba al sur de Rafael.",
+              "targetCharacterId": "person-02"
             },
             {
               "id": "gen-person-01-beside-object-filing_cabinet",
@@ -14651,10 +14648,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "house_plant"
             },
             {
-              "id": "gen-person-02-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Sebastián.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-02-zone-dining_room",
+              "type": "zone",
+              "text": "Estaba en comedor.",
+              "zoneId": "dining_room"
             },
             {
               "id": "gen-person-02-zone-corner",
@@ -15722,9 +15719,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-06-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Nicolás.",
+              "id": "gen-person-06-south-of-person-01",
+              "type": "southOfCharacter",
+              "text": "Estaba al sur de Nicolás.",
               "targetCharacterId": "person-01"
             },
             {
@@ -16560,10 +16557,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-01-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Ana.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-01-beside-object-medical_cart",
+              "type": "besideObject",
+              "text": "Estaba junto a un carro médico.",
+              "objectId": "medical_cart"
             }
           ]
         },
@@ -17167,10 +17164,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-05-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Vicente.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-05-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-05-zone-guest_room",
@@ -20014,9 +20010,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "living_room"
             },
             {
-              "id": "gen-person-03-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Carmen.",
+              "id": "gen-person-03-north-of-person-01",
+              "type": "northOfCharacter",
+              "text": "Estaba al norte de Carmen.",
               "targetCharacterId": "person-01"
             },
             {
@@ -21001,10 +20997,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "patio"
             },
             {
-              "id": "gen-person-04-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Clara.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-04-on-object-bench",
+              "type": "onObject",
+              "text": "Estaba en una casilla con un banco.",
+              "objectId": "bench"
             },
             {
               "id": "gen-person-04-zone-corner",
@@ -24760,10 +24756,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Adrià.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-02-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-02-zone-garden",
@@ -26188,10 +26183,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Pau.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-02-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-02-zone-storage",
@@ -29103,10 +29097,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-03-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Simón.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-03-zone-bedroom",
+              "type": "zone",
+              "text": "Estaba en dormitorio.",
+              "zoneId": "bedroom"
             },
             {
               "id": "gen-person-03-on-object-armchair",
@@ -31517,10 +31511,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "tree"
             },
             {
-              "id": "gen-person-04-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Amparo.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-04-zone-garden",
+              "type": "zone",
+              "text": "Estaba en jardín.",
+              "zoneId": "garden"
             },
             {
               "id": "gen-person-04-beside-wall",
@@ -33010,10 +33004,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "patio"
             },
             {
-              "id": "gen-person-06-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Gonzalo.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-06-beside-object-flower_pot",
+              "type": "besideObject",
+              "text": "Estaba junto a una maceta.",
+              "objectId": "flower_pot"
             },
             {
               "id": "gen-person-06-beside-wall",
@@ -34843,10 +34837,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "kitchen"
             },
             {
-              "id": "gen-person-03-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Rafael.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-03-north-of-person-01",
+              "type": "northOfCharacter",
+              "text": "Estaba al norte de Jana.",
+              "targetCharacterId": "person-01"
             },
             {
               "id": "gen-person-03-beside-wall",
@@ -34909,10 +34903,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "puddle"
             },
             {
-              "id": "gen-person-05-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Nicolás.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-05-zone-kitchen",
+              "type": "zone",
+              "text": "Estaba en cocina.",
+              "zoneId": "kitchen"
             },
             {
               "id": "gen-person-05-beside-wall",
@@ -36348,10 +36342,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "reception_medical"
             },
             {
-              "id": "gen-person-05-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Rosa.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-05-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-05-beside-wall",
@@ -36711,10 +36704,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-01-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Josefa.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-01-zone-reception",
+              "type": "zone",
+              "text": "Estaba en recepción.",
+              "zoneId": "reception"
             },
             {
               "id": "gen-person-01-beside-object-office_plant",
@@ -40746,10 +40739,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-05-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Roger.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-05-zone-meeting_room",
+              "type": "zone",
+              "text": "Estaba en sala de reuniones.",
+              "zoneId": "meeting_room"
             },
             {
               "id": "gen-person-05-beside-object-office_plant",
@@ -43643,10 +43636,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Enric.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-02-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-02-zone-kitchen",
@@ -46056,10 +46048,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "patio"
             },
             {
-              "id": "gen-person-03-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Ana.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-03-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-03-zone-corner",
@@ -46676,10 +46667,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-04-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Carles.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-04-not-on-object-chair",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con una silla.",
+              "objectId": "chair"
             },
             {
               "id": "gen-person-04-zone-storage",
@@ -50745,10 +50736,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "tree"
             },
             {
-              "id": "gen-person-01-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Beatriz.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-01-zone-garage",
+              "type": "zone",
+              "text": "Estaba en garaje.",
+              "zoneId": "garage"
             }
           ]
         },
@@ -52118,10 +52109,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "laboratory"
             },
             {
-              "id": "gen-person-07-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Nil.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-07-not-beside-object-medicine_cabinet",
+              "type": "notBesideObject",
+              "text": "No estaba junto a un armario de medicinas.",
+              "objectId": "medicine_cabinet"
             },
             {
               "id": "gen-person-07-beside-wall",
@@ -53301,10 +53292,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina del plano."
             },
             {
-              "id": "gen-person-07-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que César.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-07-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-07-zone-guest_room",
@@ -53718,10 +53708,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "bin"
             },
             {
-              "id": "gen-person-01-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Inés.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-01-zone-office",
+              "type": "zone",
+              "text": "Estaba en despacho.",
+              "zoneId": "office"
             },
             {
               "id": "gen-person-01-beside-wall",
@@ -54999,10 +54989,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-04-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Alicia.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-04-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-04-zone-patio",
@@ -55087,10 +55076,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "patio"
             },
             {
-              "id": "gen-person-07-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Ruth.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-07-beside-object-mud_puddle",
+              "type": "besideObject",
+              "text": "Estaba junto a un charco de barro.",
+              "objectId": "mud_puddle"
             },
             {
               "id": "gen-person-07-not-beside-wall",
@@ -56768,10 +56757,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "nightstand"
             },
             {
-              "id": "gen-person-03-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Judit.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-03-zone-living_room",
+              "type": "zone",
+              "text": "Estaba en salón.",
+              "zoneId": "living_room"
             },
             {
               "id": "gen-person-03-zone-corner",
@@ -60443,10 +60432,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "archive"
             },
             {
-              "id": "gen-person-06-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Gloria.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-06-not-beside-object-bin",
+              "type": "notBesideObject",
+              "text": "No estaba junto a una papelera.",
+              "objectId": "bin"
             },
             {
               "id": "gen-person-06-beside-wall",
@@ -60470,10 +60459,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "office_plant"
             },
             {
-              "id": "gen-person-07-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Meritxell.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-07-zone-archive",
+              "type": "zone",
+              "text": "Estaba en archivo.",
+              "zoneId": "archive"
             },
             {
               "id": "gen-person-07-not-beside-wall",
@@ -63909,10 +63898,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Carlos.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-02-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-02-zone-reception",
@@ -64621,10 +64609,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-06-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Pere.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-06-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-06-zone-storage",
@@ -65755,10 +65742,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "living_room"
             },
             {
-              "id": "gen-person-03-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Marta.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-03-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-03-not-beside-object-sofa",
@@ -73613,10 +73599,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "medical_cart"
             },
             {
-              "id": "gen-person-07-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Adrián.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-07-zone-reception_medical",
+              "type": "zone",
+              "text": "Estaba en recepción.",
+              "zoneId": "reception_medical"
             },
             {
               "id": "gen-person-07-zone-corner",
@@ -75354,10 +75340,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "lobby"
             },
             {
-              "id": "gen-person-04-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Celia.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-04-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-04-zone-corner",
@@ -75882,10 +75867,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Samuel.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-02-zone-reception_medical",
+              "type": "zone",
+              "text": "Estaba en recepción.",
+              "zoneId": "reception_medical"
             },
             {
               "id": "gen-person-02-beside-object-privacy_screen",
@@ -76473,10 +76458,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "archive"
             },
             {
-              "id": "gen-person-02-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Adrián.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-02-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-02-beside-wall",
@@ -78880,10 +78864,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "reception_medical"
             },
             {
-              "id": "gen-person-03-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Pol.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-03-not-on-object-stool",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con un taburete.",
+              "objectId": "stool"
             },
             {
               "id": "gen-person-03-beside-wall",
@@ -80707,10 +80691,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "guest_room"
             },
             {
-              "id": "gen-person-04-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Joel.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-04-not-beside-object-luggage_cart",
+              "type": "notBesideObject",
+              "text": "No estaba junto a un carro de equipaje.",
+              "objectId": "luggage_cart"
             },
             {
               "id": "gen-person-04-beside-wall",
@@ -81253,10 +81237,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "meeting_room"
             },
             {
-              "id": "gen-person-02-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Oriol.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-02-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-02-beside-wall",
@@ -86150,10 +86133,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "reception_medical"
             },
             {
-              "id": "gen-person-03-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Celia.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-03-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-03-zone-count-2",
@@ -86913,10 +86895,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "rowOffset": -3
             },
             {
-              "id": "gen-person-03-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Xavier.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-03-not-beside-object-mirror",
+              "type": "notBesideObject",
+              "text": "No estaba junto a un espejo.",
+              "objectId": "mirror"
             }
           ]
         },
@@ -88333,10 +88315,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "patio"
             },
             {
-              "id": "gen-person-01-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Eduardo.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-01-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-01-beside-wall",
@@ -97423,10 +97404,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina del plano."
             },
             {
-              "id": "gen-person-06-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Andrea.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-06-zone-patient_room",
+              "type": "zone",
+              "text": "Estaba en habitación.",
+              "zoneId": "patient_room"
             },
             {
               "id": "gen-person-06-zone-count-2",
@@ -113133,10 +113114,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "bathroom"
             },
             {
-              "id": "gen-person-07-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Carlos.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-07-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-07-zone-count-2",
@@ -115955,10 +115935,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-03-same-zone-person-08",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Miguel.",
-              "targetCharacterId": "person-08"
+              "id": "gen-person-03-not-beside-wall",
+              "type": "notBesideWall",
+              "text": "No estaba junto a una pared."
             },
             {
               "id": "gen-person-03-zone-bathroom",
@@ -116749,10 +116728,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "hospital_bed"
             },
             {
-              "id": "gen-person-05-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Vicente.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-05-zone-laboratory",
+              "type": "zone",
+              "text": "Estaba en laboratorio.",
+              "zoneId": "laboratory"
             },
             {
               "id": "gen-person-05-zone-count-2",
@@ -122528,10 +122507,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-01-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Roser.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-01-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-01-zone-kitchen",
@@ -129350,10 +129328,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "laboratory"
             },
             {
-              "id": "gen-person-04-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Iván.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-04-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-04-board-corner",
@@ -130215,10 +130192,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-08-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Emilio.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-08-zone-guest_room",
+              "type": "zone",
+              "text": "Estaba en habitación.",
+              "zoneId": "guest_room"
             },
             {
               "id": "gen-person-08-zone-corner",
@@ -131586,10 +131563,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-04-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Paloma.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-04-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-04-zone-bathroom",
@@ -132377,10 +132353,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-05-same-zone-person-08",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Aleix.",
-              "targetCharacterId": "person-08"
+              "id": "gen-person-05-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-05-zone-office",
@@ -135368,10 +135343,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "table_lamp"
             },
             {
-              "id": "gen-person-05-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Dolores.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-05-zone-lobby",
+              "type": "zone",
+              "text": "Estaba en vestíbulo.",
+              "zoneId": "lobby"
             },
             {
               "id": "gen-person-05-zone-count-2",
@@ -136939,10 +136914,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-08-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Nil.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-08-zone-garden",
+              "type": "zone",
+              "text": "Estaba en jardín.",
+              "zoneId": "garden"
             },
             {
               "id": "gen-person-08-beside-wall",
@@ -142761,10 +142736,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-04-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Jaime.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-04-zone-living_room",
+              "type": "zone",
+              "text": "Estaba en salón.",
+              "zoneId": "living_room"
             },
             {
               "id": "gen-person-04-beside-wall",
@@ -142863,10 +142838,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-07-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Pol.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-07-not-beside-object-house_plant",
+              "type": "notBesideObject",
+              "text": "No estaba junto a una planta.",
+              "objectId": "house_plant"
             },
             {
               "id": "gen-person-07-zone-living_room",
@@ -147743,10 +147718,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "reception_medical"
             },
             {
-              "id": "gen-person-05-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Ariadna.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-05-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-05-zone-count-2",
@@ -147782,10 +147756,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "stool"
             },
             {
-              "id": "gen-person-06-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Maribel.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-06-zone-reception_medical",
+              "type": "zone",
+              "text": "Estaba en recepción.",
+              "zoneId": "reception_medical"
             },
             {
               "id": "gen-person-06-beside-wall",
@@ -148694,10 +148668,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-06-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Olga.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-06-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-06-zone-kitchen",
@@ -157165,9 +157138,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-07-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Álvaro.",
+              "id": "gen-person-07-north-of-person-03",
+              "type": "northOfCharacter",
+              "text": "Estaba al norte de Álvaro.",
               "targetCharacterId": "person-03"
             },
             {
@@ -158853,10 +158826,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "dining_room"
             },
             {
-              "id": "gen-person-01-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Elisabet.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-01-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-01-zone-count-2",
@@ -159983,10 +159955,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-07-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Eva.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-07-zone-garden",
+              "type": "zone",
+              "text": "Estaba en jardín.",
+              "zoneId": "garden"
             },
             {
               "id": "gen-person-07-zone-count-2",
@@ -166494,10 +166466,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-06-same-zone-person-09",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Àlex.",
-              "targetCharacterId": "person-09"
+              "id": "gen-person-06-zone-garden",
+              "type": "zone",
+              "text": "Estaba en jardín.",
+              "zoneId": "garden"
             },
             {
               "id": "gen-person-06-beside-wall",
@@ -185203,10 +185175,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-09-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Martina.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-09-not-on-object-bench",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con un banco.",
+              "objectId": "bench"
             },
             {
               "id": "gen-person-09-zone-garden",
@@ -191464,10 +191436,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "desk"
             },
             {
-              "id": "gen-person-02-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Rocío.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-02-zone-office",
+              "type": "zone",
+              "text": "Estaba en despacho.",
+              "zoneId": "office"
             },
             {
               "id": "gen-person-02-beside-wall",
@@ -201861,10 +201833,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina del plano."
             },
             {
-              "id": "gen-person-04-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Ignacio.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-04-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             }
           ]
         },
@@ -205752,10 +205723,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "living_room"
             },
             {
-              "id": "gen-person-09-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Marta.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-09-not-on-object-armchair",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con un sillón.",
+              "objectId": "armchair"
             },
             {
               "id": "gen-person-09-zone-count-2",
@@ -208467,10 +208438,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-06-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Gemma.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-06-not-beside-object-flower_pot",
+              "type": "notBesideObject",
+              "text": "No estaba junto a una maceta.",
+              "objectId": "flower_pot"
             },
             {
               "id": "gen-person-06-zone-garden",
@@ -215086,10 +215057,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "dining_room"
             },
             {
-              "id": "gen-person-09-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Ainhoa.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-09-not-on-object-armchair",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con un sillón.",
+              "objectId": "armchair"
             },
             {
               "id": "gen-person-09-zone-count-2",
@@ -216699,10 +216670,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "crate"
             },
             {
-              "id": "gen-person-01-same-zone-person-02",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Josep.",
-              "targetCharacterId": "person-02"
+              "id": "gen-person-01-zone-bathroom",
+              "type": "zone",
+              "text": "Estaba en baño.",
+              "zoneId": "bathroom"
             },
             {
               "id": "gen-person-01-zone-count-2",
@@ -222035,10 +222006,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-09-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Abril.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-09-zone-living_room",
+              "type": "zone",
+              "text": "Estaba en salón.",
+              "zoneId": "living_room"
             },
             {
               "id": "gen-person-09-beside-wall",
@@ -231288,10 +231259,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-06-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Mireia.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-06-not-beside-object-instrument_tray",
+              "type": "notBesideObject",
+              "text": "No estaba junto a una bandeja de instrumental.",
+              "objectId": "instrument_tray"
             },
             {
               "id": "gen-person-06-zone-laboratory",
@@ -232435,10 +232406,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "bedroom"
             },
             {
-              "id": "gen-person-05-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Raúl.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-05-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-05-zone-corner",
@@ -234687,10 +234657,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-08",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Neus.",
-              "targetCharacterId": "person-08"
+              "id": "gen-person-02-zone-meeting_room",
+              "type": "zone",
+              "text": "Estaba en sala de reuniones.",
+              "zoneId": "meeting_room"
             },
             {
               "id": "gen-person-02-zone-count-2",
@@ -235841,10 +235811,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-10",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Carolina.",
-              "targetCharacterId": "person-10"
+              "id": "gen-person-02-zone-cafe",
+              "type": "zone",
+              "text": "Estaba en cafetería.",
+              "zoneId": "cafe"
             },
             {
               "id": "gen-person-02-zone-count-2",
@@ -241720,10 +241690,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "meeting_room"
             },
             {
-              "id": "gen-person-03-same-zone-person-01",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Juan.",
-              "targetCharacterId": "person-01"
+              "id": "gen-person-03-not-beside-wall",
+              "type": "notBesideWall",
+              "text": "No estaba junto a una pared."
             },
             {
               "id": "gen-person-03-zone-count-2",
@@ -246570,10 +246539,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "flower_pot"
             },
             {
-              "id": "gen-person-06-same-zone-person-10",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Àlex.",
-              "targetCharacterId": "person-10"
+              "id": "gen-person-06-zone-patio",
+              "type": "zone",
+              "text": "Estaba en patio.",
+              "zoneId": "patio"
             },
             {
               "id": "gen-person-06-zone-count-2",
@@ -253498,10 +253467,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-04-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Unai.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-04-not-on-object-hospital_bed",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con una cama de hospital.",
+              "objectId": "hospital_bed"
             },
             {
               "id": "gen-person-04-zone-exam_room",
@@ -254812,10 +254781,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "table_lamp"
             },
             {
-              "id": "gen-person-09-same-zone-person-07",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Salvador.",
-              "targetCharacterId": "person-07"
+              "id": "gen-person-09-zone-hallway",
+              "type": "zone",
+              "text": "Estaba en pasillo.",
+              "zoneId": "hallway"
             },
             {
               "id": "gen-person-09-zone-count-2",
@@ -257155,10 +257124,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "zoneId": "cafe"
             },
             {
-              "id": "gen-person-09-same-zone-person-05",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Joel.",
-              "targetCharacterId": "person-05"
+              "id": "gen-person-09-not-beside-object-register",
+              "type": "notBesideObject",
+              "text": "No estaba junto a una caja registradora.",
+              "objectId": "register"
             },
             {
               "id": "gen-person-09-beside-wall",
@@ -261599,10 +261568,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "objectId": "patient_monitor"
             },
             {
-              "id": "gen-person-03-same-zone-person-04",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Víctor.",
-              "targetCharacterId": "person-04"
+              "id": "gen-person-03-zone-laboratory",
+              "type": "zone",
+              "text": "Estaba en laboratorio.",
+              "zoneId": "laboratory"
             },
             {
               "id": "gen-person-03-zone-count-2",
@@ -263898,10 +263867,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-03-same-zone-person-08",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Nicolás.",
-              "targetCharacterId": "person-08"
+              "id": "gen-person-03-not-on-object-puddle",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con un charco.",
+              "objectId": "puddle"
             },
             {
               "id": "gen-person-03-zone-storage",
@@ -279254,10 +279223,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-07-same-zone-person-09",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Anna.",
-              "targetCharacterId": "person-09"
+              "id": "gen-person-07-not-on-object-puddle",
+              "type": "notOnObject",
+              "text": "No estaba en una casilla con un charco.",
+              "objectId": "puddle"
             },
             {
               "id": "gen-person-07-zone-storage",
@@ -282730,10 +282699,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-08-same-zone-person-09",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Valeria.",
-              "targetCharacterId": "person-09"
+              "id": "gen-person-08-not-beside-object-mirror",
+              "type": "notBesideObject",
+              "text": "No estaba junto a un espejo.",
+              "objectId": "mirror"
             },
             {
               "id": "gen-person-08-zone-hotel_bathroom",
@@ -295326,10 +295295,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba en una esquina de su habitación."
             },
             {
-              "id": "gen-person-02-same-zone-person-06",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Neus.",
-              "targetCharacterId": "person-06"
+              "id": "gen-person-02-beside-wall",
+              "type": "besideWall",
+              "text": "Estaba junto a una pared."
             },
             {
               "id": "gen-person-02-zone-patient_room",
@@ -307265,10 +307233,9 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "count": 2
             },
             {
-              "id": "gen-person-10-same-zone-person-03",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Albert.",
-              "targetCharacterId": "person-03"
+              "id": "gen-person-10-zone-corner",
+              "type": "cornerOfZone",
+              "text": "Estaba en una esquina de su habitación."
             },
             {
               "id": "gen-person-10-zone-laboratory",
@@ -312909,10 +312876,10 @@ export const frozenNormalCaseSet: FrozenNormalCaseSet = {
               "text": "Estaba junto a una pared."
             },
             {
-              "id": "gen-person-05-same-zone-person-09",
-              "type": "sameZoneAsCharacter",
-              "text": "Estaba en la misma habitación que Carla.",
-              "targetCharacterId": "person-09"
+              "id": "gen-person-05-zone-living_room",
+              "type": "zone",
+              "text": "Estaba en salón.",
+              "zoneId": "living_room"
             },
             {
               "id": "gen-person-05-zone-count-2",

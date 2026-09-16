@@ -5,6 +5,7 @@ import { frozenNormalCaseSet } from '../../data/normal/frozen'
 import { avatarCatalog } from '../characters/avatarCatalog'
 import { hydrateFrozenNormalCase, NORMAL_CASE_SET_VERSION } from '../normal/frozen'
 import { scenarioPacks } from '../scenarios/catalog'
+import { findDirectKillerRevealClues } from '../generation/directKillerReveal'
 
 const packs = ['cafeteria', 'house', 'office', 'outdoor', 'hotel', 'hospital'] as const
 const expected = {
@@ -39,6 +40,10 @@ describe('frozen Normal case set', () => {
       expect(caseData.zones.every(zone => pack?.zones.some(candidate => candidate.id === zone.id))).toBe(true)
       expect(caseData.board.every(cell => !cell.object || pack?.objects.some(candidate => candidate.id === cell.object?.id))).toBe(true)
     }
+  })
+
+  it('contains no clue that directly reveals the killer through the victim', () => {
+    for (const item of all) expect(findDirectKillerRevealClues(item.caseData)).toEqual([])
   })
 
   it('uses the exact balanced pack distribution without consecutive packs', () => {

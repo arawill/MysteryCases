@@ -5,6 +5,7 @@ import { evaluateClue } from '../clues'
 import { evaluateGlobalClue } from '../globalClues'
 import { buildTrueCluePool } from './cluePool'
 import { createGenerationTemplate } from './template'
+import { findDirectKillerRevealClues } from './directKillerReveal'
 
 export { isNegativeClue }
 export const hasRowAndColumn = (clues: readonly Clue[]) => clues.some(clue => clue.type === 'row') && clues.some(clue => clue.type === 'column')
@@ -31,6 +32,7 @@ const relationTarget = (clue: Clue) => 'targetCharacterId' in clue ? clue.target
 export function validateHumanClueQuality(caseData: GameCase): string[] {
   const errors: string[] = [], difficulty = caseData.difficulty, all = caseData.characters.flatMap(character => character.clues)
   if (caseData.characters.filter(character => character.isVictim).length !== 1) errors.push('Debe existir exactamente una víctima.')
+  for (const reveal of findDirectKillerRevealClues(caseData)) errors.push(`${reveal.sourceCharacterId}: pista revela directamente al culpable (${reveal.clue.id}).`)
   for (const character of caseData.characters) {
     const clues = character.clues, negatives = clues.filter(isNegativeClue)
     if (clues.some(clue => !allowsProceduralClue(difficulty, clue))) errors.push(`${character.id}: pista no permitida.`)

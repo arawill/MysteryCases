@@ -1,5 +1,9 @@
 .character-avatar{display:inline-grid;place-items:center;width:1em;height:1em;flex-shrink:0;vertical-align:middle;line-height:1}
 .character-avatar img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+.avatar-image-shell{background:transparent!important;border:0!important;border-radius:0!important}
+.avatar-image-shell .character-avatar{display:grid;place-items:center;width:100%;height:100%}
+.killer-avatar.avatar-image-shell{width:76px;height:76px}
+.killer-avatar.avatar-image-shell .character-avatar{width:82%;height:82%}
 .avatar .character-avatar,.killer-avatar .character-avatar{width:100%;height:100%}
 .placed b .character-avatar-image{width:1.3em;height:1.3em}
 .victim-summary>span .character-avatar-image,.active-avatar .character-avatar-image,.killer-options .character-avatar-image{width:1.4em;height:1.4em}
