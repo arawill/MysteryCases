@@ -1,13 +1,13 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { generateDailyCase } from '../game/daily/generator'
 import { generateInfiniteCase } from '../game/infinite/generator'
 import { generateNormalCase } from '../game/normal/generator'
 import { findKiller, placementsEqual } from '../game/rules'
 import { solveCase } from '../game/solver'
-import type { DifficultyRating, GameCase } from '../game/types'
+import type { DifficultyRating } from '../game/types'
 
-const [mode, rawDifficulty, rawStart, rawEnd] = process.argv.slice(2)
+const [mode, rawDifficulty, rawStart, rawEnd] = (process.env.MYSTERY_AUDIT_ARGS ?? '').split(',')
 const difficulty = Number(rawDifficulty) as DifficultyRating, start = Number(rawStart), end = Number(rawEnd)
 if (!['normal', 'daily', 'infinite'].includes(mode) || ![1,2,3,4,5].includes(difficulty) || !Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start || end - start > 9) throw new Error('Usage: <normal|daily|infinite> <1-5> <start> <end>; batches are limited to ten.')
 const directory = join(process.env.TEMP ?? process.cwd(), 'mysterycases-victim-audit')
