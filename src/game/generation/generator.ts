@@ -16,6 +16,7 @@ const validateSeed = (seed: number) => { if (!Number.isInteger(seed) || seed < 0
 const validatePositiveInteger = (value: number, name: string) => { if (!Number.isInteger(value) || value < 1) throw new Error(`${name} must be a positive integer.`) }
 const validateNonNegativeInteger = (value: number, name: string) => { if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer.`) }
 const clueCount = (candidates: readonly CandidateConstraint[], characterId: string) => candidates.filter((candidate): candidate is CandidateCharacterClue => candidate.kind === 'character').filter(candidate => candidate.characterId === characterId).length
+export const PROCEDURAL_GENERATION_LIMITS = { maxSolverCalls: 10, maxSolverNodes: 4000, maxRefinementSteps: 8, maxCandidateEvaluations: 2000, maxMinimizationTrials: 160 } as const
 export const cluePriority = (candidate: CandidateCharacterClue) => { if (isNegativeClue(candidate.clue)) return 4; if (candidate.clue.type === 'oneOfZones' || candidate.clue.type === 'oneOfObjects' || candidate.clue.type === 'rowOffsetFromCharacter') return 3; if (isPositiveAnchor(candidate.clue)) return 0; if (isPersonRelation(candidate.clue)) return 1; return 2 }
 
 
@@ -26,7 +27,8 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   const pool = shuffledPool.filter(candidate => !isDirectKillerRevealRelation({ sourceCharacterId: candidate.characterId, clue: candidate.clue, victimId }) && (!options.procedural || (candidate.characterId !== victimId && !targetsVictim(candidate))))
   const globalPool = shuffle(buildTrueGlobalCluePool(template, placement.solution), random); const stats: GenerationStats = { placementAttempts: placement.attempts, candidateClues: pool.length + globalPool.length, selectedClues: 0, removedClues: 0, solverCalls: 0 }
   const selected: CandidateConstraint[] = [], requirements = difficultyRequirements(template.difficulty)
-  const initialTarget = Math.max(minCluesPerCharacter, options.procedural ? getInitialTargetCluesPerCharacter(template.difficulty) : minCluesPerCharacter)
+  const limits = options.procedural ? PROCEDURAL_GENERATION_LIMITS : { maxSolverCalls: Number.POSITIVE_INFINITY, maxSolverNodes: Number.POSITIVE_INFINITY, maxRefinementSteps: Number.POSITIVE_INFINITY, maxCandidateEvaluations: Number.POSITIVE_INFINITY, maxMinimizationTrials: Number.POSITIVE_INFINITY }
+  const initialTarget = Math.max(minCluesPerCharacter, options.procedural ? getInitialTargetCluesPerCharacter(template.difficulty) + (template.difficulty === 5 ? 1 : 0) : minCluesPerCharacter)
   for (const character of template.characters) { if (character.isVictim) continue; const available = pool.filter(candidate => candidate.characterId === character.id).sort((a, b) => cluePriority(a) - cluePriority(b)); const chosen: CandidateCharacterClue[] = []; const take = (predicate: (candidate: CandidateCharacterClue) => boolean) => { const candidate = available.find(item => !chosen.some(selected => selected.clue.id === item.clue.id) && predicate(item) && (!options.procedural ? canAddReadableClue([...selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), ...chosen], item) : canAddProceduralClue(template.difficulty, [...selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), ...chosen], item))); if (candidate) chosen.push(candidate) }; take(candidate => isPositiveAnchor(candidate.clue)); take(candidate => isPersonRelation(candidate.clue) && !('targetCharacterId' in candidate.clue && candidate.clue.targetCharacterId === victimId)); take(candidate => chosen.length > 0 && clueFamily(candidate.clue) !== clueFamily(chosen[0].clue) && !isPersonRelation(candidate.clue)); while (chosen.length < initialTarget) take(() => true); if (chosen.length < minCluesPerCharacter) throw new Error(`Not enough readable candidate clues for ${character.id}.`); selected.push(...chosen) }
   const selectRequired = (predicate: (candidate: CandidateCharacterClue) => boolean, count: number) => { for (const candidate of pool.filter(predicate).sort((a, b) => cluePriority(a) - cluePriority(b))) { if (selected.some(item => item.kind === 'character' && item.clue.id === candidate.clue.id) || !canAddReadableClue(selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), candidate)) continue; selected.push(candidate); if (selected.filter(item => item.kind === 'character' && predicate(item)).length >= count) return } if (count > 0) throw new Error('Not enough advanced candidate clues.') }
   selectRequired(candidate => isSpatialAdvanced(candidate.clue), requirements.spatial)
@@ -52,28 +54,38 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
     const signature = candidates.map(candidate => candidate.clue.id).sort().join('|')
     const cached = solveCache.get(signature)
     if (cached) return cached
+    if (stats.solverCalls >= limits.maxSolverCalls) throw new Error('Procedural solver-call budget exceeded.')
     stats.solverCalls += 1
-    const solved = solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2 })
+    const solved = solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2, ...(options.procedural ? { maxNodes: limits.maxSolverNodes } : {}) })
+    if (solved.truncated) throw new Error('Procedural solver-node budget exceeded.')
     solveCache.set(signature, solved)
     return solved
   }
   let result = solveSelected(selected)
+  let refinementSteps = 0, candidateEvaluations = 0
   while (result.solutionsFound > 1) {
+    if (refinementSteps >= limits.maxRefinementSteps) throw new Error('Procedural refinement budget exceeded.')
     const current = applyConstraints(template, placement.solution, selected)
-    const ranked = remaining.filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id) && (candidate.kind === 'global' ? selected.filter(item => item.kind === 'global').length < requirements.maxGlobals : !options.procedural || canAddProceduralClue(template.difficulty, selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), candidate))).map((candidate, index) => ({ candidate, index, eliminated: result.solutions.filter(solution => evaluateCandidateConstraint(candidate, current, solution) === 'violated').length, familyBonus: candidate.kind === 'character' && !selected.some(item => item.kind === 'character' && item.characterId === candidate.characterId && clueFamily(item.clue) === clueFamily(candidate.clue)) ? 1 : 0 })).filter(item => item.eliminated > 0).sort((a, b) => b.eliminated - a.eliminated || b.familyBonus - a.familyBonus || a.index - b.index)
+    const eligible = remaining.filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id) && (candidate.kind === 'global' ? selected.filter(item => item.kind === 'global').length < requirements.maxGlobals : !options.procedural || canAddProceduralClue(template.difficulty, selected.filter((item): item is CandidateCharacterClue => item.kind === 'character'), candidate)))
+    candidateEvaluations += eligible.length
+    if (candidateEvaluations > limits.maxCandidateEvaluations) throw new Error('Procedural candidate-evaluation budget exceeded.')
+    const ranked = eligible.map((candidate, index) => ({ candidate, index, eliminated: result.solutions.filter(solution => evaluateCandidateConstraint(candidate, current, solution) === 'violated').length, familyBonus: candidate.kind === 'character' && !selected.some(item => item.kind === 'character' && item.characterId === candidate.characterId && clueFamily(item.clue) === clueFamily(candidate.clue)) ? 1 : 0 })).filter(item => item.eliminated > 0).sort((a, b) => b.eliminated - a.eliminated || b.familyBonus - a.familyBonus || a.index - b.index)
     const next = ranked[0]?.candidate
     if (!next) throw new Error('No readable clue eliminates the current counterexamples.')
-    selected.push(next); result = solveSelected(selected)
+    selected.push(next); refinementSteps += 1; result = solveSelected(selected)
   }
   if (result.solutionsFound === 0) throw new Error('Generated clues contradict the generated placement.')
   if (result.solutionsFound !== 1) throw new Error('Unable to produce a uniquely solvable puzzle from the candidate clues.')
   if (!placementsEqual(result.solutions[0], placement.solution)) throw new Error('Solver found a unique solution different from the generated placement.')
   if (minimizeClues) {
+    let minimizationTrials = 0
     let removedInPass = true
     while (removedInPass) {
       removedInPass = false
       for (const candidate of shuffle([...selected], random)) {
         if (candidate.kind === 'global' || clueCount(selected, candidate.characterId) <= minCluesPerCharacter) continue
+        if (minimizationTrials >= limits.maxMinimizationTrials) break
+        minimizationTrials += 1
         const trial = selected.filter(chosen => chosen.clue.id !== candidate.clue.id); const trialResult = solveSelected(trial)
         const trialCase = applyConstraints(template, placement.solution, trial)
         const preservesProceduralContract = !options.procedural || (validateHumanClueQuality(trialCase).length === 0 && findKiller(trialCase, trialCase.solution) !== null)

@@ -4,6 +4,8 @@ import { nameCatalog, femaleNameCatalog, maleNameCatalog } from '../characters/n
 import { buildCharacterRoster, getGenderCountsForDifficulty } from '../characters/roster'
 import { allDifficultyPresets } from '../difficultyPresets'
 import { generateProceduralCase } from '../generation/proceduralCase'
+import { PROCEDURAL_GENERATION_LIMITS } from '../generation/generator'
+import { validateHumanClueQuality } from '../generation/clueQuality'
 import { findKiller } from '../rules'
 import { scenarioPacks, selectScenarioPack } from '../scenarios/catalog'
 import { solveCase } from '../solver'
@@ -47,6 +49,15 @@ describe('procedural people', () => {
     const before = structuredClone(case001)
     for (const preset of allDifficultyPresets) { const generated = generateProceduralCase({ id: `test-${preset.rating}`, title: 'Test', intro: 'Test', difficulty: preset.rating, seed: 4000 + preset.rating }), { caseData } = generated; expect(caseData.characters).toHaveLength(preset.characterCount); expect(validateCaseDefinition(caseData)).toEqual([]); expect(solveCase(caseData).solutionsFound).toBe(1); expect(analyzeCase(caseData)).toMatchObject({ status: 'unique', matchesCanonical: true }); expect(findKiller(caseData, caseData.solution)?.id).toBe(generated.killerId) }
     expect(case001).toEqual(before)
+  }, 30000)
+  it('rejects pathological D5 attempts within deterministic budgets and completes seed 2301207300', () => {
+    const generated = generateProceduralCase({ id: 'd5-regression', title: 'D5 regression', intro: '', difficulty: 5, seed: 2301207300 })
+    expect(generated.seedOffset).toBeLessThan(100)
+    expect(generated.stats.solverCalls).toBeLessThanOrEqual(PROCEDURAL_GENERATION_LIMITS.maxSolverCalls)
+    expect(generated.caseData.characters.find(character => character.isVictim)?.clues).toEqual([])
+    expect(validateHumanClueQuality(generated.caseData)).toEqual([])
+    expect(analyzeCase(generated.caseData)).toMatchObject({ status: 'unique', matchesCanonical: true })
+    expect(findKiller(generated.caseData, generated.caseData.solution)?.id).toBe(generated.killerId)
   }, 30000)
   it('keeps Case001 canonical names, legacy emojis and logic while adding portraits', () => {
     expect(case001.characters.map(person => [person.name, person.avatar, person.gender, person.roleId])).toEqual([['Lucía', '🦊', undefined, undefined], ['Mateo', '🦉', undefined, undefined], ['Nora', '🐈', undefined, undefined], ['Bruno', '🦬', undefined, undefined], ['Inés', '🦋', undefined, undefined], ['Alma', '🌙', undefined, undefined]])

@@ -10,6 +10,7 @@ import { solveCase } from '../solver'
 import type { BoardCell, EdgeFeature, GameCase, TraitDefinition } from '../types'
 import { validateCaseDefinition } from '../validation'
 import { generateDailyCase } from '../daily/generator'
+import { validateHumanClueQuality } from '../generation/clueQuality'
 import { case001 } from '../../data/cases/case001'
 
 const isExterior = (segment: EdgeFeature['segments'][number], caseData: GameCase) =>
@@ -72,6 +73,7 @@ describe('5.5E.2 procedural scenario decoration', () => {
     expect(validateCaseDefinition(caseData)).toEqual([])
     expect(solveCase(caseData, { maxSolutions: 2 }).solutionsFound).toBe(1)
     expect(caseData.characters.filter(character => !character.isVictim).every(character => character.clues.length > 0)).toBe(true)
+    expect(validateHumanClueQuality(generateInfiniteCase({ difficulty: 4, seed: 424242 }).caseData)).toEqual([])
   }, 30000)
 
   it('prefers a valid two-segment wide window when the geometry allows it', () => {
@@ -96,6 +98,7 @@ describe('5.5E.2 procedural scenario decoration', () => {
     expect(validateCaseDefinition(caseData)).toEqual([])
     expect(solveCase(caseData, { maxSolutions: 2 }).solutionsFound).toBe(1)
     expect(caseData.characters.filter(character => !character.isVictim).every(character => character.clues.length > 0)).toBe(true)
+    expect(validateHumanClueQuality(generateInfiniteCase({ difficulty: 5, seed: 918273 }).caseData)).toEqual([])
   }, 30000)
 
   it('deep-copies edge features, traits and character trait IDs when applying constraints', () => {

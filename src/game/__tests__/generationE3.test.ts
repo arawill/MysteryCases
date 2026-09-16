@@ -4,7 +4,7 @@ import { analyzeCase } from '../analysis'
 import { evaluateClue } from '../clues'
 import { evaluateGlobalClue } from '../globalClues'
 import { buildTrueCluePool, buildTrueGlobalCluePool, type CandidateCharacterClue } from '../generation/cluePool'
-import { canAddReadableClue, isNegativeClue } from '../generation/clueQuality'
+import { canAddReadableClue, isNegativeClue, validateHumanClueQuality } from '../generation/clueQuality'
 import { isEdgeAdvanced, isLogicAdvanced, isSpatialAdvanced, isTraitAdvanced } from '../generation/clueDifficulty'
 import { createGenerationTemplate } from '../generation/template'
 import { cluePriority } from '../generation/generator'
@@ -33,7 +33,7 @@ const traitTemplate = () => {
 }
 
 const familyCounts = (difficulty: 1 | 2 | 3 | 4 | 5) => {
-  const caseData = generateNormalCase({ difficulty, caseNumber: difficulty + 50 }).caseData
+  const caseData = generateInfiniteCase({ difficulty, seed: 12345 + difficulty }).caseData
   const clues = caseData.characters.flatMap(character => character.clues)
   return { caseData, clues, globals: caseData.globalClues ?? [] }
 }
@@ -128,12 +128,13 @@ describe('5.5E.3 procedural edge and trait evidence', () => {
     expect(globals.filter(clue => clue.type === 'zoneTraitCount')).toHaveLength(difficulty >= 5 ? 1 : 0)
     if (difficulty >= 4) expect(globals.some(clue => clue.type !== 'zoneTraitCount')).toBe(true)
     if (difficulty === 5) expect(globals.find(clue => clue.type === 'zoneTraitCount' && clue.count > 0)).toBeDefined()
-    expect(caseData.characters.every(character => character.clues.length >= 2 && character.clues.some(clue => !isNegativeClue(clue)))).toBe(true)
+    expect(caseData.characters.every(character => character.isVictim ? character.clues.length === 0 : character.clues.length >= 2 && character.clues.some(clue => !isNegativeClue(clue)))).toBe(true)
     expect(clues.filter(isNegativeClue).length / clues.length).toBeLessThanOrEqual(.4)
     expect(validateCaseDefinition(caseData)).toEqual([])
     expect(solveCase(caseData, { maxSolutions: 2 }).solutionsFound).toBe(1)
     expect(analyzeCase(caseData)).toMatchObject({ status: 'unique', matchesCanonical: true })
     expect(caseData.characters.filter(character => !character.isVictim).every(character => character.clues.length > 0)).toBe(true)
+    expect(validateHumanClueQuality(caseData)).toEqual([])
   }, 30000)
 
   it('prioritizes positive edge and trait evidence before negative fallbacks', () => {
