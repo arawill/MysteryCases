@@ -12,7 +12,7 @@ export function AboutScreen() {
       <h2>MysteryCases</h2>
       <p>Un juego de investigación y deducción creado con mucho cariño.</p>
       <p>Desarrollado por Felix.</p>
-      <span className="version">VERSIÓN 0.1</span>
+      <span className="version">VERSIÓN 1.0.0</span>
     </section>
   </main>
 }
