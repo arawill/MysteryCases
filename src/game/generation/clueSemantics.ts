@@ -10,6 +10,7 @@ const families: Record<Clue['type'], ClueFamily> = {
   besideEdgeFeature: 'EDGE', notBesideEdgeFeature: 'EDGE',
   withTraitInZone: 'TRAIT', withoutTraitInZone: 'TRAIT', companionTraitCount: 'TRAIT',
   notZone: 'ENVIRONMENT', notOnObject: 'ENVIRONMENT', notBesideObject: 'ENVIRONMENT',
+  sameColumnAsObject: 'ENVIRONMENT', relativeToObject: 'ZONE_GEOMETRY', onSurface: 'ENVIRONMENT',
 }
 const negative = new Set<Clue['type']>(['notZone', 'notOnObject', 'notBesideObject', 'notBesideWall', 'notBesideEdgeFeature', 'withoutTraitInZone'])
 const anchors = new Set<Clue['type']>(['zone', 'onObject', 'besideObject', 'cornerOfZone', 'cornerOfBoard', 'besideWall', 'besideEdgeFeature', 'aloneInZone', 'ownZoneOccupancyCount'])

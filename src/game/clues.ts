@@ -2,6 +2,7 @@ import { getCell, isBeside } from './rules'
 import { isBesideWall, isBoardCorner, isZoneCorner } from './spatial'
 import { isCellBesideEdgeFeature } from './edgeFeatures'
 import { characterHasTrait } from './traits'
+import { resolveZoneSurface } from './zones/surfaces'
 import type { Clue, GameCase, Placement } from './types'
 
 export type ClueEvaluation = 'satisfied' | 'violated' | 'undetermined'
@@ -10,6 +11,7 @@ const placementFor = (placements: Placement[], id: string) => placements.find(p 
 const cellFor = (caseData: GameCase, placements: Placement[], id: string) => { const placement = placementFor(placements, id); return placement ? getCell(caseData.board, placement.position) : undefined }
 const objectCells = (caseData: GameCase, objectId: string) => caseData.board.filter(cell => cell.object?.id === objectId)
 const besideAnyObject = (caseData: GameCase, subjectCell: NonNullable<ReturnType<typeof cellFor>>, objectId: string) => objectCells(caseData, objectId).some(objectCell => isBeside(subjectCell, objectCell, caseData.board))
+const relatedObject = (caseData: GameCase, subjectCell: NonNullable<ReturnType<typeof cellFor>>, objectId: string, relation: 'same' | 'different' | 'any', predicate: (cell: typeof subjectCell) => boolean) => objectCells(caseData, objectId).some(objectCell => predicate(objectCell) && (relation === 'any' || (relation === 'same') === (subjectCell.zoneId === objectCell.zoneId)))
 const zoneOccupancy = (caseData: GameCase, placements: Placement[], zoneId: string) => placements.filter(placement => getCell(caseData.board, placement.position)?.zoneId === zoneId).length
 const complete = (caseData: GameCase, placements: Placement[]) => placements.length === caseData.characters.length
 const companionsWithTrait = (caseData: GameCase, placements: Placement[], subjectId: string, zoneId: string, traitId: string) => placements.filter(placement => placement.characterId !== subjectId && getCell(caseData.board, placement.position)?.zoneId === zoneId && characterHasTrait(caseData.characters.find(character => character.id === placement.characterId) ?? { id: '', name: '', avatar: '', clues: [], isVictim: false }, traitId)).length
@@ -26,6 +28,9 @@ export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: G
     case 'notOnObject': return !subjectCell ? 'undetermined' : subjectCell.object?.id !== clue.objectId ? 'satisfied' : 'violated'
     case 'besideObject': return !subjectCell ? 'undetermined' : besideAnyObject(caseData, subjectCell, clue.objectId) ? 'satisfied' : 'violated'
     case 'notBesideObject': return !subjectCell ? 'undetermined' : besideAnyObject(caseData, subjectCell, clue.objectId) ? 'violated' : 'satisfied'
+    case 'sameColumnAsObject': return !subjectCell ? 'undetermined' : relatedObject(caseData, subjectCell, clue.objectId, clue.zoneRelation, cell => cell.column === subjectCell.column) ? 'satisfied' : 'violated'
+    case 'relativeToObject': return !subjectCell ? 'undetermined' : relatedObject(caseData, subjectCell, clue.objectId, clue.zoneRelation, cell => clue.direction === 'northEast' ? subjectCell.row < cell.row && subjectCell.column > cell.column : clue.direction === 'northWest' ? subjectCell.row < cell.row && subjectCell.column < cell.column : clue.direction === 'southEast' ? subjectCell.row > cell.row && subjectCell.column > cell.column : subjectCell.row > cell.row && subjectCell.column < cell.column) ? 'satisfied' : 'violated'
+    case 'onSurface': return !subjectCell ? 'undetermined' : resolveZoneSurface(caseData.zones.find(zone => zone.id === subjectCell.zoneId)) === clue.surface ? 'satisfied' : 'violated'
     case 'cornerOfBoard': return !subjectCell ? 'undetermined' : isBoardCorner(subjectCell, caseData.rows, caseData.columns) ? 'satisfied' : 'violated'
     case 'cornerOfZone': return !subjectCell ? 'undetermined' : isZoneCorner(subjectCell, caseData.board) ? 'satisfied' : 'violated'
     case 'besideWall': return !subjectCell ? 'undetermined' : isBesideWall(subjectCell, caseData.board) ? 'satisfied' : 'violated'

@@ -4,6 +4,7 @@ import { isDifficultyRating } from './difficulty'
 import { areAllGlobalCluesSatisfied } from './globalClues'
 import { findKiller, getCell } from './rules'
 import { charactersWithTrait } from './traits'
+import { isZoneSurface, resolveZoneSurface } from './zones/surfaces'
 import type { Clue, EdgeFeature, EdgeSegment, GameCase, GlobalClue, Position } from './types'
 
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
@@ -125,6 +126,8 @@ function validateCharacterTraits(character: GameCase['characters'][number], trai
 function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds: Set<string>, objectIds: Set<string>, traitIds: Set<string>, edgeFeatureTypes: Set<EdgeFeature['type']>, errors: string[]) {
   const target = (id: string) => { if (!caseData.characters.some(character => character.id === id)) errors.push(`La pista ${clue.id} referencia un personaje inexistente: ${id}.`); if (id === subjectId) errors.push(`La pista ${clue.id} no puede referirse al propio personaje.`) }
   const object = (id: string) => { if (!objectIds.has(id)) errors.push(`La pista ${clue.id} referencia un objeto inexistente: ${id}.`) }
+  const surface = (value: unknown) => { if (!isZoneSurface(value) || !caseData.zones.some(zone => resolveZoneSurface(zone) === value)) errors.push(`La pista ${clue.id} referencia una superficie inexistente: ${String(value)}.`) }
+  const relation = (value: unknown) => { if (value !== 'same' && value !== 'different' && value !== 'any') errors.push(`La pista ${clue.id} tiene una relaciÃ³n de zona invÃ¡lida.`) }
   const zone = (id: string) => { if (!zoneIds.has(id)) errors.push(`La pista ${clue.id} referencia una zona inexistente: ${id}.`) }
   const featureType = (type: unknown) => { if (!isEdgeFeatureType(type)) errors.push(`La pista ${clue.id} tiene un tipo de edge feature inválido.`); else if (!edgeFeatureTypes.has(type)) errors.push(`La pista ${clue.id} referencia un edge feature inexistente: ${type}.`) }
   const trait = (id: string, companion: boolean) => {
@@ -140,6 +143,9 @@ function validateClue(clue: Clue, subjectId: string, caseData: GameCase, zoneIds
     case 'column': if (clue.column < 1 || clue.column > caseData.columns) errors.push(`La pista ${clue.id} tiene una columna inválida.`); return
     case 'zone': case 'notZone': zone(clue.zoneId); return
     case 'onObject': case 'besideObject': case 'notOnObject': case 'notBesideObject': object(clue.objectId); return
+    case 'sameColumnAsObject': object(clue.objectId); relation(clue.zoneRelation); return
+    case 'relativeToObject': object(clue.objectId); relation(clue.zoneRelation); if (!['northEast', 'northWest', 'southEast', 'southWest'].includes(clue.direction)) errors.push(`La pista ${clue.id} tiene una direcciÃ³n invÃ¡lida.`); return
+    case 'onSurface': surface(clue.surface); return
     case 'oneOfZones': choices(clue.zoneIds, 'zona'); return
     case 'oneOfObjects': choices(clue.objectIds, 'objeto'); return
     case 'aloneInZone': case 'notAloneInZone': return
@@ -161,6 +167,7 @@ function validateGlobalClue(clue: GlobalClue, caseData: GameCase, zoneIds: Set<s
     case 'zoneOccupancyCount': if (!zoneIds.has(clue.zoneId)) errors.push(`La evidencia ${clue.id} referencia una zona inexistente: ${clue.zoneId}.`); if (!count(clue.count, caseData.characters.length)) errors.push(`La evidencia ${clue.id} tiene un conteo de ocupación inválido.`); return
     case 'objectOccupancyCount': { const maximum = caseData.board.filter(cell => cell.occupiable && cell.object?.id === clue.objectId).length; if (!objectIds.has(clue.objectId)) errors.push(`La evidencia ${clue.id} referencia un objeto inexistente: ${clue.objectId}.`); if (!count(clue.count, Math.min(maximum, caseData.characters.length))) errors.push(`La evidencia ${clue.id} tiene un conteo de objeto inválido.`); return }
     case 'zoneTraitCount': { const maximum = charactersWithTrait(caseData, clue.traitId).length; if (!zoneIds.has(clue.zoneId)) errors.push(`La evidencia ${clue.id} referencia una zona inexistente: ${clue.zoneId}.`); if (!traitIds.has(clue.traitId)) errors.push(`La evidencia ${clue.id} referencia un trait inexistente: ${clue.traitId}.`); if (maximum === 0) errors.push(`La evidencia ${clue.id} usa un trait no asignado: ${clue.traitId}.`); if (!count(clue.count, maximum)) errors.push(`La evidencia ${clue.id} tiene un conteo de trait inválido.`); return }
+    case 'surfaceOccupancyCount': { const maximum = Math.min(caseData.characters.length, caseData.board.filter(cell => cell.occupiable && resolveZoneSurface(caseData.zones.find(zone => zone.id === cell.zoneId)) === clue.surface).length); if (!isZoneSurface(clue.surface) || !caseData.zones.some(zone => resolveZoneSurface(zone) === clue.surface)) errors.push(`La evidencia ${clue.id} referencia una superficie inexistente: ${String(clue.surface)}.`); if (!count(clue.count, maximum)) errors.push(`La evidencia ${clue.id} tiene un conteo de superficie inválido.`); return }
     default: return exhaustive(clue)
   }
 }

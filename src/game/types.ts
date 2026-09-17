@@ -37,13 +37,19 @@ export interface OneOfObjectsClue extends BaseClue { type: 'oneOfObjects'; objec
 export interface AloneInZoneClue extends BaseClue { type: 'aloneInZone' }
 export interface NotAloneInZoneClue extends BaseClue { type: 'notAloneInZone' }
 export interface OwnZoneOccupancyCountClue extends BaseClue { type: 'ownZoneOccupancyCount'; count: number }
-export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue | RowOffsetFromCharacterClue | CornerOfBoardClue | CornerOfZoneClue | BesideWallClue | NotBesideWallClue | BesideEdgeFeatureClue | NotBesideEdgeFeatureClue | WithTraitInZoneClue | WithoutTraitInZoneClue | CompanionTraitCountClue | OneOfZonesClue | OneOfObjectsClue | AloneInZoneClue | NotAloneInZoneClue | OwnZoneOccupancyCountClue
+export type ObjectZoneRelation = 'same' | 'different' | 'any'
+export type ObjectRelativeDirection = 'northEast' | 'northWest' | 'southEast' | 'southWest'
+export interface SameColumnAsObjectClue extends BaseClue { type: 'sameColumnAsObject'; objectId: string; zoneRelation: ObjectZoneRelation }
+export interface RelativeToObjectClue extends BaseClue { type: 'relativeToObject'; objectId: string; direction: ObjectRelativeDirection; zoneRelation: ObjectZoneRelation }
+export interface OnSurfaceClue extends BaseClue { type: 'onSurface'; surface: ZoneSurface }
+export type Clue = RowClue | ColumnClue | ZoneClue | OnObjectClue | BesideObjectClue | NorthOfCharacterClue | SouthOfCharacterClue | SameZoneAsCharacterClue | BesideCharacterClue | NotZoneClue | NotOnObjectClue | NotBesideObjectClue | RowOffsetFromCharacterClue | CornerOfBoardClue | CornerOfZoneClue | BesideWallClue | NotBesideWallClue | BesideEdgeFeatureClue | NotBesideEdgeFeatureClue | WithTraitInZoneClue | WithoutTraitInZoneClue | CompanionTraitCountClue | OneOfZonesClue | OneOfObjectsClue | AloneInZoneClue | NotAloneInZoneClue | OwnZoneOccupancyCountClue | SameColumnAsObjectClue | RelativeToObjectClue | OnSurfaceClue
 export interface BaseGlobalClue { id: string; text: string }
 export interface EmptyZoneCountGlobalClue extends BaseGlobalClue { type: 'emptyZoneCount'; count: number }
 export interface ZoneOccupancyCountGlobalClue extends BaseGlobalClue { type: 'zoneOccupancyCount'; zoneId: string; count: number }
 export interface ObjectOccupancyCountGlobalClue extends BaseGlobalClue { type: 'objectOccupancyCount'; objectId: string; count: number }
 export interface ZoneTraitCountGlobalClue extends BaseGlobalClue { type: 'zoneTraitCount'; zoneId: string; traitId: string; count: number }
-export type GlobalClue = EmptyZoneCountGlobalClue | ZoneOccupancyCountGlobalClue | ObjectOccupancyCountGlobalClue | ZoneTraitCountGlobalClue
+export interface SurfaceOccupancyCountGlobalClue extends BaseGlobalClue { type: 'surfaceOccupancyCount'; surface: ZoneSurface; count: number }
+export type GlobalClue = EmptyZoneCountGlobalClue | ZoneOccupancyCountGlobalClue | ObjectOccupancyCountGlobalClue | ZoneTraitCountGlobalClue | SurfaceOccupancyCountGlobalClue
 export type CharacterGender = 'female' | 'male'
 export interface Character { id: string; name: string; avatar: string; avatarImage?: string; gender?: CharacterGender; roleId?: string; roleLabel?: string; clues: Clue[]; isVictim: boolean; traitIds?: string[] }
 export interface Placement { characterId: string; position: Position }

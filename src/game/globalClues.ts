@@ -2,6 +2,7 @@ import { getCell } from './rules'
 import type { GlobalClue, GameCase, Placement } from './types'
 import type { ClueEvaluation } from './clues'
 import { characterHasTrait } from './traits'
+import { resolveZoneSurface } from './zones/surfaces'
 
 export type GlobalClueEvaluation = ClueEvaluation
 export interface EvaluatedGlobalClue { clue: GlobalClue; evaluation: GlobalClueEvaluation }
@@ -17,6 +18,7 @@ export function evaluateGlobalClue(clue: GlobalClue, caseData: GameCase, placeme
     case 'zoneOccupancyCount': { const current = countZone(caseData, placements, clue.zoneId); if (current > clue.count) return 'violated'; return isComplete ? current === clue.count ? 'satisfied' : 'violated' : 'undetermined' }
     case 'objectOccupancyCount': { const current = placements.filter(item => getCell(caseData.board, item.position)?.object?.id === clue.objectId).length; if (current > clue.count) return 'violated'; return isComplete ? current === clue.count ? 'satisfied' : 'violated' : 'undetermined' }
     case 'zoneTraitCount': { const current = countZoneTrait(caseData, placements, clue.zoneId, clue.traitId); if (current > clue.count) return 'violated'; return isComplete ? current === clue.count ? 'satisfied' : 'violated' : 'undetermined' }
+    case 'surfaceOccupancyCount': { const current = placements.filter(item => resolveZoneSurface(caseData.zones.find(zone => zone.id === getCell(caseData.board, item.position)?.zoneId)) === clue.surface).length; if (current > clue.count) return 'violated'; return isComplete ? current === clue.count ? 'satisfied' : 'violated' : 'undetermined' }
     default: return exhaustive(clue)
   }
 }
