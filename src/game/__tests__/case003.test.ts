@@ -81,11 +81,11 @@ describe('manual Normal case003', () => {
     expect(evaluateAllClues(case003, case003.solution).every(result => result.evaluation === 'satisfied')).toBe(true)
   })
 
-  it('integrates only C03 while C01, C02, C04, Daily and Infinite retain their sources', () => {
+  it('keeps C01-C03 and the newly manual C04 distinct from frozen, Daily and Infinite sources', () => {
     expect(generateNormalCase({ difficulty: 1, caseNumber: 1 }).caseData).toBe(case001)
     expect(generateNormalCase({ difficulty: 1, caseNumber: 2 }).caseData).toBe(case002)
     expect(generateNormalCase({ difficulty: 1, caseNumber: 3 }).caseData).toBe(case003)
-    expect(generateNormalCase({ difficulty: 1, caseNumber: 4 }).caseData).toEqual(getFrozenNormalGeneratedCase(1, 4)!.caseData)
+    expect(generateNormalCase({ difficulty: 1, caseNumber: 16 }).caseData).toEqual(getFrozenNormalGeneratedCase(1, 16)!.caseData)
     expect(generateDailyCase(new Date(2026, 8, 8, 12), 1).caseData.id).not.toBe('case003')
     expect(generateInfiniteCase({ difficulty: 1, seed: 12001 }).caseData.id).not.toBe('case003')
   })

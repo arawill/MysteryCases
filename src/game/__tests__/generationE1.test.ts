@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
 import { case003 } from '../../data/cases/case003'
+import { case004 } from '../../data/cases/case004'
 import { evaluateClue } from '../clues'
 import { evaluateGlobalClue } from '../globalClues'
 import { getNormalCaseId } from '../normal/ids'
@@ -26,7 +27,8 @@ describe('5.5E.1 procedural vocabulary', () => {
   it('keeps manual Normal IDs while versioning procedural Normal, Daily and Infinite save slots', () => {
     const date = new Date(2026, 8, 8, 12)
     expect(generateNormalCase({ difficulty: 1, caseNumber: 3 }).caseData.id).toBe(case003.id)
-    expect(generateNormalCase({ difficulty: 1, caseNumber: 4 }).caseData.id).toBe(getVersionedProceduralCaseId(getNormalCaseId(1, 4)))
+    expect(generateNormalCase({ difficulty: 1, caseNumber: 4 }).caseData.id).toBe(case004.id)
+    expect(generateNormalCase({ difficulty: 1, caseNumber: 16 }).caseData.id).toBe(getVersionedProceduralCaseId(getNormalCaseId(1, 16)))
     expect(generateDailyCase(date).caseData.id).toBe(getVersionedProceduralCaseId(getDailyPuzzleId(date, 1)))
     expect(generateInfiniteCase({ difficulty: 1, seed: 42 }).caseData.id).toBe(getVersionedProceduralCaseId(getInfiniteCaseId(1, 42)))
     expect(getNormalCaseId(1, 2)).not.toContain('-g7')

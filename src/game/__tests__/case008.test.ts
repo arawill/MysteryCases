@@ -1,0 +1,1 @@
+import { describe, it } from 'vitest'; import { case008 } from '../../data/cases/case008'; import { expectManualD1Case } from './manualD1Case.testUtils'; describe('case008', () => it('is valid and unique', () => expectManualD1Case(case008, 8, 'pablo')))

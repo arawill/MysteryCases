@@ -4,6 +4,7 @@ import type { DifficultyRating } from '../types'
 import { getNormalCaseSeed } from './ids'
 import { getFrozenNormalGeneratedCase } from './frozen'
 import { getManualNormalCase } from '../../data/cases/manualNormalCases'
+import { findKiller } from '../rules'
 
 export interface NormalCaseRequest { difficulty: DifficultyRating; caseNumber: number }
 // Historical frozen descriptors remain readable for tooling; routes and progress expose only 1…15.
@@ -14,7 +15,11 @@ export function generateNormalCase(request: NormalCaseRequest): GeneratedProcedu
   const baseSeed = getNormalCaseSeed(difficulty, caseNumber)
   if (difficulty === 1 && caseNumber === 1) return { caseData: case001, baseSeed, effectiveSeed: baseSeed, seedOffset: 0, killerId: 'bruno', scenarioAttempts: 0, stats: { placementAttempts: 0, candidateClues: 0, selectedClues: case001.characters.reduce((total, character) => total + character.clues.length, 0), removedClues: 0, solverCalls: 0 } }
   const manual = getManualNormalCase(difficulty, caseNumber)
-  if (manual) return { caseData: manual, baseSeed, effectiveSeed: baseSeed, seedOffset: 0, killerId: 'tomas', scenarioAttempts: 0, stats: { placementAttempts: 0, candidateClues: 0, selectedClues: manual.characters.reduce((total, character) => total + character.clues.length, 0), removedClues: 0, solverCalls: 0 } }
+  if (manual) {
+    const killer = findKiller(manual, manual.solution)
+    if (!killer) throw new Error(`Manual Normal case has no killer: ${manual.id}.`)
+    return { caseData: manual, baseSeed, effectiveSeed: baseSeed, seedOffset: 0, killerId: killer.id, scenarioAttempts: 0, stats: { placementAttempts: 0, candidateClues: 0, selectedClues: manual.characters.reduce((total, character) => total + character.clues.length, 0), removedClues: 0, solverCalls: 0 } }
+  }
   const frozen = getFrozenNormalGeneratedCase(difficulty, caseNumber)
   if (!frozen) throw new Error(`Frozen Normal case is missing: ${difficulty}/${caseNumber}.`)
   return frozen
