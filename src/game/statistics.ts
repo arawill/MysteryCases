@@ -1,5 +1,5 @@
 import { formatDifficultyStars } from './difficulty'
-import { countCompletedFirstForty, countCompletedNormalCases, getUnlockedDifficulties, NORMAL_CASE_COUNT, type NormalModeProgress } from './persistence/normalProgress'
+import { countCompletedUnlockCases, countCompletedNormalCases, getUnlockedDifficulties, NORMAL_CASE_COUNT, type NormalModeProgress } from './persistence/normalProgress'
 import type { PlayerStats } from './persistence/playerStats'
 import type { Progress } from './persistence/progress'
 import type { DifficultyRating } from './types'
@@ -51,7 +51,7 @@ export function buildPlayerStatistics({ normalProgress, progress, playerStats, i
     difficulty,
     stars: formatDifficultyStars(difficulty),
     completed: countCompletedNormalCases(difficulty, normalProgress),
-    firstForty: countCompletedFirstForty(difficulty, normalProgress),
+    unlockCases: countCompletedUnlockCases(difficulty, normalProgress),
     max: NORMAL_CASE_COUNT,
     unlocked: unlocked.includes(difficulty),
   }))

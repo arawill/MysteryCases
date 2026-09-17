@@ -23,7 +23,7 @@ export function evaluateAchievements(context: AchievementContext): AchievementDe
     'normal-d3-complete': normal[3].length === NORMAL_CASE_COUNT,
     'normal-d4-complete': normal[4].length === NORMAL_CASE_COUNT,
     'normal-d5-complete': normal[5].length === NORMAL_CASE_COUNT,
-    'normal-all-400': ([1, 2, 3, 4, 5] as const).every(difficulty => normal[difficulty].length === NORMAL_CASE_COUNT),
+    'normal-all-75': ([1, 2, 3, 4, 5] as const).every(difficulty => normal[difficulty].length === NORMAL_CASE_COUNT),
     'first-perfect': perfect.length >= 1,
     'perfect-10': perfect.length >= 10,
     'perfect-d5': perfect.some(record => record.difficulty === 5),

@@ -5,6 +5,7 @@ import { getNormalCaseSeed } from './ids'
 import { getFrozenNormalGeneratedCase } from './frozen'
 
 export interface NormalCaseRequest { difficulty: DifficultyRating; caseNumber: number }
+// Historical frozen descriptors remain readable for tooling; routes and progress expose only 1…15.
 const validate = ({ difficulty, caseNumber }: NormalCaseRequest) => { if (![1, 2, 3, 4, 5].includes(difficulty) || !Number.isInteger(caseNumber) || caseNumber < 1 || caseNumber > 80) throw new Error('Normal case difficulty or number is invalid.') }
 export function generateNormalCase(request: NormalCaseRequest): GeneratedProceduralCase {
   validate(request)

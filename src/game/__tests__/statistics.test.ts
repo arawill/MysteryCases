@@ -52,7 +52,7 @@ describe('player statistics', () => {
     const playerStats = { saveVersion: 1 as const, completedInfiniteCaseIds: ['infinite-d1-s1', 'infinite-d2-s2'], hintsUsed: { review: 2, exclusion: 3, reveal: 1 } }
     const result = buildPlayerStatistics({ normalProgress: normal, progress: { saveVersion: 1, completedCaseIds: ['daily-2026-09-06', 'daily-2026-09-07', 'daily-2026-09-08', 'daily-2026-09-08'] }, playerStats, today: new Date(2026, 8, 8, 12) })
     expect(result.normal.total).toBe(10)
-    expect(result.normal.byDifficulty[0]).toMatchObject({ completed: 10, firstForty: 10, unlocked: true })
+    expect(result.normal.byDifficulty[0]).toMatchObject({ completed: 10, unlockCases: 10, unlocked: true })
     expect(result.normal.highestUnlocked).toBe(1)
     expect(result.daily).toEqual({ completed: 3, currentStreak: 3, bestStreak: 3 })
     expect(result.infinite.completed).toBe(2)

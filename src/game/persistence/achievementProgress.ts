@@ -10,10 +10,12 @@ const normalise = (value: unknown): AchievementProgress => {
   const earliest = new Map<AchievementId, string>()
   for (const entry of (value as AchievementProgress).unlocked) {
     if (!entry || typeof entry !== 'object') continue
-    const unlock = entry as Partial<AchievementUnlock>
-    if (!isAchievementId(unlock.id) || !validDate(unlock.unlockedAt)) continue
-    const previous = earliest.get(unlock.id)
-    if (!previous || Date.parse(unlock.unlockedAt) < Date.parse(previous)) earliest.set(unlock.id, unlock.unlockedAt)
+    const unlock = entry as Partial<AchievementUnlock> & { id?: string }
+    const rawId: unknown = unlock.id
+    const id = rawId === 'normal-all-400' ? 'normal-all-75' : rawId
+    if (!isAchievementId(id) || !validDate(unlock.unlockedAt)) continue
+    const previous = earliest.get(id)
+    if (!previous || Date.parse(unlock.unlockedAt) < Date.parse(previous)) earliest.set(id, unlock.unlockedAt)
   }
   return { saveVersion: 1, unlocked: achievementCatalog.filter(item => earliest.has(item.id)).map(item => ({ id: item.id, unlockedAt: earliest.get(item.id)! })) }
 }

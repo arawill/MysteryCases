@@ -43,7 +43,7 @@ describe('resetAllProgress', () => {
     expect(storage.getItem(SETTINGS_KEY)).not.toBeNull()
     expect(storage.getItem('some-other-app-data')).toBe('keep')
     expect(loadProgress(storage)).toEqual({ saveVersion: 1, completedCaseIds: [] })
-    expect(loadNormalProgress(storage)).toEqual({ saveVersion: 1, selectedDifficulty: 1, completedCaseNumbersByDifficulty: { 1: [], 2: [], 3: [], 4: [], 5: [] } })
+    expect(loadNormalProgress(storage)).toEqual({ saveVersion: 2, selectedDifficulty: 1, completedCaseNumbersByDifficulty: { 1: [], 2: [], 3: [], 4: [], 5: [] } })
     expect(loadDailySession(date, storage)).toBeNull()
     expect(loadInfiniteSession(storage)).toBeNull()
     expect(loadPlayerStats(storage)).toEqual({ saveVersion: 1, completedInfiniteCaseIds: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 } })

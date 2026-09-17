@@ -3,6 +3,7 @@ import type { AchievementProgress } from '../persistence/achievementProgress'
 import type { AchievementContext } from './evaluator'
 import { buildPlayerStatistics } from '../statistics'
 import { getUnlockedDifficulties, NORMAL_CASE_COUNT } from '../persistence/normalProgress'
+import { NORMAL_TOTAL_CASE_COUNT } from '../normal/constants'
 import { isPerfectInvestigation } from '../persistence/investigationHistory'
 
 export interface AchievementDisplayProgress { current: number; target: number; label: string }
@@ -15,7 +16,7 @@ export function achievementDisplayProgress(id: AchievementId, context: Achieveme
   if (id === 'investigations-100') return value(stats.totalSolved, 100, 'expedientes distintos')
   if (id === 'all-difficulties-unlocked') return value(getUnlockedDifficulties(context.normalProgress).length, 5, 'dificultades')
   const normalMatch = /^normal-d([1-5])-complete$/.exec(id); if (normalMatch) return value(normal[Number(normalMatch[1]) as 1 | 2 | 3 | 4 | 5].length, NORMAL_CASE_COUNT, 'casos normales')
-  if (id === 'normal-all-400') return value(stats.normal.total, 400, 'casos normales')
+  if (id === 'normal-all-75') return value(stats.normal.total, NORMAL_TOTAL_CASE_COUNT, 'casos normales')
   if (id === 'first-perfect') return value(perfect.length, 1, 'expedientes impecables')
   if (id === 'perfect-10') return value(perfect.length, 10, 'expedientes impecables')
   if (id === 'perfect-d5') return value(perfect.some(item => item.difficulty === 5) ? 1 : 0, 1, 'expediente D5')
@@ -29,5 +30,5 @@ export function achievementDisplayProgress(id: AchievementId, context: Achieveme
   return null
 }
 export function getRecentAchievements(progress: AchievementProgress, maximum = 3) { return [...progress.unlocked].sort((left, right) => Date.parse(right.unlockedAt) - Date.parse(left.unlockedAt)).slice(0, maximum).map(item => ({ ...item, definition: achievementCatalog.find(achievement => achievement.id === item.id)! })) }
-export function buildProfileSummary(context: AchievementContext, achievements: AchievementProgress) { const stats = buildPlayerStatistics(context), infinitePerfect = context.investigationHistory.records.filter(record => record.mode === 'infinite' && isPerfectInvestigation(record)).length; return { statistics: stats, unlocked: achievements.unlocked.length, normalPercent: Math.round(stats.normal.total / 400 * 100), perfectRate: stats.performance.trackedUnique ? Math.round(stats.performance.perfectUnique / stats.performance.trackedUnique * 100) : null, infinitePerfect } }
+export function buildProfileSummary(context: AchievementContext, achievements: AchievementProgress) { const stats = buildPlayerStatistics(context), infinitePerfect = context.investigationHistory.records.filter(record => record.mode === 'infinite' && isPerfectInvestigation(record)).length; return { statistics: stats, unlocked: achievements.unlocked.length, normalPercent: Math.min(100, Math.round(stats.normal.total / NORMAL_TOTAL_CASE_COUNT * 100)), perfectRate: stats.performance.trackedUnique ? Math.round(stats.performance.perfectUnique / stats.performance.trackedUnique * 100) : null, infinitePerfect } }
 export const getAchievementDefinition = (id: AchievementId): AchievementDefinition => achievementCatalog.find(item => item.id === id)!
