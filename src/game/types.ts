@@ -8,7 +8,9 @@ export interface TraitDefinition { id: string; label: string }
 export type ZoneSurface = 'tile' | 'kitchenTile' | 'grass' | 'stairs' | 'asphalt' | 'wood' | 'carpet' | 'industrial' | 'concrete' | 'generic'
 export interface Zone { id: string; name: string; tone: string; icon?: string; surface?: ZoneSurface }
 export type ObjectAppearance = 'sunLounger' | 'toilet' | 'diningChair' | 'officeChair' | 'sofa' | 'bathtub' | 'outdoorBench' | 'stool'
-export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean; appearance?: ObjectAppearance }
+export type ObjectVisualProfile = 'compact' | 'standard' | 'wide' | 'tall'
+export interface ObjectFootprint { id: string; positions: Position[] }
+export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean; appearance?: ObjectAppearance; visualProfile?: ObjectVisualProfile; footprint?: ObjectFootprint; occupiablePositions?: Position[] }
 export interface BoardCell extends Position { zoneId: string; occupiable: boolean; object?: BoardObject }
 export interface BaseClue { id: string; text: string }
 export interface RowClue extends BaseClue { type: 'row'; row: number }

@@ -14,17 +14,17 @@
 .board .surface-generic{--floor-pattern:linear-gradient(135deg,var(--floor-soft),transparent 65%)}
 html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-background-light,var(--surface-soft))}
 /* Object and person layers share the cell anchor but never participate in each other's layout. */
-.board .cell .cell-object-layer,.board .cell .cell-person-layer{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-.board .cell .cell-object-layer{z-index:1}.board .cell .cell-person-layer{z-index:3}
+.board .cell .cell-object-layer{position:absolute;top:0;left:0;width:calc(100% * var(--object-footprint-columns,1));height:calc(100% * var(--object-footprint-rows,1));display:grid;place-items:center;z-index:1;pointer-events:none}
+.board .cell .cell-person-layer{position:absolute;inset:0;display:grid;place-items:center;z-index:3;pointer-events:none}
 .board .cell .cell-person-layer .placed{position:absolute}
 .board .cell .edge-feature{z-index:4}
+.board .cell.footprint-anchor{z-index:2}
 /* Every icon URL can point to SVG, transparent PNG, or transparent WebP. */
 .board .cell .cell-object-layer .object{position:relative;inset:auto;display:grid;place-items:center;width:100%;height:100%;pointer-events:none;opacity:.9}
-.board .cell .cell-object-layer .object img{display:block;width:min(76%,100%);height:min(76%,100%);max-width:100%;max-height:100%;margin:0;object-fit:contain;filter:drop-shadow(0 3px 2px #0003)}
-.board .cell .object-table img{width:82%;height:82%}
-.board .cell .object-plant img{width:76%;height:76%}
-.board .cell .object-crate img{width:74%;height:74%}
-.board .cell .object-register img{width:68%;height:68%}
-.board .cell .object-chair img{width:66%;height:66%}
+.board .cell .cell-object-layer .object img{display:block;width:min(76%,100%);height:min(76%,100%);max-width:100%;max-height:100%;margin:0;object-fit:contain;object-position:center;filter:drop-shadow(0 3px 2px #0003)}
+.board .cell .object-visual-compact img{width:min(62%,100%);height:min(62%,100%)}
+.board .cell .object-visual-standard img{width:min(76%,100%);height:min(76%,100%)}
+.board .cell .object-visual-wide img{width:min(88%,100%);height:min(68%,100%)}
+.board .cell .object-visual-tall img{width:min(66%,100%);height:min(88%,100%)}
 .board .cell .object-puddle{opacity:.78}
-.board .cell .object-puddle img{width:82%;height:82%}
+.game-screen .board .cell.footprint-reserved::after{display:none}

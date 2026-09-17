@@ -1,8 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
+import { case002 } from '../../data/cases/case002'
 import { resolveZoneSurface } from '../../game/zones/surfaces'
 import { canPlace } from '../../game/rules'
+import { resolveObjectVisualProfile } from '../../game/objects/appearanceCatalog'
 import type { Zone } from '../../game/types'
 import { Board } from '../Board'
 
@@ -84,15 +86,22 @@ describe('visual board surfaces', () => {
     expect(empty).toContain(`src="${chair.object!.icon}"`)
   })
 
-  it('preserves occupancy rules and renders each cell of a multi-cell footprint independently', () => {
-    const chair = case001.board.find(cell => cell.object?.id === 'chair')!
-    const table = case001.board.find(cell => cell.object?.id === 'table')!
-    expect(canPlace('lucia', chair, [], case001.board).ok).toBe(true)
-    expect(canPlace('lucia', table, [], case001.board).ok).toBe(false)
-    const secondFootprintCell = case001.board.find(cell => cell.row === chair.row && cell.column === chair.column + 1)!
-    const board = case001.board.map(cell => cell === secondFootprintCell ? { ...cell, occupiable: false, object: { id: 'bench-footprint', label: 'un banco exterior', icon: chair.object!.icon, occupiable: false } } : cell)
-    const markup = renderToStaticMarkup(<Board {...case001} board={board} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
-    expect((markup.match(/data-layer="object"/g) ?? []).length).toBe(case001.board.filter(cell => cell.object).length + 1)
-    expect(canPlace('lucia', secondFootprintCell, [], board).ok).toBe(false)
+  it('renders a multi-cell footprint once, centered over its declared box, while keeping only its explicit position occupiable', () => {
+    const anchor = case002.board.find(cell => cell.row === 4 && cell.column === 1)!
+    const reserved = case002.board.find(cell => cell.row === 5 && cell.column === 1)!
+    const markup = renderToStaticMarkup(<Board {...case002} placements={[{ characterId: 'tomas', position: anchor }]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect((markup.match(/data-footprint="case002-patio-lounger"/g) ?? []).length).toBe(1)
+    expect(markup).toContain('--object-footprint-columns:1;--object-footprint-rows:2')
+    expect(markup).toContain('object-visual-tall')
+    expect(markup).toContain('footprint-anchor')
+    expect(markup).toContain('footprint-reserved')
+    expect(markup.indexOf('data-footprint="case002-patio-lounger"')).toBeLessThan(markup.indexOf('data-layer="person"'))
+    expect(canPlace('vera', anchor, [], case002.board).ok).toBe(true)
+    expect(canPlace('vera', reserved, [], case002.board).ok).toBe(false)
+  })
+
+  it('uses visual profiles instead of source image dimensions', () => {
+    expect(['compact', 'standard', 'wide', 'tall'].map(visualProfile => resolveObjectVisualProfile({ visualProfile: visualProfile as 'compact' | 'standard' | 'wide' | 'tall' }))).toEqual(['compact', 'standard', 'wide', 'tall'])
+    expect(resolveObjectVisualProfile({})).toBe('standard')
   })
 })

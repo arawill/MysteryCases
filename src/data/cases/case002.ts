@@ -1,15 +1,31 @@
 import type { BoardCell, Character, GameCase, Placement } from '../../game/types'
 import { avatarCatalog } from '../../game/characters/avatarCatalog'
+import { isObjectPositionOccupiable } from '../../game/objects/footprints'
 import chairIcon from '../../assets/scenarios/cafeteria/objects/chair.png'
 import crateIcon from '../../assets/scenarios/cafeteria/objects/crate.png'
 import plantIcon from '../../assets/scenarios/cafeteria/objects/plant.png'
-import tableIcon from '../../assets/scenarios/cafeteria/objects/table.png'
 
-const zones = [{ id: 'gallery', name: 'Galería', tone: 'cafe', surface: 'wood' as const }, { id: 'workshop', name: 'Taller', tone: 'kitchen', surface: 'concrete' as const }, { id: 'archive', name: 'Archivo', tone: 'storage', surface: 'carpet' as const }, { id: 'patio', name: 'Patio', tone: 'bathroom', surface: 'tile' as const }, { id: 'bathroom', name: 'Baño', tone: 'bathroom', surface: 'tile' as const }]
-const objects = { chair: { id: 'chair', label: 'una silla', icon: chairIcon, occupiable: true }, stool: { id: 'stool', label: 'un taburete', icon: chairIcon, occupiable: true, appearance: 'stool' as const }, patioLounger: { id: 'patioLounger', label: 'una tumbona', icon: chairIcon, occupiable: true, appearance: 'sunLounger' as const }, toilet: { id: 'toilet', label: 'un retrete', icon: tableIcon, occupiable: false, appearance: 'toilet' as const }, crate: { id: 'crate', label: 'una caja', icon: crateIcon, occupiable: false }, plant: { id: 'plant', label: 'una planta', icon: plantIcon, occupiable: false }, table: { id: 'table', label: 'una mesa', icon: tableIcon, occupiable: false } }
-const zoneAt = (row: number, column: number) => row === 6 && column === 5 ? 'bathroom' : row <= 3 ? (column <= 3 ? 'gallery' : 'workshop') : (column <= 3 ? 'patio' : 'archive')
-const objectAt: Record<string, keyof typeof objects> = { '1-2': 'chair', '2-5': 'stool', '3-5': 'plant', '4-1': 'patioLounger', '5-4': 'chair', '6-1': 'crate', '6-5': 'toilet' }
-const board: BoardCell[] = Array.from({ length: 6 }, (_, r) => Array.from({ length: 6 }, (_, c) => { const row = r + 1, column = c + 1, key = objectAt[`${row}-${column}`]; return { row, column, zoneId: zoneAt(row, column), occupiable: key ? objects[key].occupiable : true, ...(key ? { object: objects[key] } : {}) } })).flat()
+const zones = [
+  { id: 'gallery', name: 'Galería', tone: 'cafe', surface: 'wood' as const },
+  { id: 'workshop', name: 'Taller', tone: 'kitchen', surface: 'concrete' as const },
+  { id: 'archive', name: 'Archivo', tone: 'storage', surface: 'carpet' as const },
+  { id: 'patio', name: 'Patio', tone: 'bathroom', surface: 'tile' as const },
+]
+
+const patioLoungerFootprint = { id: 'case002-patio-lounger', positions: [{ row: 4, column: 1 }, { row: 5, column: 1 }] }
+const objects = {
+  chair: { id: 'chair', label: 'una silla', icon: chairIcon, occupiable: true, visualProfile: 'standard' as const },
+  stool: { id: 'stool', label: 'un taburete', icon: chairIcon, occupiable: true, appearance: 'stool' as const, visualProfile: 'tall' as const },
+  patioLounger: { id: 'patioLounger', label: 'una tumbona', icon: chairIcon, occupiable: true, appearance: 'sunLounger' as const, visualProfile: 'tall' as const, footprint: patioLoungerFootprint, occupiablePositions: [{ row: 4, column: 1 }] },
+  crate: { id: 'crate', label: 'una caja', icon: crateIcon, occupiable: false, visualProfile: 'standard' as const },
+  plant: { id: 'plant', label: 'una planta', icon: plantIcon, occupiable: false, visualProfile: 'standard' as const },
+}
+const zoneAt = (row: number, column: number) => row <= 3 ? (column <= 3 ? 'gallery' : 'workshop') : (column <= 3 ? 'patio' : 'archive')
+const objectAt: Record<string, keyof typeof objects> = { '1-2': 'chair', '2-5': 'stool', '3-5': 'plant', '4-1': 'patioLounger', '5-1': 'patioLounger', '5-4': 'chair', '6-1': 'crate' }
+const board: BoardCell[] = Array.from({ length: 6 }, (_, r) => Array.from({ length: 6 }, (_, c) => {
+  const row = r + 1, column = c + 1, key = objectAt[`${row}-${column}`], object = key ? objects[key] : undefined
+  return { row, column, zoneId: zoneAt(row, column), occupiable: object ? isObjectPositionOccupiable(object, { row, column }) : true, ...(object ? { object } : {}) }
+})).flat()
 const avatar = (id: string) => avatarCatalog.find(item => item.id === id)!.image
 const characters: Character[] = [
   { id: 'vera', name: 'Vera', avatar: '👤', avatarImage: avatar('avatar_08'), isVictim: false, clues: [{ id: 'vera-chair', type: 'onObject', objectId: 'chair', text: 'Estaba sentada en una silla.' }, { id: 'vera-gallery', type: 'zone', zoneId: 'gallery', text: 'Estaba en la galería.' }] },

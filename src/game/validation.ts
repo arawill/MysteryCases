@@ -5,7 +5,8 @@ import { areAllGlobalCluesSatisfied } from './globalClues'
 import { findKiller, getCell } from './rules'
 import { charactersWithTrait } from './traits'
 import { isZoneSurface, resolveZoneSurface } from './zones/surfaces'
-import type { Clue, EdgeFeature, EdgeSegment, GameCase, GlobalClue, Position } from './types'
+import { isObjectPositionOccupiable, isRectangularFootprint, positionKey } from './objects/footprints'
+import type { BoardObject, Clue, EdgeFeature, EdgeSegment, GameCase, GlobalClue, Position } from './types'
 
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -31,9 +32,10 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
     coordinates.add(key)
     if (cell.row < 1 || cell.row > caseData.rows || cell.column < 1 || cell.column > caseData.columns) errors.push(`Celda fuera del tablero: ${key}.`)
     if (!zoneIds.has(cell.zoneId)) errors.push(`Zona inexistente en celda ${key}: ${cell.zoneId}.`)
-    if (cell.object && cell.occupiable !== cell.object.occupiable) errors.push(`Incoherencia occupiable en celda ${key}: la celda y el objeto no coinciden.`)
+    if (cell.object && !cell.object.footprint && cell.occupiable !== cell.object.occupiable) errors.push(`Incoherencia occupiable en celda ${key}: la celda y el objeto no coinciden.`)
     if (cell.object) objectIds.add(cell.object.id)
   }
+  validateObjectFootprints(caseData, errors)
   const edgeFeatureValidation = validateEdgeFeatures(caseData, errors)
   const edgeFeatureTypes = edgeFeatureValidation.types
   for (const character of caseData.characters) for (const clue of character.clues) { if (clueIds.has(clue.id)) errors.push(`ID de pista duplicado: ${clue.id}.`); clueIds.add(clue.id); validateClue(clue, character.id, caseData, zoneIds, objectIds, traitIds, edgeFeatureTypes, errors) }
@@ -58,6 +60,43 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
   if (caseData.solution.length === caseData.characters.length && (!areAllCluesSatisfied(evaluationCase, caseData.solution) || !areAllGlobalCluesSatisfied(evaluationCase, caseData.solution))) errors.push('La solución canónica no satisface todas las pistas.')
   if (!findKiller(caseData, caseData.solution)) errors.push('La solución canónica no identifica un asesino único.')
   return errors
+}
+
+function validateObjectFootprints(caseData: GameCase, errors: string[]) {
+  const cellsByPosition = new Map(caseData.board.map(cell => [positionKey(cell), cell]))
+  const footprints = new Map<string, BoardObject>()
+  const footprintSignatures = new Map<string, string>()
+  for (const cell of caseData.board) {
+    const object = cell.object
+    if (!object?.footprint) continue
+    const footprint = object.footprint
+    const signature = JSON.stringify({ positions: footprint.positions, occupiablePositions: object.occupiablePositions ?? [] })
+    const previous = footprintSignatures.get(footprint.id)
+    if (previous && previous !== signature) errors.push(`Footprint ${footprint.id} tiene definiciones incompatibles.`)
+    footprintSignatures.set(footprint.id, signature)
+    footprints.set(footprint.id, object)
+    if (!footprint.positions.some(position => position.row === cell.row && position.column === cell.column)) errors.push(`La celda ${cell.row}:${cell.column} no pertenece al footprint ${footprint.id}.`)
+    if (cell.occupiable !== isObjectPositionOccupiable(object, cell)) errors.push(`Incoherencia occupiable en celda ${cell.row}:${cell.column} para footprint ${footprint.id}.`)
+  }
+  const occupiedByFootprints = new Map<string, string>()
+  for (const [footprintId, object] of footprints) {
+    const footprint = object.footprint!
+    if (!footprint.id.trim()) errors.push('Un footprint debe tener un id válido.')
+    if (!isRectangularFootprint(footprint.positions)) errors.push(`Footprint ${footprintId} debe formar un rectángulo continuo sin posiciones duplicadas.`)
+    const footprintPositions = new Set(footprint.positions.map(positionKey))
+    const occupiablePositions = object.occupiablePositions ?? (object.occupiable ? footprint.positions : [])
+    const occupiableKeys = new Set(occupiablePositions.map(positionKey))
+    if (occupiableKeys.size !== occupiablePositions.length) errors.push(`Footprint ${footprintId} repite posiciones ocupables.`)
+    for (const position of occupiablePositions) if (!footprintPositions.has(positionKey(position))) errors.push(`La posición ocupable ${positionKey(position)} no pertenece al footprint ${footprintId}.`)
+    for (const position of footprint.positions) {
+      const key = positionKey(position), cell = cellsByPosition.get(key), owner = occupiedByFootprints.get(key)
+      if (owner && owner !== footprintId) errors.push(`Los footprints ${owner} y ${footprintId} se solapan en ${key}.`)
+      occupiedByFootprints.set(key, footprintId)
+      if (!cell) { errors.push(`Footprint ${footprintId} sale del tablero en ${key}.`); continue }
+      if (cell.object?.footprint?.id !== footprintId) errors.push(`Footprint ${footprintId} no está declarado en la celda ${key}.`)
+      if (cell.occupiable !== occupiableKeys.has(key)) errors.push(`La ocupación de ${key} no coincide con footprint ${footprintId}.`)
+    }
+  }
 }
 
 function validateEdgeFeatures(caseData: GameCase, errors: string[]): { types: Set<EdgeFeature['type']>; safeFeatures: EdgeFeature[] } {

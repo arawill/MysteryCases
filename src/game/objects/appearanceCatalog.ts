@@ -1,4 +1,4 @@
-import type { BoardObject, ObjectAppearance } from '../types'
+import type { BoardObject, ObjectAppearance, ObjectVisualProfile } from '../types'
 import bathtub from '../../assets/objects/contextual/banera.png'
 import outdoorBench from '../../assets/objects/contextual/banco_exterior.png'
 import diningChair from '../../assets/objects/contextual/silla_comedor.png'
@@ -22,6 +22,7 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog
+export const resolveObjectVisualProfile = (object: Pick<BoardObject, 'visualProfile'>): ObjectVisualProfile => object.visualProfile ?? 'standard'
 
 export function resolveObjectAppearance(object: Pick<BoardObject, 'appearance' | 'icon' | 'label'>): ObjectAppearanceDefinition {
   return object.appearance && isObjectAppearance(object.appearance) ? objectAppearanceCatalog[object.appearance] : { src: object.icon, label: object.label }
