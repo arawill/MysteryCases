@@ -4,7 +4,7 @@ import { case001 } from '../../data/cases/case001'
 import { case002 } from '../../data/cases/case002'
 import { resolveZoneSurface } from '../../game/zones/surfaces'
 import { canPlace } from '../../game/rules'
-import { resolveObjectVisualProfile } from '../../game/objects/appearanceCatalog'
+import { normaliseObjectAppearanceScale, resolveObjectAppearanceScale, resolveObjectVisualProfile } from '../../game/objects/appearanceCatalog'
 import type { Zone } from '../../game/types'
 import { Board } from '../Board'
 
@@ -103,5 +103,33 @@ describe('visual board surfaces', () => {
   it('uses visual profiles instead of source image dimensions', () => {
     expect(['compact', 'standard', 'wide', 'tall'].map(visualProfile => resolveObjectVisualProfile({ visualProfile: visualProfile as 'compact' | 'standard' | 'wide' | 'tall' }))).toEqual(['compact', 'standard', 'wide', 'tall'])
     expect(resolveObjectVisualProfile({})).toBe('standard')
+  })
+
+  it('renders each declared zone label once, behind objects and people', () => {
+    const markup = renderToStaticMarkup(<Board {...case002} placements={case002.solution} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect((markup.match(/data-layer="zone-label"/g) ?? [])).toHaveLength(case002.zones.length)
+    for (const zone of case002.zones) {
+      expect((markup.match(new RegExp(`data-zone-label="${zone.id}"`, 'g')) ?? [])).toHaveLength(1)
+      expect(markup).toContain(`>${zone.name}</span>`)
+    }
+    expect(markup).toContain('zone-label-bottom')
+    expect(markup).toContain('zone-label-top')
+    const case001Markup = renderToStaticMarkup(<Board {...case001} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect(case001Markup).not.toContain('data-layer="zone-label"')
+  })
+
+  it('uses catalog scale metadata inside visual profile boxes with safe fallbacks', () => {
+    const stool = case002.board.find(cell => cell.object?.id === 'stool')!.object!
+    const chair = case002.board.find(cell => cell.object?.appearance === 'diningChair')!.object!
+    expect(resolveObjectAppearanceScale(stool)).toBeLessThan(1)
+    expect(resolveObjectAppearanceScale(chair)).toBeGreaterThan(1)
+    expect(resolveObjectAppearanceScale(case001.board.find(cell => cell.object?.id === 'chair')!.object!)).toBe(1)
+    expect(normaliseObjectAppearanceScale(-1)).toBe(1)
+    expect(normaliseObjectAppearanceScale(Number.NaN)).toBe(1)
+    expect(normaliseObjectAppearanceScale(Infinity)).toBe(1)
+    expect(normaliseObjectAppearanceScale(.8)).toBe(.8)
+    const markup = renderToStaticMarkup(<Board {...case002} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect(markup).toContain('--object-appearance-scale:0.7')
+    expect(markup).toContain('--object-appearance-scale:1.12')
   })
 })

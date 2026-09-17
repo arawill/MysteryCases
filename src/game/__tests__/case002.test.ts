@@ -5,10 +5,10 @@ import { analyzeCase } from '../analysis'
 import { generateDailyCase } from '../daily/generator'
 import { generateInfiniteCase } from '../infinite/generator'
 import { generateNormalCase } from '../normal/generator'
-import { resolveObjectAppearance } from '../objects/appearanceCatalog'
+import { resolveObjectAppearance, resolveObjectAppearanceScale } from '../objects/appearanceCatalog'
 import { getObjectFootprintBounds, isObjectFootprintAnchor, isObjectPositionOccupiable } from '../objects/footprints'
 import { findKiller, placementsEqual } from '../rules'
-import { solveCaseWithStats } from '../solver'
+import { solveCase, solveCaseWithStats } from '../solver'
 import { validateCaseDefinition } from '../validation'
 
 describe('manual Normal case002', () => {
@@ -23,6 +23,7 @@ describe('manual Normal case002', () => {
     const solved = solveCaseWithStats(case002)
     expect(solved.truncated).toBeUndefined()
     expect(solved.solutionsFound).toBe(1)
+    expect(solveCase(case002).solutionsFound).toBe(1)
     expect(placementsEqual(solved.solutions[0], case002.solution)).toBe(true)
     expect(analyzeCase(case002)).toMatchObject({ status: 'unique', matchesCanonical: true })
     expect(findKiller(case002, case002.solution)?.id).toBe('tomas')
@@ -44,6 +45,23 @@ describe('manual Normal case002', () => {
     expect(reserved.occupiable).toBe(false)
     expect(resolveObjectAppearance(anchor.object!).label).toBe('Tumbona')
     expect(case002.characters.find(character => character.id === 'tomas')?.clues.find(clue => clue.type === 'onObject')).toMatchObject({ objectId: 'patioLounger', text: 'Estaba sentado en una tumbona.' })
+  })
+
+  it('declares visual-only label anchors in free cells and catalog-driven object scales', () => {
+    for (const zone of case002.zones) {
+      const anchor = zone.labelAnchor
+      expect(anchor).toBeDefined()
+      const cell = case002.board.find(candidate => candidate.row === anchor!.position.row && candidate.column === anchor!.position.column)
+      expect(cell?.zoneId).toBe(zone.id)
+      expect(cell?.object).toBeUndefined()
+      expect(case002.solution.some(placement => placement.position.row === anchor!.position.row && placement.position.column === anchor!.position.column)).toBe(false)
+    }
+    const stool = case002.board.find(cell => cell.object?.id === 'stool')!.object!
+    const chair = case002.board.find(cell => cell.object?.id === 'chair')!.object!
+    const before = structuredClone(case002.board)
+    expect(resolveObjectAppearanceScale(stool)).toBeLessThan(1)
+    expect(resolveObjectAppearanceScale(chair)).toBeGreaterThan(1)
+    expect(case002.board).toEqual(before)
   })
 
   it('overrides only Normal D1/C02 while C01 and C03 retain their sources', () => {

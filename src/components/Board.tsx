@@ -3,8 +3,7 @@ import type { BoardCell, Character, EdgeFeature, Placement, Position, Zone } fro
 import { getCell } from '../game/rules'
 import { fallbackZoneTheme, zoneTheme } from '../game/zones/theme'
 import { resolveZoneSurface } from '../game/zones/surfaces'
-import { resolveObjectAppearance } from '../game/objects/appearanceCatalog'
-import { resolveObjectVisualProfile } from '../game/objects/appearanceCatalog'
+import { resolveObjectAppearance, resolveObjectAppearanceScale, resolveObjectVisualProfile } from '../game/objects/appearanceCatalog'
 import { getObjectFootprintBounds, isFootprintReservedCell, isObjectFootprintAnchor } from '../game/objects/footprints'
 import '../styles/surfaces.css'
 import type { BoardInteractionMode } from '../game/interaction'
@@ -38,6 +37,8 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
             const theme = zoneTheme[zone?.tone ?? cell.zoneId] ?? fallbackZoneTheme
             const first = board.find(item => item.zoneId === cell.zoneId)
             const firstZoneCell = first?.row === cell.row && first.column === cell.column
+            const zoneLabelAnchor = zone?.labelAnchor
+            const hasZoneLabel = zoneLabelAnchor?.position.row === cell.row && zoneLabelAnchor.position.column === cell.column
             const adjacentFeatureTypes = [...new Set(edgeFeatures.filter(feature => isCellBesideEdgeFeature(cell, feature, board)).map(feature => feature.type === 'window' ? 'ventana' : 'puerta'))]
             const action = interactionMode === 'exclude' ? 'Tocar para marcar descarte' : 'Tocar para colocar persona'
             const description = [`Fila ${cell.row}`, `columna ${cell.column}`, character?.name, selectedCharacter ? 'persona activa' : '', excluded ? (manual ? 'descarte manual' : 'descarte automático') : '', !cell.occupiable ? 'no ocupable' : '', cell.object?.label, ...adjacentFeatureTypes.map(type => `junto a ${type}`), action].filter(Boolean).join(', ')
@@ -46,9 +47,14 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
             const objectAnchor = Boolean(cell.object && isObjectFootprintAnchor(cell.object, cell))
             const footprintBounds = cell.object ? getObjectFootprintBounds(cell.object, cell) : null
             const profile = cell.object ? resolveObjectVisualProfile(cell.object) : 'standard'
-            const objectStyle = footprintBounds ? { '--object-footprint-columns': footprintBounds.columns, '--object-footprint-rows': footprintBounds.rows } as React.CSSProperties : undefined
+            const objectStyle = cell.object ? {
+              '--object-footprint-columns': footprintBounds?.columns ?? 1,
+              '--object-footprint-rows': footprintBounds?.rows ?? 1,
+              '--object-appearance-scale': resolveObjectAppearanceScale(cell.object),
+            } as React.CSSProperties : undefined
             return <button key={`${cell.row}-${cell.column}`} style={{ '--zone-background': theme.background, '--zone-background-light': theme.lightBackground } as React.CSSProperties} className={`cell zone-themed surface-${resolveZoneSurface(zone)} ${!cell.occupiable ? 'blocked' : 'cell-occupiable'} ${objectAnchor && cell.object?.footprint ? 'footprint-anchor' : ''} ${footprintReserved ? 'footprint-reserved' : ''} ${selectedCharacter ? 'cell-selected' : ''} ${excluded ? 'excluded' : ''} ${exclusionClass} ${top && top.zoneId !== cell.zoneId ? 'wall-top' : ''} ${left && left.zoneId !== cell.zoneId ? 'wall-left' : ''}`} onClick={() => onCellClick(cell)} onContextMenu={event => { event.preventDefault(); onCellContextMenu(cell) }} aria-label={description}>
               {edgeFeatures.flatMap(feature => feature.segments.filter(segment => segment.position.row === cell.row && segment.position.column === cell.column).map((segment, index) => <span key={`${feature.id}-${index}-${segment.side}`} className={`edge-feature edge-feature-${feature.type} edge-feature-${segment.side.toLowerCase()}`} aria-hidden="true" />))}
+              {hasZoneLabel && zone && <span className={`zone-label zone-label-${zoneLabelAnchor?.placement ?? 'center'}`} data-layer="zone-label" data-zone-label={zone.id} aria-hidden="true">{zone.name}</span>}
               {cell.object && objectAppearance && objectAnchor && <span className="cell-object-layer" data-layer="object" data-footprint={cell.object.footprint?.id ?? 'single-cell'} style={objectStyle}><span className={`object object-${cell.object.id} object-visual-${profile} ${cell.object.appearance ? `object-appearance-${cell.object.appearance}` : 'object-appearance-fallback'} ${cell.object.occupiable ? 'object-occupiable' : 'object-blocking'}`} title={objectAppearance.label}><img src={objectAppearance.src} alt={objectAppearance.label} /></span></span>}
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
               {excluded && !character && <span className="exclude-mark" aria-hidden="true">×{!manual && <small>A</small>}</span>}

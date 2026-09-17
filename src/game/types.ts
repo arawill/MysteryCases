@@ -6,7 +6,9 @@ export interface EdgeSegment { position: Position; side: WallSide }
 export interface EdgeFeature { id: string; type: EdgeFeatureType; label: string; segments: EdgeSegment[] }
 export interface TraitDefinition { id: string; label: string }
 export type ZoneSurface = 'tile' | 'kitchenTile' | 'grass' | 'stairs' | 'asphalt' | 'wood' | 'carpet' | 'industrial' | 'concrete' | 'generic'
-export interface Zone { id: string; name: string; tone: string; icon?: string; surface?: ZoneSurface }
+export type ZoneLabelPlacement = 'top' | 'center' | 'bottom'
+export interface ZoneLabelAnchor { position: Position; placement?: ZoneLabelPlacement }
+export interface Zone { id: string; name: string; tone: string; icon?: string; surface?: ZoneSurface; labelAnchor?: ZoneLabelAnchor }
 export type ObjectAppearance = 'sunLounger' | 'toilet' | 'diningChair' | 'officeChair' | 'sofa' | 'bathtub' | 'outdoorBench' | 'stool'
 export type ObjectVisualProfile = 'compact' | 'standard' | 'wide' | 'tall'
 export interface ObjectFootprint { id: string; positions: Position[] }

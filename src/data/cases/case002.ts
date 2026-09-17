@@ -6,15 +6,15 @@ import crateIcon from '../../assets/scenarios/cafeteria/objects/crate.png'
 import plantIcon from '../../assets/scenarios/cafeteria/objects/plant.png'
 
 const zones = [
-  { id: 'gallery', name: 'Galería', tone: 'cafe', surface: 'wood' as const },
-  { id: 'workshop', name: 'Taller', tone: 'kitchen', surface: 'concrete' as const },
-  { id: 'archive', name: 'Archivo', tone: 'storage', surface: 'carpet' as const },
-  { id: 'patio', name: 'Patio', tone: 'bathroom', surface: 'tile' as const },
+  { id: 'gallery', name: 'Galería', tone: 'cafe', surface: 'wood' as const, labelAnchor: { position: { row: 3, column: 1 }, placement: 'bottom' as const } },
+  { id: 'workshop', name: 'Taller', tone: 'kitchen', surface: 'concrete' as const, labelAnchor: { position: { row: 1, column: 4 }, placement: 'top' as const } },
+  { id: 'archive', name: 'Archivo', tone: 'storage', surface: 'carpet' as const, labelAnchor: { position: { row: 6, column: 6 }, placement: 'bottom' as const } },
+  { id: 'patio', name: 'Patio', tone: 'bathroom', surface: 'tile' as const, labelAnchor: { position: { row: 4, column: 3 }, placement: 'top' as const } },
 ]
 
 const patioLoungerFootprint = { id: 'case002-patio-lounger', positions: [{ row: 4, column: 1 }, { row: 5, column: 1 }] }
 const objects = {
-  chair: { id: 'chair', label: 'una silla', icon: chairIcon, occupiable: true, visualProfile: 'standard' as const },
+  chair: { id: 'chair', label: 'una silla', icon: chairIcon, occupiable: true, appearance: 'diningChair' as const, visualProfile: 'standard' as const },
   stool: { id: 'stool', label: 'un taburete', icon: chairIcon, occupiable: true, appearance: 'stool' as const, visualProfile: 'tall' as const },
   patioLounger: { id: 'patioLounger', label: 'una tumbona', icon: chairIcon, occupiable: true, appearance: 'sunLounger' as const, visualProfile: 'tall' as const, footprint: patioLoungerFootprint, occupiablePositions: [{ row: 4, column: 1 }] },
   crate: { id: 'crate', label: 'una caja', icon: crateIcon, occupiable: false, visualProfile: 'standard' as const },

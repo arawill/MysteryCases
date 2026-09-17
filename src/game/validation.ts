@@ -35,6 +35,7 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
     if (cell.object && !cell.object.footprint && cell.occupiable !== cell.object.occupiable) errors.push(`Incoherencia occupiable en celda ${key}: la celda y el objeto no coinciden.`)
     if (cell.object) objectIds.add(cell.object.id)
   }
+  validateZoneLabelAnchors(caseData, errors)
   validateObjectFootprints(caseData, errors)
   const edgeFeatureValidation = validateEdgeFeatures(caseData, errors)
   const edgeFeatureTypes = edgeFeatureValidation.types
@@ -60,6 +61,18 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
   if (caseData.solution.length === caseData.characters.length && (!areAllCluesSatisfied(evaluationCase, caseData.solution) || !areAllGlobalCluesSatisfied(evaluationCase, caseData.solution))) errors.push('La solución canónica no satisface todas las pistas.')
   if (!findKiller(caseData, caseData.solution)) errors.push('La solución canónica no identifica un asesino único.')
   return errors
+}
+
+function validateZoneLabelAnchors(caseData: GameCase, errors: string[]) {
+  for (const zone of caseData.zones) {
+    const anchor: unknown = zone.labelAnchor
+    if (anchor === undefined) continue
+    if (!isRecord(anchor) || !isPosition(anchor.position)) { errors.push(`La etiqueta de zona ${zone.id} debe incluir una posición válida.`); continue }
+    if (anchor.placement !== undefined && anchor.placement !== 'top' && anchor.placement !== 'center' && anchor.placement !== 'bottom') errors.push(`La etiqueta de zona ${zone.id} tiene una colocación inválida.`)
+    const cell = getCell(caseData.board, anchor.position)
+    if (!cell) errors.push(`La etiqueta de zona ${zone.id} apunta a una celda inexistente.`)
+    else if (cell.zoneId !== zone.id) errors.push(`La etiqueta de zona ${zone.id} debe pertenecer a su propia zona.`)
+  }
 }
 
 function validateObjectFootprints(caseData: GameCase, errors: string[]) {
