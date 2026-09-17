@@ -24,7 +24,7 @@ describe('5.5E.1 procedural vocabulary', () => {
 
   it('versions Normal, Daily and Infinite save slots while retaining logical IDs', () => {
     const date = new Date(2026, 8, 8, 12)
-    expect(generateNormalCase({ difficulty: 1, caseNumber: 2 }).caseData.id).toBe(getVersionedProceduralCaseId(getNormalCaseId(1, 2)))
+    expect(generateNormalCase({ difficulty: 1, caseNumber: 3 }).caseData.id).toBe(getVersionedProceduralCaseId(getNormalCaseId(1, 3)))
     expect(generateDailyCase(date).caseData.id).toBe(getVersionedProceduralCaseId(getDailyPuzzleId(date, 1)))
     expect(generateInfiniteCase({ difficulty: 1, seed: 42 }).caseData.id).toBe(getVersionedProceduralCaseId(getInfiniteCaseId(1, 42)))
     expect(getNormalCaseId(1, 2)).not.toContain('-g7')
