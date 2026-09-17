@@ -4,14 +4,18 @@ import type { DifficultyRating } from '../types'
 
 export const NORMAL_PROGRESS_KEY = 'mystery-cases-normal-progress'
 export { NORMAL_CASE_COUNT, NORMAL_UNLOCK_CASE_COUNT }
-export interface NormalModeProgress { saveVersion: 1 | 2; selectedDifficulty: DifficultyRating; completedCaseNumbersByDifficulty: Record<DifficultyRating, number[]> }
+export interface NormalModeProgress { saveVersion: 2; selectedDifficulty: DifficultyRating; completedCaseNumbersByDifficulty: Record<DifficultyRating, number[]> }
+interface LegacyNormalModeProgress { saveVersion: 1; selectedDifficulty?: unknown; completedCaseNumbersByDifficulty?: Partial<Record<DifficultyRating, unknown>> }
+interface CurrentNormalModeProgress { saveVersion: 2; selectedDifficulty?: unknown; completedCaseNumbersByDifficulty?: Partial<Record<DifficultyRating, unknown>> }
 
 const difficulties = [1, 2, 3, 4, 5] as DifficultyRating[]
 const emptyCompletions = (): Record<DifficultyRating, number[]> => ({ 1: [], 2: [], 3: [], 4: [], 5: [] })
 const empty = (): NormalModeProgress => ({ saveVersion: 2, selectedDifficulty: 1, completedCaseNumbersByDifficulty: emptyCompletions() })
 const normalise = (value: unknown): NormalModeProgress => {
   if (!value || typeof value !== 'object') return empty()
-  const record = value as { selectedDifficulty?: unknown; completedCaseNumbersByDifficulty?: Partial<Record<DifficultyRating, unknown>> }
+  const candidate = value as { saveVersion?: unknown }
+  if (candidate.saveVersion !== 1 && candidate.saveVersion !== 2) return empty()
+  const record: LegacyNormalModeProgress | CurrentNormalModeProgress = candidate.saveVersion === 1 ? value as LegacyNormalModeProgress : value as CurrentNormalModeProgress
   const completed = emptyCompletions()
   for (const difficulty of difficulties) {
     const values = record.completedCaseNumbersByDifficulty?.[difficulty]

@@ -6,7 +6,7 @@ import type { NormalModeProgress } from '../persistence/normalProgress'
 const progress = (highestUnlocked: DifficultyRating): NormalModeProgress => {
   const completed = { 1: [], 2: [], 3: [], 4: [], 5: [] } as Record<DifficultyRating, number[]>
   for (let difficulty = 1; difficulty < highestUnlocked; difficulty += 1) completed[difficulty as DifficultyRating] = Array.from({ length: 15 }, (_, index) => index + 1)
-  return { saveVersion: 1, selectedDifficulty: 1, completedCaseNumbersByDifficulty: completed }
+  return { saveVersion: 2, selectedDifficulty: 1, completedCaseNumbersByDifficulty: completed }
 }
 
 describe('normal case navigation', () => {

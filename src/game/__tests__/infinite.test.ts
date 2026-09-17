@@ -11,7 +11,7 @@ import { findKiller } from '../rules'
 import { solveCase } from '../solver'
 import { validateCaseDefinition } from '../validation'
 const storage = () => { const values = new Map<string, string>(); return { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => values.set(key, value), removeItem: (key: string) => values.delete(key), clear: () => values.clear(), key: () => null, get length() { return values.size } } as Storage }
-const progress = { saveVersion: 1 as const, selectedDifficulty: 1 as const, completedCaseNumbersByDifficulty: { 1: [], 2: [], 3: [], 4: [], 5: [] } }
+const progress = { saveVersion: 2 as const, selectedDifficulty: 1 as const, completedCaseNumbersByDifficulty: { 1: [], 2: [], 3: [], 4: [], 5: [] } }
 const negative = (type: string) => type === 'notZone' || type === 'notOnObject' || type === 'notBesideObject'
 describe('infinite', () => {
   it('persists completed sessions without overwrite and rejects locked tiers', () => { const memory = storage(); expect(startInfiniteSession(2, 12, progress, memory)).toBeNull(); expect(startInfiniteSession(1, 123, progress, memory)?.seed).toBe(123); expect(markInfiniteSessionCompleted(memory)?.status).toBe('completed'); expect(startInfiniteSession(1, 456, progress, memory)).toMatchObject({ seed: 123, status: 'completed' }); clearInfiniteSession(memory); expect(loadInfiniteSession(memory)).toBeNull() })
