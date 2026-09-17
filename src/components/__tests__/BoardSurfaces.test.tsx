@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
 import { resolveZoneSurface } from '../../game/zones/surfaces'
+import { canPlace } from '../../game/rules'
 import type { Zone } from '../../game/types'
 import { Board } from '../Board'
 
@@ -20,8 +21,8 @@ describe('visual board surfaces', () => {
     const markup = renderToStaticMarkup(<Board {...case001} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect((markup.match(/<button /g) ?? [])).toHaveLength(36)
     for (const surface of ['wood', 'kitchenTile', 'industrial', 'tile']) expect(markup).toContain(`surface-${surface}`)
-    expect(markup).toContain('object-chair object-occupiable')
-    expect(markup).toContain('object-table object-blocking')
+    expect(markup).toMatch(/object-chair[^"]*object-occupiable/)
+    expect(markup).toMatch(/object-table[^"]*object-blocking/)
     for (const cell of case001.board) if (cell.object) expect(markup).toContain(`src="${cell.object.icon}"`)
     for (const zone of case001.zones) if (zone.icon) expect(markup).toContain(`src="${zone.icon}"`)
     expect(case001).toEqual(before)
@@ -64,5 +65,34 @@ describe('visual board surfaces', () => {
     expect(markup).toContain('token-victim')
     expect(markup).toContain('cell-selected')
     expect(excluded).toEqual(before)
+  })
+
+  it('keeps objects and people in independent anchored layers through placement, movement and removal', () => {
+    const chair = case001.board.find(cell => cell.object?.id === 'chair')!
+    const other = case001.board.find(cell => cell.row === 2 && cell.column === 4)!
+    const person = { characterId: 'lucia', position: { row: chair.row, column: chair.column } }
+    const render = (placements: typeof case001.solution) => renderToStaticMarkup(<Board {...case001} placements={placements} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    const empty = render([])
+    const occupied = render([person])
+    const moved = render([{ ...person, position: { row: other.row, column: other.column } }])
+    expect(empty).toContain('data-layer="object"')
+    expect(occupied).toContain('data-layer="object"')
+    expect(occupied).toContain('data-layer="person"')
+    expect(occupied.indexOf('data-layer="object"')).toBeLessThan(occupied.indexOf('data-layer="person"'))
+    expect(occupied).toContain(`src="${chair.object!.icon}"`)
+    expect(moved).toContain(`src="${chair.object!.icon}"`)
+    expect(empty).toContain(`src="${chair.object!.icon}"`)
+  })
+
+  it('preserves occupancy rules and renders each cell of a multi-cell footprint independently', () => {
+    const chair = case001.board.find(cell => cell.object?.id === 'chair')!
+    const table = case001.board.find(cell => cell.object?.id === 'table')!
+    expect(canPlace('lucia', chair, [], case001.board).ok).toBe(true)
+    expect(canPlace('lucia', table, [], case001.board).ok).toBe(false)
+    const secondFootprintCell = case001.board.find(cell => cell.row === chair.row && cell.column === chair.column + 1)!
+    const board = case001.board.map(cell => cell === secondFootprintCell ? { ...cell, occupiable: false, object: { id: 'bench-footprint', label: 'un banco exterior', icon: chair.object!.icon, occupiable: false } } : cell)
+    const markup = renderToStaticMarkup(<Board {...case001} board={board} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect((markup.match(/data-layer="object"/g) ?? []).length).toBe(case001.board.filter(cell => cell.object).length + 1)
+    expect(canPlace('lucia', secondFootprintCell, [], board).ok).toBe(false)
   })
 })

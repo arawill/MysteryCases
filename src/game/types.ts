@@ -7,7 +7,8 @@ export interface EdgeFeature { id: string; type: EdgeFeatureType; label: string;
 export interface TraitDefinition { id: string; label: string }
 export type ZoneSurface = 'tile' | 'kitchenTile' | 'grass' | 'stairs' | 'asphalt' | 'wood' | 'carpet' | 'industrial' | 'concrete' | 'generic'
 export interface Zone { id: string; name: string; tone: string; icon?: string; surface?: ZoneSurface }
-export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean }
+export type ObjectAppearance = 'sunLounger' | 'toilet' | 'diningChair' | 'officeChair' | 'sofa' | 'bathtub' | 'outdoorBench' | 'stool'
+export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean; appearance?: ObjectAppearance }
 export interface BoardCell extends Position { zoneId: string; occupiable: boolean; object?: BoardObject }
 export interface BaseClue { id: string; text: string }
 export interface RowClue extends BaseClue { type: 'row'; row: number }

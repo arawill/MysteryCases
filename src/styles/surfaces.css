@@ -13,9 +13,14 @@
 .board .surface-concrete{--floor-pattern:radial-gradient(ellipse at 10% 20%,var(--floor-soft),transparent 70%),radial-gradient(var(--floor-soft) .7px,transparent 1px);--floor-size:auto,11px 13px}
 .board .surface-generic{--floor-pattern:linear-gradient(135deg,var(--floor-soft),transparent 65%)}
 html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-background-light,var(--surface-soft))}
+/* Object and person layers share the cell anchor but never participate in each other's layout. */
+.board .cell .cell-object-layer,.board .cell .cell-person-layer{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.board .cell .cell-object-layer{z-index:1}.board .cell .cell-person-layer{z-index:3}
+.board .cell .cell-person-layer .placed{position:absolute}
+.board .cell .edge-feature{z-index:4}
 /* Every icon URL can point to SVG, transparent PNG, or transparent WebP. */
-.board .cell .object{position:absolute;inset:0;z-index:1;display:grid;place-items:center;pointer-events:none;opacity:.9}
-.board .cell .object img{display:block;width:min(76%,100%);height:min(76%,100%);max-width:100%;max-height:100%;margin:0;object-fit:contain;filter:drop-shadow(0 3px 2px #0003)}
+.board .cell .cell-object-layer .object{position:relative;inset:auto;display:grid;place-items:center;width:100%;height:100%;pointer-events:none;opacity:.9}
+.board .cell .cell-object-layer .object img{display:block;width:min(76%,100%);height:min(76%,100%);max-width:100%;max-height:100%;margin:0;object-fit:contain;filter:drop-shadow(0 3px 2px #0003)}
 .board .cell .object-table img{width:82%;height:82%}
 .board .cell .object-plant img{width:76%;height:76%}
 .board .cell .object-crate img{width:74%;height:74%}
@@ -23,7 +28,3 @@ html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-ba
 .board .cell .object-chair img{width:66%;height:66%}
 .board .cell .object-puddle{opacity:.78}
 .board .cell .object-puddle img{width:82%;height:82%}
-.board .cell:has(.placed) .object-occupiable{opacity:.45;place-items:end start}
-.board .cell:has(.placed) .object-occupiable img{width:30%;height:30%;margin:0 0 3% 3%}
-.board .cell:has(.placed) .object-puddle{opacity:.3;place-items:center}
-.board .cell:has(.placed) .object-puddle img{width:76%;height:76%;margin:0}
