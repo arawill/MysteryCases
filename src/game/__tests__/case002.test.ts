@@ -57,10 +57,13 @@ describe('manual Normal case002', () => {
       expect(case002.solution.some(placement => placement.position.row === anchor!.position.row && placement.position.column === anchor!.position.column)).toBe(false)
     }
     const stool = case002.board.find(cell => cell.object?.id === 'stool')!.object!
-    const chair = case002.board.find(cell => cell.object?.id === 'chair')!.object!
     const before = structuredClone(case002.board)
     expect(resolveObjectAppearanceScale(stool)).toBeLessThan(1)
-    expect(resolveObjectAppearanceScale(chair)).toBeGreaterThan(1)
+    const chairAppearances = case002.board.flatMap(cell => cell.object?.appearance === 'diningChair' ? [cell.object] : [])
+    expect(chairAppearances).not.toHaveLength(0)
+    expect(chairAppearances.every(object => resolveObjectAppearanceScale(object) === .92 && resolveObjectAppearanceScale(object) <= 1)).toBe(true)
+    expect(resolveObjectAppearanceScale(stool)).toBe(.7)
+    expect(resolveObjectAppearanceScale(case002.board.find(cell => cell.object?.id === 'patioLounger')!.object!)).toBe(1)
     expect(case002.board).toEqual(before)
   })
 

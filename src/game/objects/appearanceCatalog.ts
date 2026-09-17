@@ -23,7 +23,7 @@ export function normaliseObjectAppearanceScale(value: unknown): number {
 export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceDefinition> = {
   sunLounger: { src: sunLounger, label: 'Tumbona', scale: 1 },
   toilet: { src: toilet, label: 'Retrete', scale: 0.9 },
-  diningChair: { src: diningChair, label: 'Silla de comedor', scale: 1.12 },
+  diningChair: { src: diningChair, label: 'Silla de comedor', scale: 0.92 },
   officeChair: { src: officeChair, label: 'Silla de oficina', scale: 1.1 },
   sofa: { src: sofa, label: 'Sofá', scale: 1 },
   bathtub: { src: bathtub, label: 'Bañera', scale: 0.94 },

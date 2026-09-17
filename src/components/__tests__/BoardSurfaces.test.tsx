@@ -122,7 +122,7 @@ describe('visual board surfaces', () => {
     const stool = case002.board.find(cell => cell.object?.id === 'stool')!.object!
     const chair = case002.board.find(cell => cell.object?.appearance === 'diningChair')!.object!
     expect(resolveObjectAppearanceScale(stool)).toBeLessThan(1)
-    expect(resolveObjectAppearanceScale(chair)).toBeGreaterThan(1)
+    expect(resolveObjectAppearanceScale(chair)).toBe(.92)
     expect(resolveObjectAppearanceScale(case001.board.find(cell => cell.object?.id === 'chair')!.object!)).toBe(1)
     expect(normaliseObjectAppearanceScale(-1)).toBe(1)
     expect(normaliseObjectAppearanceScale(Number.NaN)).toBe(1)
@@ -130,6 +130,6 @@ describe('visual board surfaces', () => {
     expect(normaliseObjectAppearanceScale(.8)).toBe(.8)
     const markup = renderToStaticMarkup(<Board {...case002} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect(markup).toContain('--object-appearance-scale:0.7')
-    expect(markup).toContain('--object-appearance-scale:1.12')
+    expect(markup).toContain('--object-appearance-scale:0.92')
   })
 })
