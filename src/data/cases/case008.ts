@@ -1,7 +1,7 @@
 import type { Character, GameCase, Placement } from '../../game/types'
 import { avatarCatalog } from '../../game/characters/avatarCatalog'
 import { contextualObject, createManualBoard } from './manualCaseHelpers'
-const lifeguard = contextualObject('lifeguardChair', 'lifeguardChair', true), lockers = contextualObject('lockerBank', 'lockerBank', false)
+const lifeguard = contextualObject('lifeguardChair', 'lifeguardChair', true, undefined, [{ row: 4, column: 1 }]), lockers = contextualObject('lockerBank', 'lockerBank', false)
 const seatA = contextualObject('deckSeat', 'outdoorBench', true), seatB = contextualObject('standSeatA', 'diningChair', true), seatC = contextualObject('standSeatB', 'diningChair', true), seatD = contextualObject('receptionSeat', 'stool', true)
 const zoneAt = (r: number, c: number) => r >= 2 && r <= 3 && c >= 2 && c <= 4 ? 'pool' : r <= 3 && c === 1 ? 'lockers' : r >= 4 && c <= 2 ? 'deck' : c >= 5 ? 'stands' : 'reception'
 const board = createManualBoard(zoneAt, { '1:4': seatD, '2:1': lockers, '2:6': seatB, '3:5': seatC, '4:1': lifeguard, '5:3': seatA })

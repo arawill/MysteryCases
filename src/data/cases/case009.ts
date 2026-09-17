@@ -3,7 +3,7 @@ import { avatarCatalog } from '../../game/characters/avatarCatalog'
 import bookshelf from '../../assets/scenarios/office/objects/bookshelf.png'
 import register from '../../assets/scenarios/cafeteria/objects/register.png'
 import { contextualObject, createManualBoard, legacyObject } from './manualCaseHelpers'
-const cart = contextualObject('shoppingCart', 'shoppingCart', true), freezer = contextualObject('freezer', 'freezer', false, [{ row: 5, column: 4 }, { row: 5, column: 5 }])
+const cart = contextualObject('shoppingCart', 'shoppingCart', true, undefined, [{ row: 1, column: 4 }]), freezer = contextualObject('freezer', 'freezer', false, [{ row: 5, column: 4 }, { row: 5, column: 5 }])
 const shelf = legacyObject('shelf', 'una estantería', bookshelf, false, 'tall'), registerObject = legacyObject('register', 'una caja registradora', register, false, 'standard')
 const seatA = contextualObject('aisleSeatA', 'diningChair', true), seatB = contextualObject('aisleSeatB', 'stool', true), seatC = contextualObject('storeSeat', 'diningChair', true), seatD = contextualObject('checkoutSeat', 'stool', true)
 const zoneAt = (r: number, c: number) => r <= 2 ? 'entrance' : r <= 4 && c <= 4 ? 'aisles' : r <= 4 ? 'checkout' : c <= 3 ? 'storage' : 'frozen'

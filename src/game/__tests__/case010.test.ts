@@ -1,1 +1,5 @@
-import { describe, it } from 'vitest'; import { case010 } from '../../data/cases/case010'; import { expectManualD1Case } from './manualD1Case.testUtils'; describe('case010', () => it('is valid and unique', () => expectManualD1Case(case010, 10, 'tomas')))
+import { describe, expect, it } from 'vitest'
+import { case010 } from '../../data/cases/case010'
+import { isFootprintReservedCell } from '../objects/footprints'
+import { expectManualD1Case } from './manualD1Case.testUtils'
+describe('case010', () => { it('is valid, unique and identifies Tomás', () => expectManualD1Case(case010, 10, 'tomas')); it('keeps the screen mural and cinema seating non-ambiguous', () => { expect(case010.edgeFeatures?.some(f => f.label === 'Pantalla')).toBe(true); expect(case010.board.some(c => c.object?.id === 'screen')).toBe(false); const projector = case010.board.find(c => c.object?.id === 'projector')!; expect(projector.object?.appearance).toBe('projector'); expect(projector.occupiable).toBe(false); const seats = case010.board.filter(c => c.object?.id === 'cinemaSeats'); expect(seats.map(c => `${c.row}:${c.column}`)).toEqual(['3:1', '3:2']); expect(seats[0].occupiable).toBe(true); expect(seats[1].occupiable).toBe(false); expect(isFootprintReservedCell(seats[1].object, seats[1])).toBe(true) }) })
