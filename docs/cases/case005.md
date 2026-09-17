@@ -1,3 +1,7 @@
 # Caso 005 — El último café
 
-Cafetería. Nadia es la víctima y Álvaro el asesino. Solución: Celia 1:2, Álvaro 2:1, Pablo 3:6, Nadia 4:3, Rosa 5:4, Iván 6:5. La barra ocupa dos celdas y bloquea su footprint; las pistas de zona, esquina y anclas fuerzan las cinco posiciones conocidas.
+Cafetería con Barra, Sala, Cocina y Almacén en una distribución en L. La barra bloqueante ocupa 1:1–1:2; cafetera y mesa redonda bloquean; dos taburetes y tres sillas son ocupables.
+
+Víctima: Nadia. Asesino: Álvaro. Solución: Celia 1:4, Pablo 2:6, Álvaro 3:1, Rosa 4:3, Iván 5:5, Nadia 6:2.
+
+Pistas: Celia está en el taburete de la Sala; Pablo en el otro; Álvaro en la silla de Cocina; Rosa en la silla del Almacén; Iván en la silla junto a la mesa redonda. Las cinco posiciones conocidas dejan a Nadia en 6:2; Álvaro es el único sospechoso de Cocina junto a ella.
