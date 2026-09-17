@@ -28,7 +28,7 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   sofa: { src: sofa, label: 'Sofá', scale: 1 },
   bathtub: { src: bathtub, label: 'Bañera', scale: 0.94 },
   outdoorBench: { src: outdoorBench, label: 'Banco exterior', scale: 1 },
-  stool: { src: stool, label: 'Taburete', scale: 0.9 },
+  stool: { src: stool, label: 'Taburete', scale: 0.7 },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog
