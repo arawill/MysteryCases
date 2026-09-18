@@ -64,7 +64,6 @@ const characters: Character[] = [
     isVictim: false,
     clues: [
       { id: 'c14-hector-stool', type: 'onObject', objectId: 'storageStool', text: 'Estaba sentado en el taburete del almacén.' },
-      { id: 'c14-hector-storage', type: 'zone', zoneId: 'storage', text: 'Estaba en el almacén.' },
     ],
   },
   {
@@ -74,7 +73,6 @@ const characters: Character[] = [
     avatarImage: avatar(2),
     isVictim: false,
     clues: [
-      { id: 'c14-simon-seat', type: 'onObject', objectId: 'gallerySeat', text: 'Estaba sentado en la galería.' },
       { id: 'c14-simon-display', type: 'besideObject', objectId: 'displayCase', text: 'Estaba junto a la vitrina.' },
     ],
   },
@@ -85,7 +83,6 @@ const characters: Character[] = [
     avatarImage: avatar(3),
     isVictim: false,
     clues: [
-      { id: 'c14-iria-seat', type: 'onObject', objectId: 'restorationSeat', text: 'Estaba sentada en restauración.' },
       { id: 'c14-iria-table', type: 'besideObject', objectId: 'restorationTable', text: 'Estaba junto a la mesa de restauración.' },
     ],
   },
@@ -96,7 +93,6 @@ const characters: Character[] = [
     avatarImage: avatar(4),
     isVictim: false,
     clues: [
-      { id: 'c14-gael-seat', type: 'onObject', objectId: 'curatorSeat', text: 'Estaba sentado en la sala de restauración.' },
       { id: 'c14-gael-statue', type: 'besideObject', objectId: 'statue', text: 'Estaba junto a la estatua.' },
     ],
   },

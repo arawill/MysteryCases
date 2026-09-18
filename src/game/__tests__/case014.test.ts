@@ -6,7 +6,10 @@ import { case011 } from '../../data/cases/case011'
 import { case012 } from '../../data/cases/case012'
 import { case013 } from '../../data/cases/case013'
 import { case014 } from '../../data/cases/case014'
+import { areAllCluesSatisfied } from '../clues'
 import { getObjectFootprint, isFootprintReservedCell } from '../objects/footprints'
+import { findKiller, placementsEqual } from '../rules'
+import { solveCaseWithStats } from '../solver'
 import { expectManualD1Case } from './manualD1Case.testUtils'
 
 describe('case014', () => {
@@ -42,6 +45,51 @@ describe('case014', () => {
     )).toBe(true)
     expect(case014.board.some(cell => cell.object?.id.toLowerCase().includes('paint'))).toBe(false)
     expect(case014.board.some(cell => cell.object?.label.toLowerCase().includes('cuadro'))).toBe(false)
+  })
+
+  it('keeps only the requested non-redundant clue for each museum witness', () => {
+    const hector = case014.characters.find(character => character.id === 'hector')!
+    const simon = case014.characters.find(character => character.id === 'simon')!
+    const iria = case014.characters.find(character => character.id === 'iria')!
+    const gael = case014.characters.find(character => character.id === 'gael')!
+    expect(hector.clues).toEqual([{ id: 'c14-hector-stool', type: 'onObject', objectId: 'storageStool', text: 'Estaba sentado en el taburete del almacén.' }])
+    expect(simon.clues).toEqual([{ id: 'c14-simon-display', type: 'besideObject', objectId: 'displayCase', text: 'Estaba junto a la vitrina.' }])
+    expect(iria.clues).toEqual([{ id: 'c14-iria-table', type: 'besideObject', objectId: 'restorationTable', text: 'Estaba junto a la mesa de restauración.' }])
+    expect(gael.clues).toEqual([{ id: 'c14-gael-statue', type: 'besideObject', objectId: 'statue', text: 'Estaba junto a la estatua.' }])
+    expect([hector, simon, iria, gael].flatMap(character => character.clues).some(clue => /ocupaba/i.test(clue.text))).toBe(false)
+    expect(case014.characters.find(character => character.isVictim)?.clues).toEqual([])
+    expect(areAllCluesSatisfied(case014, case014.solution)).toBe(true)
+
+    const witnessIds = ['hector', 'simon', 'iria', 'gael']
+    for (let firstIndex = 0; firstIndex < witnessIds.length; firstIndex += 1) {
+      for (let secondIndex = firstIndex + 1; secondIndex < witnessIds.length; secondIndex += 1) {
+        const firstId = witnessIds[firstIndex]
+        const secondId = witnessIds[secondIndex]
+        const firstPosition = case014.solution.find(({ characterId }) => characterId === firstId)!
+        const secondPosition = case014.solution.find(({ characterId }) => characterId === secondId)!
+        const swapped = case014.solution.map((placement) => {
+          if (placement.characterId === firstId) {
+            return { ...placement, position: { ...secondPosition.position } }
+          }
+          if (placement.characterId === secondId) {
+            return { ...placement, position: { ...firstPosition.position } }
+          }
+          return { ...placement, position: { ...placement.position } }
+        })
+
+        expect(areAllCluesSatisfied(case014, swapped)).toBe(false)
+      }
+    }
+  })
+
+  it('remains uniquely canonical with Héctor alone with Noa in storage', () => {
+    const solved = solveCaseWithStats(case014)
+    expect(solved.truncated).toBeUndefined()
+    expect(solved.solutionsFound).toBe(1)
+    expect(placementsEqual(solved.solutions[0], case014.solution)).toBe(true)
+    expect(findKiller(case014, case014.solution)?.id).toBe('hector')
+    const storagePeople = case014.solution.filter(placement => case014.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === 'storage')
+    expect(storagePeople.map(placement => placement.characterId).sort()).toEqual(['hector', 'noa'])
   })
 
   it('keeps valid free zone labels and a distinct museum structure', () => {
