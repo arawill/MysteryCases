@@ -3,7 +3,7 @@ import { objectAppearanceCatalog, resolveObjectAppearance } from '../appearanceC
 
 describe('object appearance catalog', () => {
   it('registers every contextual object with a human label and a supported visual asset', () => {
-    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(44)
+    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(49)
     for (const appearance of Object.values(objectAppearanceCatalog)) {
       expect(appearance.label.length).toBeGreaterThan(0)
       expect(appearance.src).toMatch(/^(data:image\/svg\+xml|.*\.(png|svg)$)/)
@@ -12,6 +12,11 @@ describe('object appearance catalog', () => {
     expect(objectAppearanceCatalog.gymBench).toMatchObject({ scale: 0.92, visualProfile: 'wide' })
     expect(objectAppearanceCatalog.lifeguardChair).toMatchObject({ scale: 0.86, visualProfile: 'tall' })
     expect(objectAppearanceCatalog.poolSurface).toMatchObject({ renderMode: 'coverFootprint' })
+    expect(objectAppearanceCatalog.cargoLoader).toMatchObject({ visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.magneticPallet).toMatchObject({ visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.freightConsole).toMatchObject({ visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.sealedContainer).toMatchObject({ visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.maintenanceUnit).toMatchObject({ visualProfile: 'tall' })
   })
 
   it('uses the explicit appearance while preserving the legacy icon fallback safely', () => {

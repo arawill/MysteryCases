@@ -43,6 +43,11 @@ import xenoLabBench from '../../assets/objects/contextual/d2/case02/xeno_lab_ben
 import sampleAnalyzer from '../../assets/objects/contextual/d2/case02/sample_analyzer.png'
 import containmentPod from '../../assets/objects/contextual/d2/case02/containment_pod.png'
 import decontaminationArch from '../../assets/objects/contextual/d2/case02/decontamination_arch.png'
+import cargoLoader from '../../assets/objects/contextual/d2/case03/cargo_loader.png'
+import freightConsole from '../../assets/objects/contextual/d2/case03/freight_console.png'
+import magneticPallet from '../../assets/objects/contextual/d2/case03/magnetic_pallet.png'
+import maintenanceUnit from '../../assets/objects/contextual/d2/case03/maintenance_unit.png'
+import sealedContainer from '../../assets/objects/contextual/d2/case03/sealed_container.png'
 
 export interface ObjectAppearanceDefinition { src: string; label: string; scale?: number; visualProfile?: ObjectVisualProfile; renderMode?: 'contain' | 'coverFootprint' }
 
@@ -101,6 +106,11 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   sampleAnalyzer: { src: sampleAnalyzer, label: 'Analizador de muestras', scale: 0.82, visualProfile: 'compact' },
   containmentPod: { src: containmentPod, label: 'Cápsula de contención', scale: 0.9, visualProfile: 'tall' },
   decontaminationArch: { src: decontaminationArch, label: 'Arco de descontaminación', scale: 0.9, visualProfile: 'tall' },
+  cargoLoader: { src: cargoLoader, label: 'Cargador de carga', scale: 0.94, visualProfile: 'wide' },
+  magneticPallet: { src: magneticPallet, label: 'Palé magnético', scale: 0.94, visualProfile: 'wide' },
+  freightConsole: { src: freightConsole, label: 'Escáner de carga', scale: 0.88, visualProfile: 'standard' },
+  sealedContainer: { src: sealedContainer, label: 'Contenedor criogénico', scale: 0.9, visualProfile: 'standard' },
+  maintenanceUnit: { src: maintenanceUnit, label: 'Dron de mantenimiento', scale: 0.86, visualProfile: 'tall' },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog

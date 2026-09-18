@@ -13,6 +13,7 @@ export type ObjectAppearance = 'sunLounger' | 'toilet' | 'diningChair' | 'office
   | 'wheelchair' | 'cafeCounter' | 'coffeeMachine' | 'roundTable' | 'workbench' | 'tires' | 'meetingTable' | 'lockerBank' | 'lifeguardChair' | 'shoppingCart' | 'cinemaSeatRow' | 'projector' | 'readingTable' | 'vendingMachine' | 'ticketCounter' | 'gymBench' | 'treadmill' | 'dumbbells' | 'displayCase' | 'restorationTable' | 'piano' | 'dressingTable' | 'coatRack' | 'stageSpotlight' | 'freezer' | 'poolSurface'
   | 'securityScanner' | 'baggageConveyor' | 'checkinKiosk' | 'departureBench' | 'luggageDrone'
   | 'specimenTank' | 'xenoLabBench' | 'sampleAnalyzer' | 'containmentPod' | 'decontaminationArch'
+  | 'cargoLoader' | 'magneticPallet' | 'freightConsole' | 'sealedContainer' | 'maintenanceUnit'
 export type ObjectVisualProfile = 'compact' | 'standard' | 'wide' | 'tall'
 export interface ObjectFootprint { id: string; positions: Position[] }
 export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean; appearance?: ObjectAppearance; visualProfile?: ObjectVisualProfile; footprint?: ObjectFootprint; occupiablePositions?: Position[] }
