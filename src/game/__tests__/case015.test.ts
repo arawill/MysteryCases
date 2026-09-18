@@ -4,8 +4,11 @@ import { case012 } from '../../data/cases/case012'
 import { case013 } from '../../data/cases/case013'
 import { case014 } from '../../data/cases/case014'
 import { case015 } from '../../data/cases/case015'
+import { areAllCluesSatisfied } from '../clues'
 import { resolveObjectVisualProfile } from '../objects/appearanceCatalog'
 import { getObjectFootprint, isFootprintReservedCell } from '../objects/footprints'
+import { findKiller, placementsEqual } from '../rules'
+import { solveCaseWithStats } from '../solver'
 import { expectManualD1Case } from './manualD1Case.testUtils'
 
 describe('case015', () => {
@@ -54,6 +57,49 @@ describe('case015', () => {
       { position: { row: 1, column: 5 }, side: 'N' },
     ])
     expect(case015.board.some(cell => cell.object?.id.toLowerCase().includes('curtain'))).toBe(false)
+  })
+
+  it('keeps only the requested non-redundant clue for each theatre witness', () => {
+    const irene = case015.characters.find(character => character.id === 'irene')!
+    const mateo = case015.characters.find(character => character.id === 'mateo')!
+    const nadia = case015.characters.find(character => character.id === 'nadia')!
+    const oliver = case015.characters.find(character => character.id === 'oliver')!
+    const rocio = case015.characters.find(character => character.id === 'rocio')!
+
+    expect(irene.clues).toEqual([{ id: 'c15-irene-piano', type: 'onObject', objectId: 'piano', text: 'Estaba sentada al piano.' }])
+    expect(mateo.clues).toEqual([{ id: 'c15-mateo-stool', type: 'onObject', objectId: 'storageStool', text: 'Estaba sentado en el taburete del almacén.' }])
+    expect(nadia.clues).toEqual([{ id: 'c15-nadia-seat', type: 'onObject', objectId: 'cinemaSeats', text: 'Estaba sentada en el patio de butacas.' }])
+    expect(oliver.clues).toEqual([{ id: 'c15-oliver-seat', type: 'onObject', objectId: 'dressingSeat', text: 'Estaba sentado en el camerino.' }])
+    expect(rocio.clues).toEqual([{ id: 'c15-rocio-rack', type: 'besideObject', objectId: 'coatRack', text: 'Estaba junto al perchero.' }])
+    expect([irene, mateo, nadia, oliver, rocio].flatMap(character => character.clues).some(clue => /ocupaba/i.test(clue.text))).toBe(false)
+    expect(case015.characters.find(character => character.id === 'clara')?.clues).toEqual([])
+    expect(areAllCluesSatisfied(case015, case015.solution)).toBe(true)
+
+    const witnessIds = ['irene', 'mateo', 'nadia', 'oliver', 'rocio']
+    for (let firstIndex = 0; firstIndex < witnessIds.length; firstIndex += 1) {
+      for (let secondIndex = firstIndex + 1; secondIndex < witnessIds.length; secondIndex += 1) {
+        const firstId = witnessIds[firstIndex]
+        const secondId = witnessIds[secondIndex]
+        const firstPosition = case015.solution.find(({ characterId }) => characterId === firstId)!
+        const secondPosition = case015.solution.find(({ characterId }) => characterId === secondId)!
+        const swapped = case015.solution.map((placement) => {
+          if (placement.characterId === firstId) return { ...placement, position: { ...secondPosition.position } }
+          if (placement.characterId === secondId) return { ...placement, position: { ...firstPosition.position } }
+          return { ...placement, position: { ...placement.position } }
+        })
+        expect(areAllCluesSatisfied(case015, swapped)).toBe(false)
+      }
+    }
+  })
+
+  it('remains uniquely canonical with Mateo alone with Clara in storage', () => {
+    const solved = solveCaseWithStats(case015)
+    expect(solved.truncated).toBeUndefined()
+    expect(solved.solutionsFound).toBe(1)
+    expect(placementsEqual(solved.solutions[0], case015.solution)).toBe(true)
+    expect(findKiller(case015, case015.solution)?.id).toBe('mateo')
+    const storagePeople = case015.solution.filter(placement => case015.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === 'storage')
+    expect(storagePeople.map(placement => placement.characterId).sort()).toEqual(['clara', 'mateo'])
   })
 
   it('keeps valid free zone labels and a theatre geometry distinct from prior cases', () => {

@@ -60,7 +60,6 @@ const characters: Character[] = [
     isVictim: false,
     clues: [
       { id: 'c15-irene-piano', type: 'onObject', objectId: 'piano', text: 'Estaba sentada al piano.' },
-      { id: 'c15-irene-spotlight', type: 'besideObject', objectId: 'stageSpotlight', text: 'Estaba junto al foco del escenario.' },
     ],
   },
   {
@@ -71,7 +70,6 @@ const characters: Character[] = [
     isVictim: false,
     clues: [
       { id: 'c15-mateo-stool', type: 'onObject', objectId: 'storageStool', text: 'Estaba sentado en el taburete del almacén.' },
-      { id: 'c15-mateo-storage', type: 'zone', zoneId: 'storage', text: 'Estaba entre el atrezo guardado.' },
     ],
   },
   {
@@ -82,7 +80,6 @@ const characters: Character[] = [
     isVictim: false,
     clues: [
       { id: 'c15-nadia-seat', type: 'onObject', objectId: 'cinemaSeats', text: 'Estaba sentada en el patio de butacas.' },
-      { id: 'c15-nadia-auditorium', type: 'zone', zoneId: 'auditorium', text: 'Estaba frente al escenario.' },
     ],
   },
   {
@@ -93,7 +90,6 @@ const characters: Character[] = [
     isVictim: false,
     clues: [
       { id: 'c15-oliver-seat', type: 'onObject', objectId: 'dressingSeat', text: 'Estaba sentado en el camerino.' },
-      { id: 'c15-oliver-table', type: 'besideObject', objectId: 'dressingTable', text: 'Estaba junto al tocador.' },
     ],
   },
   {
@@ -103,7 +99,6 @@ const characters: Character[] = [
     avatarImage: avatar(4),
     isVictim: false,
     clues: [
-      { id: 'c15-rocio-seat', type: 'onObject', objectId: 'costumeSeat', text: 'Estaba sentada en el camerino.' },
       { id: 'c15-rocio-rack', type: 'besideObject', objectId: 'coatRack', text: 'Estaba junto al perchero.' },
     ],
   },
