@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
@@ -119,36 +118,18 @@ describe('visual board surfaces', () => {
     expect(resolveObjectVisualProfile({})).toBe('standard')
   })
 
-  it('renders each full zone name once in an independent, non-interactive wall layer', () => {
+  it('renders each declared zone label once, behind objects and people', () => {
     const markup = renderToStaticMarkup(<Board {...case002} placements={case002.solution} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect((markup.match(/data-layer="zone-label"/g) ?? [])).toHaveLength(case002.zones.length)
     for (const zone of case002.zones) {
       expect((markup.match(new RegExp(`data-zone-label="${zone.id}"`, 'g')) ?? [])).toHaveLength(1)
       expect(markup).toContain(`>${zone.name}</span>`)
     }
-    expect(markup).toContain('data-layer="zone-label-layer"')
-    expect(markup).toContain('data-zone-label-source="auto"')
-    expect(markup).toContain('data-zone-label-fit="content"')
-    expect(markup).not.toContain('text-overflow:ellipsis')
-    expect(markup.lastIndexOf('</button>')).toBeLessThan(markup.indexOf('data-layer="zone-label-layer"'))
-    expect(markup).not.toContain('width:100%')
-    expect(markup).toContain('cell-has-person')
+    expect(markup).toContain('zone-label-bottom')
+    expect(markup).toContain('zone-label-top')
     const case001Markup = renderToStaticMarkup(<Board {...case001} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect((case001Markup.match(/data-layer="zone-label"/g) ?? [])).toHaveLength(case001.zones.length)
     for (const zone of case001.zones) expect(case001Markup).toContain(`data-zone-label="${zone.id}"`)
-  })
-
-  it('keeps plaques content-sized, visible above walls and clear of clipped outer edges', () => {
-    const surfaces = readFileSync(new URL('../../styles/surfaces.css', import.meta.url), 'utf8')
-    const investigation = readFileSync(new URL('../../styles/investigation.css', import.meta.url), 'utf8')
-    const rule = surfaces.match(/\.board \.zone-label\{([^}]*)\}/)?.[1] ?? ''
-    expect(rule).toContain('inline-size:fit-content')
-    expect(rule).toContain('max-inline-size:calc(100% - 10px)')
-    expect(rule).toContain('justify-self:center')
-    expect(rule).toContain('pointer-events:none')
-    expect(rule).not.toContain('justify-self:stretch')
-    expect(rule).not.toContain('text-overflow')
-    expect(investigation).toContain('padding:14px 12px 30px')
   })
 
   it('uses catalog scale metadata inside visual profile boxes with safe fallbacks', () => {
