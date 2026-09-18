@@ -12,11 +12,11 @@ describe('object appearance catalog', () => {
     expect(objectAppearanceCatalog.gymBench).toMatchObject({ scale: 0.92, visualProfile: 'wide' })
     expect(objectAppearanceCatalog.lifeguardChair).toMatchObject({ scale: 0.86, visualProfile: 'tall' })
     expect(objectAppearanceCatalog.poolSurface).toMatchObject({ renderMode: 'coverFootprint' })
-    expect(objectAppearanceCatalog.cargoLoader).toMatchObject({ visualProfile: 'wide' })
-    expect(objectAppearanceCatalog.magneticPallet).toMatchObject({ visualProfile: 'wide' })
-    expect(objectAppearanceCatalog.freightConsole).toMatchObject({ visualProfile: 'standard' })
-    expect(objectAppearanceCatalog.sealedContainer).toMatchObject({ visualProfile: 'standard' })
-    expect(objectAppearanceCatalog.maintenanceUnit).toMatchObject({ visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.cargoLoader).toMatchObject({ label: 'Carretilla elevadora', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.magneticPallet).toMatchObject({ label: 'Plataforma de contenedores', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.freightConsole).toMatchObject({ label: 'Consola de control', visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.sealedContainer).toMatchObject({ label: 'Caja metálica', visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.maintenanceUnit).toMatchObject({ label: 'Robot de mantenimiento', visualProfile: 'tall' })
   })
 
   it('uses the explicit appearance while preserving the legacy icon fallback safely', () => {

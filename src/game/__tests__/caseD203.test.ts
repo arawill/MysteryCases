@@ -8,6 +8,7 @@ import { areAllCluesSatisfied } from '../clues'
 import { resolveObjectAppearance, resolveObjectVisualProfile } from '../objects/appearanceCatalog'
 import { getObjectFootprintBounds, isFootprintReservedCell, isObjectPositionOccupiable } from '../objects/footprints'
 import { findKiller, getCell, placementsEqual } from '../rules'
+import { canPlace } from '../rules'
 import { solveCaseWithStats } from '../solver'
 import { validateCaseDefinition } from '../validation'
 
@@ -33,18 +34,19 @@ describe('manual D2 case 03', () => {
     expect(findKiller(caseD203, caseD203.solution)?.id).toBe('adrian')
   })
 
-  it('uses the five approved cargo-ship assets with their declared profiles and legal positions', () => {
+  it('uses the five approved cargo-ship assets with their visible names, profiles and legal positions', () => {
     const expectations = [
-      ['freightConsole', ['1:1'], 'standard'],
-      ['magneticPallet', ['1:6', '1:7'], 'wide'],
-      ['cargoLoader', ['3:2', '3:3'], 'wide'],
-      ['maintenanceUnit', ['3:5'], 'tall'],
-      ['sealedContainer', ['5:7'], 'standard'],
+      ['freightConsole', 'Consola de control', ['1:1'], 'standard'],
+      ['magneticPallet', 'Plataforma de contenedores', ['1:6', '1:7'], 'wide'],
+      ['cargoLoader', 'Carretilla elevadora', ['3:2', '3:3'], 'wide'],
+      ['maintenanceUnit', 'Robot de mantenimiento', ['3:5'], 'tall'],
+      ['sealedContainer', 'Caja metálica', ['5:7'], 'standard'],
     ] as const
     const usedCells: string[] = []
-    for (const [id, cellsExpected, profile] of expectations) {
+    for (const [id, label, cellsExpected, profile] of expectations) {
       const cells = objectCells(id)
       expect(cells.map(cell => `${cell.row}:${cell.column}`)).toEqual(cellsExpected)
+      expect(cells[0].object?.label).toBe(label.toLocaleLowerCase('es'))
       expect(resolveObjectVisualProfile(cells[0].object!)).toBe(profile)
       expect(resolveObjectAppearance(cells[0].object!).src).toMatch(new RegExp(`/d2/case03/${id.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}\\.png$`))
       usedCells.push(...cells.map(cell => `${cell.row}:${cell.column}`))
@@ -57,10 +59,15 @@ describe('manual D2 case 03', () => {
       expect(cells.every(cell => !cell.occupiable && isFootprintReservedCell(cell.object, cell))).toBe(true)
     }
     for (const id of ['maintenanceUnit', 'sealedContainer']) expect(objectCells(id)[0].occupiable).toBe(false)
-    const console = objectCells('freightConsole')
-    expect(console).toHaveLength(1)
-    expect(console[0].occupiable).toBe(true)
-    expect(isObjectPositionOccupiable(console[0].object!, console[0])).toBe(true)
+    const console = objectCells('freightConsole')[0]
+    expect(console.occupiable).toBe(false)
+    expect(isObjectPositionOccupiable(console.object!, console)).toBe(false)
+    expect(canPlace('sara', console, [], caseD203.board).ok).toBe(false)
+    const visibleContent = [
+      ...caseD203.characters.flatMap(character => character.clues.map(clue => clue.text)),
+      ...expectations.map(([, label]) => label),
+    ].join(' ').toLocaleLowerCase('es')
+    for (const obsolete of ['escáner de carga', 'palé magnético', 'cargamento modular', 'contenedor criogénico', 'unidad de mantenimiento']) expect(visibleContent).not.toContain(obsolete)
   })
 
   it('keeps labels free and renders wide footprints once beneath all character tokens', () => {

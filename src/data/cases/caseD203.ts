@@ -2,7 +2,7 @@ import type { Character, GameCase, Placement } from '../../game/types'
 import { avatarCatalog } from '../../game/characters/avatarCatalog'
 import { contextualObject, createManualBoard } from './manualCaseHelpers'
 
-const freightConsole = contextualObject('freightConsole', 'freightConsole', true, undefined, [{ row: 1, column: 1 }])
+const freightConsole = contextualObject('freightConsole', 'freightConsole', false)
 const magneticPallet = contextualObject('magneticPallet', 'magneticPallet', false, [{ row: 1, column: 6 }, { row: 1, column: 7 }])
 const cargoLoader = contextualObject('cargoLoader', 'cargoLoader', false, [{ row: 3, column: 2 }, { row: 3, column: 3 }])
 const maintenanceUnit = contextualObject('maintenanceUnit', 'maintenanceUnit', false)
@@ -28,11 +28,11 @@ const board = createManualBoard(zoneAt, {
 const avatar = (index: number) => avatarCatalog[index].image
 
 const characters: Character[] = [
-  { id: 'sara', name: 'Sara', avatar: avatar(0), avatarImage: avatar(0), isVictim: false, clues: [{ id: 'd2c03-sara-dock', type: 'zone', zoneId: 'dock', text: 'Estaba en el muelle.' }, { id: 'd2c03-sara-pallet', type: 'besideObject', objectId: 'magneticPallet', text: 'Estaba junto al palé magnético.' }] },
-  { id: 'bruno', name: 'Bruno', avatar: avatar(1), avatarImage: avatar(1), isVictim: false, clues: [{ id: 'd2c03-bruno-column', type: 'column', column: 2, text: 'Estaba en la segunda columna.' }, { id: 'd2c03-bruno-scanner', type: 'relativeToObject', objectId: 'freightConsole', direction: 'southEast', zoneRelation: 'same', text: 'Estaba al sureste del escáner de carga.' }] },
+  { id: 'sara', name: 'Sara', avatar: avatar(0), avatarImage: avatar(0), isVictim: false, clues: [{ id: 'd2c03-sara-dock', type: 'zone', zoneId: 'dock', text: 'Estaba en el muelle.' }, { id: 'd2c03-sara-pallet', type: 'besideObject', objectId: 'magneticPallet', text: 'Estaba junto a la plataforma de contenedores.' }] },
+  { id: 'bruno', name: 'Bruno', avatar: avatar(1), avatarImage: avatar(1), isVictim: false, clues: [{ id: 'd2c03-bruno-column', type: 'column', column: 2, text: 'Estaba en la segunda columna.' }, { id: 'd2c03-bruno-console', type: 'relativeToObject', objectId: 'freightConsole', direction: 'southEast', zoneRelation: 'same', text: 'Estaba al sureste de la consola de control.' }] },
   { id: 'leire', name: 'Leire', avatar: avatar(2), avatarImage: avatar(2), isVictim: false, clues: [{ id: 'd2c03-leire-workshop', type: 'zone', zoneId: 'workshop', text: 'Estaba en el taller.' }, { id: 'd2c03-leire-column', type: 'column', column: 7, text: 'Estaba en la séptima columna.' }] },
-  { id: 'marcos', name: 'Marcos', avatar: avatar(3), avatarImage: avatar(3), isVictim: false, clues: [{ id: 'd2c03-marcos-row', type: 'row', row: 4, text: 'Estaba en la cuarta fila.' }, { id: 'd2c03-marcos-cargo', type: 'relativeToObject', objectId: 'cargoLoader', direction: 'southEast', zoneRelation: 'same', text: 'Estaba al sureste del cargamento modular.' }, { id: 'd2c03-marcos-wall', type: 'besideWall', text: 'Estaba junto a la pared del taller.' }] },
-  { id: 'noa', name: 'Noa', avatar: avatar(4), avatarImage: avatar(4), isVictim: false, clues: [{ id: 'd2c03-noa-row', type: 'row', row: 5, text: 'Estaba en la quinta fila.' }, { id: 'd2c03-noa-container', type: 'besideObject', objectId: 'sealedContainer', text: 'Estaba junto al contenedor criogénico.' }] },
+  { id: 'marcos', name: 'Marcos', avatar: avatar(3), avatarImage: avatar(3), isVictim: false, clues: [{ id: 'd2c03-marcos-row', type: 'row', row: 4, text: 'Estaba en la cuarta fila.' }, { id: 'd2c03-marcos-loader', type: 'relativeToObject', objectId: 'cargoLoader', direction: 'southEast', zoneRelation: 'same', text: 'Estaba al sureste de la carretilla elevadora.' }, { id: 'd2c03-marcos-wall', type: 'besideWall', text: 'Estaba junto a la pared del taller.' }] },
+  { id: 'noa', name: 'Noa', avatar: avatar(4), avatarImage: avatar(4), isVictim: false, clues: [{ id: 'd2c03-noa-row', type: 'row', row: 5, text: 'Estaba en la quinta fila.' }, { id: 'd2c03-noa-container', type: 'besideObject', objectId: 'sealedContainer', text: 'Estaba junto a la caja metálica.' }] },
   { id: 'adrian', name: 'Adrián', avatar: avatar(5), avatarImage: avatar(5), isVictim: false, clues: [{ id: 'd2c03-adrian-row', type: 'row', row: 6, text: 'Estaba en la sexta fila.' }, { id: 'd2c03-adrian-column', type: 'column', column: 1, text: 'Estaba en la primera columna.' }] },
   { id: 'vega', name: 'Vega', avatar: avatar(6), avatarImage: avatar(6), isVictim: true, clues: [] },
 ]
