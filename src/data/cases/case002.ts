@@ -16,7 +16,7 @@ const patioLoungerFootprint = { id: 'case002-patio-lounger', positions: [{ row: 
 const objects = {
   chair: { id: 'chair', label: 'una silla', icon: chairIcon, occupiable: true, appearance: 'diningChair' as const, visualProfile: 'standard' as const },
   stool: { id: 'stool', label: 'un taburete', icon: chairIcon, occupiable: true, appearance: 'stool' as const, visualProfile: 'tall' as const },
-  patioLounger: { id: 'patioLounger', label: 'una tumbona', icon: chairIcon, occupiable: true, appearance: 'sunLounger' as const, visualProfile: 'tall' as const, footprint: patioLoungerFootprint, occupiablePositions: [{ row: 4, column: 1 }] },
+  patioLounger: { id: 'patioLounger', label: 'una tumbona', icon: chairIcon, occupiable: true, appearance: 'sunLounger' as const, visualProfile: 'tall' as const, footprint: patioLoungerFootprint, occupiablePositions: [{ row: 4, column: 1 }, { row: 5, column: 1 }] },
   crate: { id: 'crate', label: 'una caja', icon: crateIcon, occupiable: false, visualProfile: 'standard' as const },
   plant: { id: 'plant', label: 'una planta', icon: plantIcon, occupiable: false, visualProfile: 'standard' as const },
 }

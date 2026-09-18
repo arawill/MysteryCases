@@ -10,7 +10,7 @@ describe('object footprints', () => {
     const cells = loungerCells(case002)
     expect(cells).toHaveLength(2)
     expect(cells.map(cell => `${cell.row}:${cell.column}`)).toEqual(['4:1', '5:1'])
-    expect(cells.filter(cell => cell.occupiable).map(cell => `${cell.row}:${cell.column}`)).toEqual(['4:1'])
+    expect(cells.filter(cell => cell.occupiable).map(cell => `${cell.row}:${cell.column}`)).toEqual(['4:1', '5:1'])
     expect(validateCaseDefinition(case002)).toEqual([])
   })
 

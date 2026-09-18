@@ -6,8 +6,8 @@ import { generateDailyCase } from '../daily/generator'
 import { generateInfiniteCase } from '../infinite/generator'
 import { generateNormalCase } from '../normal/generator'
 import { resolveObjectAppearance, resolveObjectAppearanceScale } from '../objects/appearanceCatalog'
-import { getObjectFootprintBounds, isObjectFootprintAnchor, isObjectPositionOccupiable } from '../objects/footprints'
-import { findKiller, placementsEqual } from '../rules'
+import { getObjectFootprint, getObjectFootprintBounds, isFootprintReservedCell, isObjectFootprintAnchor, isObjectPositionOccupiable } from '../objects/footprints'
+import { canPlace, findKiller, placementsEqual } from '../rules'
 import { solveCase, solveCaseWithStats } from '../solver'
 import { validateCaseDefinition } from '../validation'
 
@@ -29,21 +29,27 @@ describe('manual Normal case002', () => {
     expect(findKiller(case002, case002.solution)?.id).toBe('tomas')
   })
 
-  it('uses four continuous zones and a vertically anchored patio lounger', () => {
+  it('uses four continuous zones and a vertically anchored patio lounger with two usable cells', () => {
     const patioLoungerCells = case002.board.filter(cell => cell.object?.footprint?.id === 'case002-patio-lounger')
-    const anchor = case002.board.find(cell => cell.row === 4 && cell.column === 1)!
-    const reserved = case002.board.find(cell => cell.row === 5 && cell.column === 1)!
+    const upper = case002.board.find(cell => cell.row === 4 && cell.column === 1)!
+    const lower = case002.board.find(cell => cell.row === 5 && cell.column === 1)!
     expect(case002.zones.map(zone => zone.id).sort()).toEqual(['archive', 'gallery', 'patio', 'workshop'])
     expect(case002.board.some(cell => cell.zoneId === 'bathroom' || cell.object?.id === 'toilet')).toBe(false)
     expect(patioLoungerCells.map(cell => [cell.row, cell.column])).toEqual([[4, 1], [5, 1]])
-    expect(isObjectFootprintAnchor(anchor.object!, anchor)).toBe(true)
-    expect(isObjectFootprintAnchor(reserved.object!, reserved)).toBe(false)
-    expect(getObjectFootprintBounds(anchor.object!, anchor)).toMatchObject({ rows: 2, columns: 1 })
-    expect(isObjectPositionOccupiable(anchor.object!, anchor)).toBe(true)
-    expect(isObjectPositionOccupiable(reserved.object!, reserved)).toBe(false)
-    expect(anchor.occupiable).toBe(true)
-    expect(reserved.occupiable).toBe(false)
-    expect(resolveObjectAppearance(anchor.object!).label).toBe('Tumbona')
+    expect(isObjectFootprintAnchor(upper.object!, upper)).toBe(true)
+    expect(isObjectFootprintAnchor(lower.object!, lower)).toBe(false)
+    expect(getObjectFootprint(upper.object!, upper)).toEqual([{ row: 4, column: 1 }, { row: 5, column: 1 }])
+    expect(getObjectFootprintBounds(upper.object!, upper)).toMatchObject({ rows: 2, columns: 1 })
+    expect(upper.object?.occupiablePositions).toEqual([{ row: 4, column: 1 }, { row: 5, column: 1 }])
+    expect(isObjectPositionOccupiable(upper.object!, upper)).toBe(true)
+    expect(isObjectPositionOccupiable(lower.object!, lower)).toBe(true)
+    expect(upper.occupiable).toBe(true)
+    expect(lower.occupiable).toBe(true)
+    expect(isFootprintReservedCell(upper.object, upper)).toBe(false)
+    expect(isFootprintReservedCell(lower.object, lower)).toBe(false)
+    expect(canPlace('tomás', upper, [], case002.board).ok).toBe(true)
+    expect(canPlace('tomás', lower, [], case002.board).ok).toBe(true)
+    expect(resolveObjectAppearance(upper.object!).label).toBe('Tumbona')
     expect(case002.characters.find(character => character.id === 'tomas')?.clues.find(clue => clue.type === 'onObject')).toMatchObject({ objectId: 'patioLounger', text: 'Estaba sentado en una tumbona.' })
   })
 

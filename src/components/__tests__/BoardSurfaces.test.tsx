@@ -86,18 +86,20 @@ describe('visual board surfaces', () => {
     expect(empty).toContain(`src="${chair.object!.icon}"`)
   })
 
-  it('renders a multi-cell footprint once, centered over its declared box, while keeping only its explicit position occupiable', () => {
+  it('renders a multi-cell footprint once, centered over its declared box, with both declared positions occupiable', () => {
     const anchor = case002.board.find(cell => cell.row === 4 && cell.column === 1)!
-    const reserved = case002.board.find(cell => cell.row === 5 && cell.column === 1)!
+    const lowerLoungerCell = case002.board.find(cell => cell.row === 5 && cell.column === 1)!
     const markup = renderToStaticMarkup(<Board {...case002} placements={[{ characterId: 'tomas', position: anchor }]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    const lowerMarkup = renderToStaticMarkup(<Board {...case002} placements={[{ characterId: 'tomas', position: lowerLoungerCell }]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect((markup.match(/data-footprint="case002-patio-lounger"/g) ?? []).length).toBe(1)
     expect(markup).toContain('--object-footprint-columns:1;--object-footprint-rows:2')
     expect(markup).toContain('object-visual-tall')
     expect(markup).toContain('footprint-anchor')
-    expect(markup).toContain('footprint-reserved')
+    expect(markup).not.toContain('footprint-reserved')
     expect(markup.indexOf('data-footprint="case002-patio-lounger"')).toBeLessThan(markup.indexOf('data-layer="person"'))
+    expect(lowerMarkup.indexOf('data-footprint="case002-patio-lounger"')).toBeLessThan(lowerMarkup.indexOf('data-layer="person"'))
     expect(canPlace('vera', anchor, [], case002.board).ok).toBe(true)
-    expect(canPlace('vera', reserved, [], case002.board).ok).toBe(false)
+    expect(canPlace('vera', lowerLoungerCell, [], case002.board).ok).toBe(true)
   })
 
   it('uses visual profiles instead of source image dimensions', () => {
