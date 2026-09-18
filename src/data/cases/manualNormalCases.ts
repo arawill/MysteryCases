@@ -13,7 +13,8 @@ import { case013 } from './case013'
 import { case014 } from './case014'
 import { case015 } from './case015'
 import { caseD201 } from './caseD201'
+import { caseD202 } from './caseD202'
 import type { GameCase } from '../../game/types'
 
-export const manualNormalCases = new Map<string, GameCase>([['1:2', case002], ['1:3', case003], ['1:4', case004], ['1:5', case005], ['1:6', case006], ['1:7', case007], ['1:8', case008], ['1:9', case009], ['1:10', case010], ['1:11', case011], ['1:12', case012], ['1:13', case013], ['1:14', case014], ['1:15', case015], ['2:1', caseD201]])
+export const manualNormalCases = new Map<string, GameCase>([['1:2', case002], ['1:3', case003], ['1:4', case004], ['1:5', case005], ['1:6', case006], ['1:7', case007], ['1:8', case008], ['1:9', case009], ['1:10', case010], ['1:11', case011], ['1:12', case012], ['1:13', case013], ['1:14', case014], ['1:15', case015], ['2:1', caseD201], ['2:2', caseD202]])
 export const getManualNormalCase = (difficulty: number, caseNumber: number) => manualNormalCases.get(`${difficulty}:${caseNumber}`)

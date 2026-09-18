@@ -38,6 +38,11 @@ import baggageConveyor from '../../assets/objects/contextual/d2/case01/baggage_c
 import checkinKiosk from '../../assets/objects/contextual/d2/case01/checkin_kiosk.png'
 import departureBench from '../../assets/objects/contextual/d2/case01/departure_bench.png'
 import luggageDrone from '../../assets/objects/contextual/d2/case01/luggage_drone.png'
+import specimenTank from '../../assets/objects/contextual/d2/case02/specimen_tank.png'
+import xenoLabBench from '../../assets/objects/contextual/d2/case02/xeno_lab_bench.png'
+import sampleAnalyzer from '../../assets/objects/contextual/d2/case02/sample_analyzer.png'
+import containmentPod from '../../assets/objects/contextual/d2/case02/containment_pod.png'
+import decontaminationArch from '../../assets/objects/contextual/d2/case02/decontamination_arch.png'
 
 export interface ObjectAppearanceDefinition { src: string; label: string; scale?: number; visualProfile?: ObjectVisualProfile; renderMode?: 'contain' | 'coverFootprint' }
 
@@ -91,6 +96,11 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   checkinKiosk: { src: checkinKiosk, label: 'Terminal de facturación', scale: 0.9, visualProfile: 'tall' },
   departureBench: { src: departureBench, label: 'Banco de salidas', scale: 0.94, visualProfile: 'wide' },
   luggageDrone: { src: luggageDrone, label: 'Dron portaequipajes', scale: 0.82, visualProfile: 'compact' },
+  specimenTank: { src: specimenTank, label: 'Tanque de espécimen', scale: 0.94, visualProfile: 'wide' },
+  xenoLabBench: { src: xenoLabBench, label: 'Mesa de xenobiología', scale: 0.94, visualProfile: 'wide' },
+  sampleAnalyzer: { src: sampleAnalyzer, label: 'Analizador de muestras', scale: 0.82, visualProfile: 'compact' },
+  containmentPod: { src: containmentPod, label: 'Cápsula de contención', scale: 0.9, visualProfile: 'tall' },
+  decontaminationArch: { src: decontaminationArch, label: 'Arco de descontaminación', scale: 0.9, visualProfile: 'tall' },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog

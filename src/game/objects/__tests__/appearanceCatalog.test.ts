@@ -3,7 +3,7 @@ import { objectAppearanceCatalog, resolveObjectAppearance } from '../appearanceC
 
 describe('object appearance catalog', () => {
   it('registers every contextual object with a human label and a supported visual asset', () => {
-    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(39)
+    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(44)
     for (const appearance of Object.values(objectAppearanceCatalog)) {
       expect(appearance.label.length).toBeGreaterThan(0)
       expect(appearance.src).toMatch(/^(data:image\/svg\+xml|.*\.(png|svg)$)/)
