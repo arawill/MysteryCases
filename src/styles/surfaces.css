@@ -14,14 +14,17 @@
 .board .surface-generic{--floor-pattern:linear-gradient(135deg,var(--floor-soft),transparent 65%)}
 html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-background-light,var(--surface-soft))}
 /* Zone plaques are a visual wall layer, never a child of an interactive cell. */
-.board .zone-label-layer{position:absolute;inset:0;z-index:1;display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));pointer-events:none}
-.board .zone-label{grid-column:var(--zone-label-start)/calc(var(--zone-label-end) + 1);grid-row:var(--zone-label-row);align-self:end;justify-self:stretch;z-index:1;display:block;box-sizing:border-box;min-width:0;margin:0 5%;padding:3px 7px;border:1px solid color-mix(in srgb,var(--bg) 80%,#302b20);border-radius:999px;background:color-mix(in srgb,#f4ead4 93%,var(--surface));box-shadow:0 1px 0 color-mix(in srgb,#fff 52%,transparent),0 1px 2px #0003;color:#29241a;font:700 clamp(7px,1.2vw,11px)/1.16 'DM Mono',monospace;letter-spacing:.08em;text-align:center;text-transform:uppercase;white-space:normal;overflow-wrap:anywhere;transform:translateY(50%);pointer-events:none}
+.board .zone-label-layer{position:absolute;inset:0;z-index:2;display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));pointer-events:none}
+.board .zone-label{grid-column:var(--zone-label-start)/calc(var(--zone-label-end) + 1);grid-row:var(--zone-label-row);align-self:end;justify-self:center;z-index:1;display:block;box-sizing:border-box;inline-size:fit-content;max-inline-size:calc(100% - 10px);min-inline-size:0;margin:0;padding:3px 7px;border:1px solid color-mix(in srgb,var(--bg) 80%,#302b20);border-radius:999px;background:color-mix(in srgb,#f4ead4 93%,var(--surface));box-shadow:0 1px 0 color-mix(in srgb,#fff 52%,transparent),0 1px 2px #0003;color:#29241a;font:700 clamp(7px,1.2vw,11px)/1.16 'DM Mono',monospace;letter-spacing:.08em;text-align:center;text-transform:uppercase;white-space:normal;overflow-wrap:anywhere;transform:translateY(50%);pointer-events:none}
 html[data-theme='light'] .board .zone-label{background:color-mix(in srgb,#fff8e8 95%,var(--surface));border-color:color-mix(in srgb,var(--text) 55%,#5a4a2f);color:#30291d}
 .board .cell .cell-object-layer{position:absolute;top:0;left:0;width:calc(100% * var(--object-footprint-columns,1));height:calc(100% * var(--object-footprint-rows,1));display:grid;place-items:center;z-index:2;pointer-events:none}
 .board .cell .cell-person-layer{position:absolute;inset:0;display:grid;place-items:center;z-index:3;pointer-events:none}
 .board .cell .cell-person-layer .placed{position:absolute}
 .board .cell .edge-feature{z-index:4}
 .board .cell.footprint-anchor{z-index:2}
+.board .cell.cell-has-object{z-index:3}
+.board .cell.cell-has-person{z-index:4}
+.board .cell.cell-has-edge-feature{z-index:5}
 /* Every icon URL can point to SVG, transparent PNG, or transparent WebP. */
 .board .cell .cell-object-layer .object{position:relative;inset:auto;display:grid;place-items:center;width:100%;height:100%;pointer-events:none;opacity:.9}
 .board .cell .cell-object-layer .object img{--object-profile-width:76%;--object-profile-height:76%;display:block;width:min(calc(var(--object-profile-width) * var(--object-appearance-scale,1)),100%);height:min(calc(var(--object-profile-height) * var(--object-appearance-scale,1)),100%);max-width:100%;max-height:100%;margin:0;object-fit:contain;object-position:center;filter:drop-shadow(0 3px 2px #0003)}

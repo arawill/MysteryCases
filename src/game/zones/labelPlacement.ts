@@ -7,6 +7,8 @@ export interface ZoneLabelPlacement {
   row: number
   startColumn: number
   endColumn: number
+  availableColumns: number
+  centerColumn: number
   source: 'auto' | 'explicit'
 }
 
@@ -43,7 +45,7 @@ function candidatesFor(zone: Zone, board: BoardCell[], features: Set<string>): C
     const addRun = (end: number) => {
       const width = end - start + 1
       const centerDistance = Math.abs((start + end) / 2 - zoneCenter)
-      candidates.push({ zoneId: zone.id, row, startColumn: start, endColumn: end, score: [width, -centerDistance, row] })
+      candidates.push({ zoneId: zone.id, row, startColumn: start, endColumn: end, availableColumns: width, centerColumn: (start + end) / 2, score: [width, -centerDistance, row] })
     }
     for (const column of columns.slice(1)) {
       if (column !== previous + 1) { addRun(previous); start = column }
@@ -64,7 +66,7 @@ function explicitPlacement(zone: Zone, anchor: ZoneEdgeLabelAnchor | undefined, 
     const cell = getCell(board, { row, column: current })
     if (!cell || cell.zoneId !== zone.id || !isLowerBoundary(cell, board) || features.has(edgeSegmentKey(segmentFor(row, current)))) return null
   }
-  return { zoneId: zone.id, row, startColumn: column, endColumn, source: 'explicit' }
+  return { zoneId: zone.id, row, startColumn: column, endColumn, availableColumns: span, centerColumn: (column + endColumn) / 2, source: 'explicit' }
 }
 
 function overlaps(first: ZoneLabelPlacement, second: Pick<ZoneLabelPlacement, 'row' | 'startColumn' | 'endColumn'>): boolean {
@@ -84,7 +86,7 @@ export function resolveZoneLabelPlacements(zones: Zone[], board: BoardCell[], ed
     const selected = candidatesFor(zone, board, features)
       .sort((first, second) => second.score[0] - first.score[0] || second.score[1] - first.score[1] || second.score[2] - first.score[2] || first.startColumn - second.startColumn)
       .find(candidate => !placements.some(placement => overlaps(placement, candidate)))
-    if (selected) placements.push({ zoneId: selected.zoneId, row: selected.row, startColumn: selected.startColumn, endColumn: selected.endColumn, source: 'auto' })
+    if (selected) placements.push({ zoneId: selected.zoneId, row: selected.row, startColumn: selected.startColumn, endColumn: selected.endColumn, availableColumns: selected.availableColumns, centerColumn: selected.centerColumn, source: 'auto' })
   }
   return placements
 }

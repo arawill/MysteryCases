@@ -32,7 +32,7 @@ describe('zone label placement', () => {
   it('uses a valid explicit edge anchor and supports current 6x6 and 7x7 cases', () => {
     const zones: Zone[] = [{ id: 'room', name: 'Sala', tone: 'cafe', labelEdgeAnchor: { segment: { position: { row: 4, column: 2 }, side: 'S' }, span: 2 } }]
     const cells = Array.from({ length: 16 }, (_, index) => ({ row: Math.floor(index / 4) + 1, column: index % 4 + 1, zoneId: 'room', occupiable: true }))
-    expect(resolveZoneLabelPlacements(zones, cells)[0]).toEqual({ zoneId: 'room', row: 4, startColumn: 2, endColumn: 3, source: 'explicit' })
+    expect(resolveZoneLabelPlacements(zones, cells)[0]).toEqual(expect.objectContaining({ zoneId: 'room', row: 4, startColumn: 2, endColumn: 3, availableColumns: 2, centerColumn: 2.5, source: 'explicit' }))
     expect(resolveZoneLabelPlacements(case001.zones, case001.board)).toHaveLength(case001.zones.length)
     expect(resolveZoneLabelPlacements(caseD201.zones, caseD201.board, caseD201.edgeFeatures)).toHaveLength(caseD201.zones.length)
     expect(createScenarioProfile({ ...case001, zones: [{ ...case001.zones[0], labelEdgeAnchor: { segment: { position: { row: 3, column: 1 }, side: 'S' }, span: 1 } }, ...case001.zones.slice(1)] }).zones[0].labelEdgeAnchor).toBeUndefined()
