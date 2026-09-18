@@ -11,8 +11,8 @@ export function legacyObject(id: string, label: string, icon: string, occupiable
   return { id, label, icon, occupiable, visualProfile, footprint: footprint ? { id: `${id}-footprint`, positions: footprint } : undefined, occupiablePositions }
 }
 
-export function createManualBoard(zoneAt: (row: number, column: number) => string, objectAt: Record<string, BoardObject>): BoardCell[] {
-  return Array.from({ length: 6 }, (_, rowIndex) => Array.from({ length: 6 }, (_, columnIndex) => {
+export function createManualBoard(zoneAt: (row: number, column: number) => string, objectAt: Record<string, BoardObject>, rows = 6, columns = 6): BoardCell[] {
+  return Array.from({ length: rows }, (_, rowIndex) => Array.from({ length: columns }, (_, columnIndex) => {
     const row = rowIndex + 1, column = columnIndex + 1, object = objectAt[`${row}:${column}`]
     return { row, column, zoneId: zoneAt(row, column), occupiable: object ? isObjectPositionOccupiable(object, { row, column }) : true, ...(object ? { object } : {}) }
   })).flat()

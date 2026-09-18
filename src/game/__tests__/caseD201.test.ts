@@ -11,6 +11,14 @@ import { validateCaseDefinition } from '../validation'
 describe('manual D2 case 01', () => {
   it('is registered as D2/C01 and has a valid, canonical unique solution', () => {
     expect(getManualNormalCase(2, 1)).toBe(caseD201)
+    expect(caseD201.rows).toBe(7)
+    expect(caseD201.columns).toBe(7)
+    expect(caseD201.board).toHaveLength(49)
+    expect(caseD201.characters).toHaveLength(7)
+    expect(caseD201.characters.filter(character => character.isVictim)).toHaveLength(1)
+    expect(caseD201.solution.some(placement => placement.characterId === 'alma')).toBe(true)
+    expect(caseD201.solution.map(placement => placement.position.row).sort((first, second) => first - second)).toEqual([1, 2, 3, 4, 5, 6, 7])
+    expect(caseD201.solution.map(placement => placement.position.column).sort((first, second) => first - second)).toEqual([1, 2, 3, 4, 5, 6, 7])
     expect(validateCaseDefinition(caseD201)).toEqual([])
     const solved = solveCaseWithStats(caseD201)
     expect(solved.truncated).not.toBe(true)
@@ -28,6 +36,7 @@ describe('manual D2 case 01', () => {
 
     const bench = caseD201.board.filter(cell => cell.object?.id === 'departureBench')
     expect(bench.map(cell => `${cell.row}:${cell.column}`)).toEqual(['3:2', '3:3'])
+    expect(bench[0].object?.occupiablePositions).toEqual([{ row: 3, column: 2 }, { row: 3, column: 3 }])
     expect(bench.every(cell => isObjectPositionOccupiable(cell.object!, cell))).toBe(true)
     expect(bench.every(cell => cell.occupiable)).toBe(true)
 
@@ -44,6 +53,19 @@ describe('manual D2 case 01', () => {
     expect(caseD201.characters.find(character => character.isVictim)?.clues).toEqual([])
     const arrivals = caseD201.solution.filter(placement => caseD201.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === 'arrivals')
     expect(arrivals.map(placement => placement.characterId).sort()).toEqual(['alma', 'irene'])
+  })
+
+  it('does not allow any pairwise exchange to satisfy every visible clue', () => {
+    for (let index = 0; index < caseD201.solution.length; index += 1) for (let otherIndex = index + 1; otherIndex < caseD201.solution.length; otherIndex += 1) {
+      const first = caseD201.solution[index], second = caseD201.solution[otherIndex]
+      const swapped = caseD201.solution.map(placement => placement.characterId === first.characterId
+        ? { ...placement, position: { ...second.position } }
+        : placement.characterId === second.characterId
+          ? { ...placement, position: { ...first.position } }
+          : placement)
+      expect(areAllCluesSatisfied(caseD201, swapped)).toBe(false)
+    }
+    expect(caseD201.characters.flatMap(character => character.clues).some(clue => clue.text.toLocaleLowerCase('es').includes('ocupaba'))).toBe(false)
   })
 
   it('keeps all zone labels anchored to free cells in their own zone', () => {

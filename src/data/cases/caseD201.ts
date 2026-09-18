@@ -10,7 +10,7 @@ const drone = contextualObject('luggageDrone', 'luggageDrone', false)
 
 const zoneAt = (row: number, column: number) => {
   if (row <= 2) return column <= 3 ? 'checkin' : 'security'
-  if (row <= 4) return column <= 4 ? 'departureLounge' : 'baggageClaim'
+  if (row <= 5) return column <= 4 ? 'departureLounge' : 'baggageClaim'
   return 'arrivals'
 }
 
@@ -21,18 +21,19 @@ const board = createManualBoard(zoneAt, {
   '2:3': kiosk,
   '3:2': bench,
   '3:3': bench,
-  '4:6': drone,
-})
+  '4:7': drone,
+}, 7, 7)
 
-const avatar = (index: number) => avatarCatalog[index + 18].image
+const avatar = (index: number) => avatarCatalog[index + 17].image
 
 const characters: Character[] = [
   { id: 'lina', name: 'Lina', avatar: '👤', avatarImage: avatar(0), isVictim: false, clues: [{ id: 'd2c01-lina-scanner', type: 'besideObject', objectId: 'securityScanner', text: 'Estaba junto al escáner de seguridad.' }, { id: 'd2c01-lina-column', type: 'column', column: 6, text: 'Estaba en la sexta columna.' }] },
   { id: 'oscar', name: 'Óscar', avatar: '👤', avatarImage: avatar(1), isVictim: false, clues: [{ id: 'd2c01-oscar-row', type: 'row', row: 2, text: 'Estaba en la segunda fila.' }, { id: 'd2c01-oscar-security', type: 'zone', zoneId: 'security', text: 'Estaba en el control de seguridad.' }, { id: 'd2c01-oscar-not-scanner', type: 'notBesideObject', objectId: 'securityScanner', text: 'No estaba junto al escáner de seguridad.' }] },
   { id: 'nerea', name: 'Nerea', avatar: '👤', avatarImage: avatar(2), isVictim: false, clues: [{ id: 'd2c01-nerea-bench', type: 'onObject', objectId: 'departureBench', text: 'Estaba sentada en el banco de salidas.' }, { id: 'd2c01-nerea-column', type: 'column', column: 2, text: 'Estaba en la segunda columna.' }] },
   { id: 'tomas', name: 'Tomás', avatar: '👤', avatarImage: avatar(3), isVictim: false, clues: [{ id: 'd2c01-tomas-row', type: 'row', row: 4, text: 'Estaba en la cuarta fila.' }, { id: 'd2c01-tomas-baggage', type: 'zone', zoneId: 'baggageClaim', text: 'Estaba en recogida de equipajes.' }] },
-  { id: 'irene', name: 'Irene', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'd2c01-irene-row', type: 'row', row: 5, text: 'Estaba en la quinta fila.' }, { id: 'd2c01-irene-arrivals', type: 'zone', zoneId: 'arrivals', text: 'Estaba en llegadas.' }, { id: 'd2c01-irene-column', type: 'column', column: 1, text: 'Estaba en la primera columna.' }] },
-  { id: 'alma', name: 'Alma', avatar: '👤', avatarImage: avatar(5), isVictim: true, clues: [] },
+  { id: 'gael', name: 'Gael', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'd2c01-gael-drone', type: 'besideObject', objectId: 'luggageDrone', text: 'Estaba junto al dron portaequipajes.' }, { id: 'd2c01-gael-row', type: 'row', row: 5, text: 'Estaba en la quinta fila.' }] },
+  { id: 'irene', name: 'Irene', avatar: '👤', avatarImage: avatar(5), isVictim: false, clues: [{ id: 'd2c01-irene-row', type: 'row', row: 6, text: 'Estaba en la sexta fila.' }, { id: 'd2c01-irene-arrivals', type: 'zone', zoneId: 'arrivals', text: 'Estaba en llegadas.' }, { id: 'd2c01-irene-column', type: 'column', column: 1, text: 'Estaba en la primera columna.' }] },
+  { id: 'alma', name: 'Alma', avatar: '👤', avatarImage: avatar(6), isVictim: true, clues: [] },
 ]
 
 const solution: Placement[] = [
@@ -40,8 +41,9 @@ const solution: Placement[] = [
   { characterId: 'oscar', position: { row: 2, column: 4 } },
   { characterId: 'nerea', position: { row: 3, column: 2 } },
   { characterId: 'tomas', position: { row: 4, column: 5 } },
-  { characterId: 'irene', position: { row: 5, column: 1 } },
-  { characterId: 'alma', position: { row: 6, column: 3 } },
+  { characterId: 'gael', position: { row: 5, column: 7 } },
+  { characterId: 'irene', position: { row: 6, column: 1 } },
+  { characterId: 'alma', position: { row: 7, column: 3 } },
 ]
 
 export const caseD201: GameCase = {
@@ -49,14 +51,14 @@ export const caseD201: GameCase = {
   title: 'Última escala orbital',
   intro: 'Alma fue encontrada sin vida en la terminal orbital después del último embarque. Reconstruye la escena y descubre quién se quedó a solas con ella.',
   difficulty: 2,
-  rows: 6,
-  columns: 6,
+  rows: 7,
+  columns: 7,
   zones: [
     { id: 'checkin', name: 'Facturación', tone: 'industrial', surface: 'concrete', labelAnchor: { position: { row: 2, column: 1 } } },
     { id: 'security', name: 'Control de seguridad', tone: 'kitchen', surface: 'industrial', labelAnchor: { position: { row: 2, column: 5 } } },
     { id: 'departureLounge', name: 'Sala de embarque', tone: 'cafe', surface: 'carpet', labelAnchor: { position: { row: 4, column: 4 } } },
-    { id: 'baggageClaim', name: 'Recogida de equipajes', tone: 'storage', surface: 'concrete', labelAnchor: { position: { row: 3, column: 6 } } },
-    { id: 'arrivals', name: 'Llegadas', tone: 'bathroom', surface: 'tile', labelAnchor: { position: { row: 6, column: 6 } } },
+    { id: 'baggageClaim', name: 'Recogida de equipajes', tone: 'storage', surface: 'concrete', labelAnchor: { position: { row: 3, column: 7 } } },
+    { id: 'arrivals', name: 'Llegadas', tone: 'bathroom', surface: 'tile', labelAnchor: { position: { row: 7, column: 7 } } },
   ],
   board,
   characters,
