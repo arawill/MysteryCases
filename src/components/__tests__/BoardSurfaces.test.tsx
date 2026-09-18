@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
 import { case002 } from '../../data/cases/case002'
+import { case008 } from '../../data/cases/case008'
 import { resolveZoneSurface } from '../../game/zones/surfaces'
 import { canPlace } from '../../game/rules'
 import { normaliseObjectAppearanceScale, resolveObjectAppearanceScale, resolveObjectVisualProfile } from '../../game/objects/appearanceCatalog'
@@ -100,6 +101,16 @@ describe('visual board surfaces', () => {
     expect(lowerMarkup.indexOf('data-footprint="case002-patio-lounger"')).toBeLessThan(lowerMarkup.indexOf('data-layer="person"'))
     expect(canPlace('vera', anchor, [], case002.board).ok).toBe(true)
     expect(canPlace('vera', lowerLoungerCell, [], case002.board).ok).toBe(true)
+  })
+
+  it('renders the pool surface once across its blocked 2×3 footprint, below people and without duplicate imagery', () => {
+    const markup = renderToStaticMarkup(<Board {...case008} placements={[{ characterId: 'sara', position: { row: 2, column: 2 } }]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect((markup.match(/data-footprint="poolSurface-footprint"/g) ?? [])).toHaveLength(1)
+    expect((markup.match(/object-poolSurface/g) ?? [])).toHaveLength(1)
+    expect(markup).toContain('--object-footprint-columns:3;--object-footprint-rows:2')
+    expect(markup).toContain('object-cover-footprint')
+    expect(markup.indexOf('data-footprint="poolSurface-footprint"')).toBeLessThan(markup.indexOf('data-layer="person"'))
+    expect((markup.match(/<button /g) ?? [])).toHaveLength(36)
   })
 
   it('uses visual profiles instead of source image dimensions', () => {

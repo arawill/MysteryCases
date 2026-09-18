@@ -32,8 +32,9 @@ import dressingTable from '../../assets/objects/contextual/d1/dressing_table.png
 import coatRack from '../../assets/objects/contextual/d1/coat_rack.png'
 import stageSpotlight from '../../assets/objects/contextual/d1/stage_spotlight.png'
 import freezer from '../../assets/objects/contextual/d1/freezer.png'
+import poolSurface from '../../assets/objects/contextual/pool_surface.svg'
 
-export interface ObjectAppearanceDefinition { src: string; label: string; scale?: number; visualProfile?: ObjectVisualProfile }
+export interface ObjectAppearanceDefinition { src: string; label: string; scale?: number; visualProfile?: ObjectVisualProfile; renderMode?: 'contain' | 'coverFootprint' }
 
 export const DEFAULT_OBJECT_APPEARANCE_SCALE = 1
 const MIN_OBJECT_APPEARANCE_SCALE = 0.5
@@ -79,6 +80,7 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   coatRack: { src: coatRack, label: 'Perchero', scale: 0.88, visualProfile: 'tall' },
   stageSpotlight: { src: stageSpotlight, label: 'Foco de escenario', scale: 0.82, visualProfile: 'compact' },
   freezer: { src: freezer, label: 'Congelador', scale: 0.94, visualProfile: 'wide' },
+  poolSurface: { src: poolSurface, label: 'Piscina', scale: 1, renderMode: 'coverFootprint' },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog

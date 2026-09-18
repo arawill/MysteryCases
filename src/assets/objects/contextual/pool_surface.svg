@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" role="img" aria-label="Piscina vista desde arriba">
+  <defs>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4fc8dc"/>
+      <stop offset=".52" stop-color="#258cab"/>
+      <stop offset="1" stop-color="#176b8c"/>
+    </linearGradient>
+    <pattern id="waves" width="42" height="26" patternUnits="userSpaceOnUse">
+      <path d="M2 8c7-6 15-6 22 0s15 6 22 0" fill="none" stroke="#d9fbff" stroke-linecap="round" stroke-opacity=".36" stroke-width="2"/>
+      <path d="M-10 20c7-5 15-5 22 0s15 5 22 0" fill="none" stroke="#a9ecf5" stroke-linecap="round" stroke-opacity=".25" stroke-width="1.5"/>
+    </pattern>
+  </defs>
+  <rect x="2" y="2" width="296" height="196" rx="15" fill="#d8ddcf" stroke="#6f796b" stroke-width="4"/>
+  <rect x="11" y="11" width="278" height="178" rx="10" fill="url(#water)" stroke="#edf2e6" stroke-width="6"/>
+  <rect x="15" y="15" width="270" height="170" rx="7" fill="url(#waves)"/>
+  <path d="M28 34h52M220 164h52" fill="none" stroke="#f7fbef" stroke-linecap="round" stroke-opacity=".7" stroke-width="4"/>
+  <path d="M28 166h46M225 36h47" fill="none" stroke="#0d526f" stroke-linecap="round" stroke-opacity=".32" stroke-width="3"/>
+</svg>

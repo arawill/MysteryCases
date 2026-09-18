@@ -10,7 +10,7 @@ export type ZoneLabelPlacement = 'top' | 'center' | 'bottom'
 export interface ZoneLabelAnchor { position: Position; placement?: ZoneLabelPlacement }
 export interface Zone { id: string; name: string; tone: string; icon?: string; surface?: ZoneSurface; labelAnchor?: ZoneLabelAnchor }
 export type ObjectAppearance = 'sunLounger' | 'toilet' | 'diningChair' | 'officeChair' | 'sofa' | 'bathtub' | 'outdoorBench' | 'stool'
-  | 'wheelchair' | 'cafeCounter' | 'coffeeMachine' | 'roundTable' | 'workbench' | 'tires' | 'meetingTable' | 'lockerBank' | 'lifeguardChair' | 'shoppingCart' | 'cinemaSeatRow' | 'projector' | 'readingTable' | 'vendingMachine' | 'ticketCounter' | 'gymBench' | 'treadmill' | 'dumbbells' | 'displayCase' | 'restorationTable' | 'piano' | 'dressingTable' | 'coatRack' | 'stageSpotlight' | 'freezer'
+  | 'wheelchair' | 'cafeCounter' | 'coffeeMachine' | 'roundTable' | 'workbench' | 'tires' | 'meetingTable' | 'lockerBank' | 'lifeguardChair' | 'shoppingCart' | 'cinemaSeatRow' | 'projector' | 'readingTable' | 'vendingMachine' | 'ticketCounter' | 'gymBench' | 'treadmill' | 'dumbbells' | 'displayCase' | 'restorationTable' | 'piano' | 'dressingTable' | 'coatRack' | 'stageSpotlight' | 'freezer' | 'poolSurface'
 export type ObjectVisualProfile = 'compact' | 'standard' | 'wide' | 'tall'
 export interface ObjectFootprint { id: string; positions: Position[] }
 export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean; appearance?: ObjectAppearance; visualProfile?: ObjectVisualProfile; footprint?: ObjectFootprint; occupiablePositions?: Position[] }
