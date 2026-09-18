@@ -115,7 +115,8 @@ describe('visual board surfaces', () => {
     expect(markup).toContain('zone-label-bottom')
     expect(markup).toContain('zone-label-top')
     const case001Markup = renderToStaticMarkup(<Board {...case001} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
-    expect(case001Markup).not.toContain('data-layer="zone-label"')
+    expect((case001Markup.match(/data-layer="zone-label"/g) ?? [])).toHaveLength(case001.zones.length)
+    for (const zone of case001.zones) expect(case001Markup).toContain(`data-zone-label="${zone.id}"`)
   })
 
   it('uses catalog scale metadata inside visual profile boxes with safe fallbacks', () => {
