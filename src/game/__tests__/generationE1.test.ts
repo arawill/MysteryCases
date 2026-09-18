@@ -4,11 +4,12 @@ import { case003 } from '../../data/cases/case003'
 import { case004 } from '../../data/cases/case004'
 import { evaluateClue } from '../clues'
 import { evaluateGlobalClue } from '../globalClues'
-import { getNormalCaseId } from '../normal/ids'
+import { getNormalCaseId, getNormalCaseSeed } from '../normal/ids'
 import { generateNormalCase } from '../normal/generator'
 import { generateDailyCase } from '../daily/generator'
 import { getDailyPuzzleId } from '../daily/date'
 import { generateInfiniteCase, getInfiniteCaseId } from '../infinite/generator'
+import { generateProceduralCase } from '../generation/proceduralCase'
 import { solveCase } from '../solver'
 import { validateCaseDefinition } from '../validation'
 import { buildTrueCluePool, buildTrueGlobalCluePool } from '../generation/cluePool'
@@ -46,7 +47,9 @@ describe('5.5E.1 procedural vocabulary', () => {
   })
 
   it.each([1, 2, 3, 4, 5] as const)('enforces vocabulary quotas for difficulty %s', difficulty => {
-    const generated = generateNormalCase({ difficulty, caseNumber: difficulty + 10 }).caseData
+    const generated = difficulty === 1
+      ? generateProceduralCase({ id: 'vocabulary-d1', title: 'Vocabulario D1', intro: '', difficulty, seed: getNormalCaseSeed(1, 11) }).caseData
+      : generateNormalCase({ difficulty, caseNumber: difficulty + 10 }).caseData
     const clues = generated.characters.flatMap(character => character.clues)
     expect(validateCaseDefinition(generated)).toEqual([])
     expect(solveCase(generated).solutionsFound).toBe(1)
@@ -61,4 +64,12 @@ describe('5.5E.1 procedural vocabulary', () => {
     expect(clues.some(isSpatialAdvanced)).toBe(true)
     expect(clues.some(isLogicAdvanced)).toBe(difficulty >= 3)
   }, 30000)
-})
+  })
+
+  it.each([getNormalCaseSeed(1, 11), 42, 20260918])('keeps D1 procedural vocabulary below the advanced boundary for seed %s', seed => {
+    const generated = generateProceduralCase({ id: `vocabulary-d1-${seed}`, title: 'Vocabulario D1', intro: '', difficulty: 1, seed }).caseData
+    const clues = generated.characters.flatMap(character => character.clues)
+    expect(clues.some(clue => isSpatialAdvanced(clue) || isLogicAdvanced(clue))).toBe(false)
+    expect(validateCaseDefinition(generated)).toEqual([])
+    expect(solveCase(generated).solutionsFound).toBe(1)
+  }, 30000)

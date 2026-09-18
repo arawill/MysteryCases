@@ -1,5 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { case001 } from '../../data/cases/case001'
+import { getAccusationCandidates } from '../../game/accusationCandidates'
 import { generateProceduralCase } from '../../game/generation/proceduralCase'
 import { GameScreen } from '../GameScreen'
 
@@ -19,4 +21,16 @@ describe('compact character selector', () => {
     const victim = gameCase.characters.find(person => person.isVictim)
     expect(markup).toContain(`aria-label="${victim!.name} · ${victim!.roleLabel} · Víctima"`)
   }, 30000)
+
+  it('renders the stable public accusation order and excludes the victim', () => {
+    vi.stubGlobal('localStorage', storage)
+    const markup = renderToStaticMarkup(<GameScreen gameCase={case001} />)
+    const accusationMarkup = markup.slice(markup.indexOf('killer-options'))
+    const candidates = getAccusationCandidates(case001.id, case001.characters)
+    const candidateIndexes = candidates.map(character => accusationMarkup.indexOf(`data-candidate-id="${character.id}"`))
+
+    expect(candidateIndexes.every(index => index >= 0)).toBe(true)
+    expect(candidateIndexes.every((index, position) => position === 0 || candidateIndexes[position - 1] < index)).toBe(true)
+    expect(accusationMarkup).not.toContain(`data-candidate-id="${case001.characters.find(character => character.isVictim)!.id}"`)
+  })
 })
