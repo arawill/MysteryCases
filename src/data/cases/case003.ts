@@ -57,6 +57,12 @@ export const case003: GameCase = {
   rows: 6,
   columns: 6,
   zones,
+  edgeFeatures: [{
+    id: 'case003-vestibule-entrance',
+    type: 'door',
+    label: 'Puerta de entrada',
+    segments: [{ position: { row: 1, column: 5 }, side: 'N' }],
+  }],
   board,
   characters,
   solution,

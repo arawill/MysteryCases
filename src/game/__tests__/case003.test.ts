@@ -8,9 +8,10 @@ import { generateInfiniteCase } from '../infinite/generator'
 import { getFrozenNormalGeneratedCase } from '../normal/frozen'
 import { getObjectFootprintBounds, isObjectPositionOccupiable } from '../objects/footprints'
 import { generateNormalCase } from '../normal/generator'
-import { findKiller, getCell, placementsEqual } from '../rules'
+import { canPlace, findKiller, getCell, placementsEqual } from '../rules'
 import { solveCase, solveCaseWithStats } from '../solver'
 import { validateCaseDefinition } from '../validation'
+import { adjacentCellsForEdgeSegment, isEdgeSegmentOnWall } from '../edgeFeatures'
 
 const connected = (zoneId: string) => {
   const cells = case003.board.filter(cell => cell.zoneId === zoneId)
@@ -66,6 +67,29 @@ describe('manual Normal case003', () => {
     expect(isObjectPositionOccupiable(sofa, { row: 2, column: 1 })).toBe(true)
     expect(isObjectPositionOccupiable(sofa, { row: 2, column: 2 })).toBe(false)
     expect(sofa.appearance).toBe('sofa')
+  })
+
+  it('adds one exterior entrance door to the vestibule without changing cell occupancy or resolution', () => {
+    const doors = case003.edgeFeatures?.filter(feature => feature.type === 'door') ?? []
+    expect(doors).toHaveLength(1)
+    const door = doors[0]
+    expect(door).toMatchObject({ id: 'case003-vestibule-entrance', label: 'Puerta de entrada' })
+    expect(door.segments).toEqual([{ position: { row: 1, column: 5 }, side: 'N' }])
+
+    const [segment] = door.segments
+    const adjacentCells = adjacentCellsForEdgeSegment(segment, case003.board)
+    expect(isEdgeSegmentOnWall(segment, case003.board)).toBe(true)
+    expect(adjacentCells).toHaveLength(1)
+    expect(adjacentCells[0]).toMatchObject({ row: 1, column: 5, zoneId: 'vestibule', occupiable: true })
+    expect(adjacentCells[0].object).toBeUndefined()
+    expect(case003.board.filter(cell => cell.occupiable).every(cell => canPlace('elisa', cell, [], case003.board).ok)).toBe(true)
+    expect(case003.board.filter(cell => !cell.occupiable).every(cell => !canPlace('elisa', cell, [], case003.board).ok)).toBe(true)
+
+    const solved = solveCaseWithStats(case003)
+    expect(solved.truncated).toBeUndefined()
+    expect(solved.solutionsFound).toBe(1)
+    expect(placementsEqual(solved.solutions[0], case003.solution)).toBe(true)
+    expect(findKiller(case003, case003.solution)?.id).toBe('tomas')
   })
 
   it('keeps the documented human deduction chain valid until Eva is the final remaining placement', () => {
