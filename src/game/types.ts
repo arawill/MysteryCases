@@ -14,6 +14,7 @@ export type ObjectAppearance = 'sunLounger' | 'toilet' | 'diningChair' | 'office
   | 'securityScanner' | 'baggageConveyor' | 'checkinKiosk' | 'departureBench' | 'luggageDrone'
   | 'specimenTank' | 'xenoLabBench' | 'sampleAnalyzer' | 'containmentPod' | 'decontaminationArch'
   | 'cargoLoader' | 'magneticPallet' | 'freightConsole' | 'sealedContainer' | 'maintenanceUnit'
+  | 'hydroponicBed' | 'growTower' | 'nutrientTank' | 'irrigationConsole' | 'harvestCart'
 export type ObjectVisualProfile = 'compact' | 'standard' | 'wide' | 'tall'
 export interface ObjectFootprint { id: string; positions: Position[] }
 export interface BoardObject { id: string; label: string; icon: string; occupiable: boolean; appearance?: ObjectAppearance; visualProfile?: ObjectVisualProfile; footprint?: ObjectFootprint; occupiablePositions?: Position[] }

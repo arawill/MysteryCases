@@ -3,7 +3,7 @@ import { objectAppearanceCatalog, resolveObjectAppearance } from '../appearanceC
 
 describe('object appearance catalog', () => {
   it('registers every contextual object with a human label and a supported visual asset', () => {
-    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(49)
+    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(54)
     for (const appearance of Object.values(objectAppearanceCatalog)) {
       expect(appearance.label.length).toBeGreaterThan(0)
       expect(appearance.src).toMatch(/^(data:image\/svg\+xml|.*\.(png|svg)$)/)
@@ -17,6 +17,11 @@ describe('object appearance catalog', () => {
     expect(objectAppearanceCatalog.freightConsole).toMatchObject({ label: 'Consola de control', visualProfile: 'standard' })
     expect(objectAppearanceCatalog.sealedContainer).toMatchObject({ label: 'Caja metálica', visualProfile: 'standard' })
     expect(objectAppearanceCatalog.maintenanceUnit).toMatchObject({ label: 'Robot de mantenimiento', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.hydroponicBed).toMatchObject({ label: 'Cultivo de plantas', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.growTower).toMatchObject({ label: 'Torre de cultivo', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.nutrientTank).toMatchObject({ label: 'Depósito de agua', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.irrigationConsole).toMatchObject({ label: 'Consola de riego', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.harvestCart).toMatchObject({ label: 'Carro de cosecha', visualProfile: 'standard' })
   })
 
   it('uses the explicit appearance while preserving the legacy icon fallback safely', () => {

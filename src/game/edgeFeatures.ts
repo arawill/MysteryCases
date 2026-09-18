@@ -59,3 +59,17 @@ export function areCollinearContiguousEdgeSegments(first: EdgeSegment, second: E
   if (!horizontalA && a1.column !== b1.column) return false
   return [a1, a2].some(a => [b1, b2].some(b => a.row === b.row && a.column === b.column))
 }
+
+/** A feature may span any number of adjacent cells, but must remain a straight continuous wall run. */
+export function areCollinearContiguousEdgeSegmentSeries(segments: EdgeSegment[]): boolean {
+  if (segments.length === 0) return false
+  const vertices = segments.map(edgeSegmentVertices)
+  const horizontal = vertices[0][0].row === vertices[0][1].row
+  if (vertices.some(([first, second]) => (first.row === second.row) !== horizontal)) return false
+  const line = horizontal ? vertices[0][0].row : vertices[0][0].column
+  if (vertices.some(([first, second]) => (horizontal ? first.row !== line || second.row !== line : first.column !== line || second.column !== line))) return false
+  const intervals = vertices.map(([first, second]) => horizontal
+    ? [Math.min(first.column, second.column), Math.max(first.column, second.column)]
+    : [Math.min(first.row, second.row), Math.max(first.row, second.row)]).sort((first, second) => first[0] - second[0])
+  return intervals.slice(1).every((interval, index) => intervals[index][1] === interval[0])
+}

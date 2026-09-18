@@ -1,5 +1,5 @@
 import { areAllCluesSatisfied } from './clues'
-import { areCollinearContiguousEdgeSegments, edgeSegmentKey, isEdgeFeatureType, isEdgeSegmentOnWall, isWallSideValue } from './edgeFeatures'
+import { areCollinearContiguousEdgeSegmentSeries, edgeSegmentKey, isEdgeFeatureType, isEdgeSegmentOnWall, isWallSideValue } from './edgeFeatures'
 import { isDifficultyRating } from './difficulty'
 import { areAllGlobalCluesSatisfied } from './globalClues'
 import { findKiller, getCell } from './rules'
@@ -128,7 +128,7 @@ function validateEdgeFeatures(caseData: GameCase, errors: string[]): { types: Se
     if (!isEdgeFeatureType(rawFeature.type)) errors.push(`${prefix} tiene un type inválido.`)
     else types.add(rawFeature.type)
     if (!Array.isArray(rawFeature.segments)) { errors.push(`${prefix} debe incluir un array de segmentos.`); return }
-    if (rawFeature.segments.length < 1 || rawFeature.segments.length > 2) errors.push(`${prefix} debe tener uno o dos segmentos.`)
+    if (rawFeature.segments.length < 1) errors.push(`${prefix} debe tener al menos un segmento.`)
     const segments: EdgeSegment[] = []
     rawFeature.segments.forEach((rawSegment, segmentIndex) => {
       if (!isRecord(rawSegment) || !isPosition(rawSegment.position) || !isWallSideValue(rawSegment.side)) { errors.push(`${prefix}, segmento ${segmentIndex + 1} es inválido.`); return }
@@ -142,7 +142,7 @@ function validateEdgeFeatures(caseData: GameCase, errors: string[]): { types: Se
       segments.push(segment)
     })
     if (isEdgeFeatureType(rawFeature.type)) safeFeatures.push({ id: typeof id === 'string' ? id : '', type: rawFeature.type, label: typeof rawFeature.label === 'string' ? rawFeature.label : '', segments })
-    if (segments.length === 2 && !areCollinearContiguousEdgeSegments(segments[0], segments[1])) errors.push(`${prefix} debe usar dos segmentos colineales y contiguos.`)
+    if (segments.length > 0 && !areCollinearContiguousEdgeSegmentSeries(segments)) errors.push(`${prefix} debe usar segmentos colineales y contiguos.`)
   })
   return { types, safeFeatures }
 }

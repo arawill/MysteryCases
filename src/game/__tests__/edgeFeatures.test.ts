@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { evaluateClue } from '../clues'
-import { adjacentCellsForEdgeSegment, areCollinearContiguousEdgeSegments, edgeSegmentKey, isCellBesideEdgeFeature } from '../edgeFeatures'
+import { adjacentCellsForEdgeSegment, areCollinearContiguousEdgeSegmentSeries, areCollinearContiguousEdgeSegments, edgeSegmentKey, isCellBesideEdgeFeature } from '../edgeFeatures'
 import { findKiller } from '../rules'
 import { solveCase } from '../solver'
 import type { BoardCell, EdgeFeature, GameCase, Placement } from '../types'
@@ -78,6 +78,7 @@ describe('edge features', () => {
     const separate = [{ position: { row: 1, column: 1 }, side: 'N' as const }, { position: { row: 1, column: 3 }, side: 'N' as const }]
     expect(areCollinearContiguousEdgeSegments(lShape[0], lShape[1])).toBe(false)
     expect(areCollinearContiguousEdgeSegments(separate[0], separate[1])).toBe(false)
+    expect(areCollinearContiguousEdgeSegmentSeries([{ position: { row: 1, column: 1 }, side: 'N' }, { position: { row: 1, column: 2 }, side: 'N' }, { position: { row: 1, column: 3 }, side: 'N' }, { position: { row: 1, column: 4 }, side: 'N' }])).toBe(true)
     const invalid = fixture()
     invalid.edgeFeatures = [wide, { id: 'first-edge', type: 'door', label: 'Original', segments: [{ position: { row: 2, column: 2 }, side: 'E' }] }, { id: 'same-edge', type: 'door', label: 'Duplicada', segments: [{ position: { row: 2, column: 3 }, side: 'W' }] }, { id: 'interior', type: 'window', label: 'Interior', segments: [{ position: { row: 2, column: 1 }, side: 'E' }] }]
     invalid.board.find(item => item.row === 2 && item.column === 2)!.object = { id: 'cabinet', label: 'Cabinet', icon: '', occupiable: false }

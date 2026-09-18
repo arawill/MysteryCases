@@ -48,6 +48,11 @@ import freightConsole from '../../assets/objects/contextual/d2/case03/freight_co
 import magneticPallet from '../../assets/objects/contextual/d2/case03/magnetic_pallet.png'
 import maintenanceUnit from '../../assets/objects/contextual/d2/case03/maintenance_unit.png'
 import sealedContainer from '../../assets/objects/contextual/d2/case03/sealed_container.png'
+import hydroponicBed from '../../assets/objects/contextual/d2/case04/hydroponic_bed.png'
+import growTower from '../../assets/objects/contextual/d2/case04/grow_tower.png'
+import nutrientTank from '../../assets/objects/contextual/d2/case04/nutrient_tank.png'
+import irrigationConsole from '../../assets/objects/contextual/d2/case04/irrigation_console.png'
+import harvestCart from '../../assets/objects/contextual/d2/case04/harvest_cart.png'
 
 export interface ObjectAppearanceDefinition { src: string; label: string; scale?: number; visualProfile?: ObjectVisualProfile; renderMode?: 'contain' | 'coverFootprint' }
 
@@ -111,6 +116,11 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   freightConsole: { src: freightConsole, label: 'Consola de control', scale: 0.88, visualProfile: 'standard' },
   sealedContainer: { src: sealedContainer, label: 'Caja metálica', scale: 0.9, visualProfile: 'standard' },
   maintenanceUnit: { src: maintenanceUnit, label: 'Robot de mantenimiento', scale: 0.86, visualProfile: 'tall' },
+  hydroponicBed: { src: hydroponicBed, label: 'Cultivo de plantas', scale: 0.94, visualProfile: 'wide' },
+  growTower: { src: growTower, label: 'Torre de cultivo', scale: 0.88, visualProfile: 'tall' },
+  nutrientTank: { src: nutrientTank, label: 'Depósito de agua', scale: 0.88, visualProfile: 'tall' },
+  irrigationConsole: { src: irrigationConsole, label: 'Consola de riego', scale: 0.92, visualProfile: 'wide' },
+  harvestCart: { src: harvestCart, label: 'Carro de cosecha', scale: 0.88, visualProfile: 'standard' },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog
