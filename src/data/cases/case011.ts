@@ -10,11 +10,11 @@ const zoneAt = (r: number, c: number) => r <= 2 ? 'access' : c <= 2 ? 'stacks' :
 const board = createManualBoard(zoneAt, { '1:1': seatA, '2:2': seatE, '2:5': shelfA, '3:1': shelfB, '3:3': reading, '3:4': reading, '3:6': seatB, '4:4': tableLamp, '4:5': seatD, '5:3': seatC })
 const avatar = (i: number) => avatarCatalog[i + 18].image
 const characters: Character[] = [
-  { id: 'monica', name: 'Mónica', avatar: '👤', avatarImage: avatar(0), isVictim: false, clues: [{ id: 'c11-monica', type: 'onObject', objectId: 'accessSeat', text: 'Estaba sentada en el acceso.' }] },
+  { id: 'monica', name: 'Mónica', avatar: '👤', avatarImage: avatar(0), isVictim: false, clues: [{ id: 'c11-monica-corner', type: 'cornerOfBoard', text: 'Estaba sentada en una esquina.' }, { id: 'c11-monica-seat', type: 'onObject', objectId: 'accessSeat', text: 'Estaba sentada en la silla de la entrada.' }] },
   { id: 'raul', name: 'Raúl', avatar: '👤', avatarImage: avatar(1), isVictim: false, clues: [{ id: 'c11-raul', type: 'onObject', objectId: 'archiveSeat', text: 'Estaba sentado en el archivo.' }] },
   { id: 'ismael', name: 'Ismael', avatar: '👤', avatarImage: avatar(2), isVictim: false, clues: [{ id: 'c11-ismael', type: 'onObject', objectId: 'readingSeat', text: 'Estaba sentado en la sala de lectura.' }] },
   { id: 'clara', name: 'Clara', avatar: '👤', avatarImage: avatar(3), isVictim: false, clues: [{ id: 'c11-clara', type: 'onObject', objectId: 'aisleSeat', text: 'Estaba sentada junto a la lámpara.' }, { id: 'c11-clara-lamp', type: 'besideObject', objectId: 'tableLamp', text: 'Estaba junto a la lámpara de mesa.' }] },
-  { id: 'sofia', name: 'Sofía', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'c11-sofia', type: 'onObject', objectId: 'readingSeatB', text: 'Estaba sentada al fondo de la sala.' }] },
+  { id: 'sofia', name: 'Sofía', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'c11-sofia-seat', type: 'onObject', objectId: 'readingSeatB', text: 'Estaba sentada en una silla.' }, { id: 'c11-sofia-shelf', type: 'relativeToObject', objectId: 'shelfB', direction: 'northEast', zoneRelation: 'different', text: 'Estaba al noreste de una estantería.' }] },
   { id: 'lucia', name: 'Lucía', avatar: '👤', avatarImage: avatar(5), isVictim: true, clues: [] },
 ]
 const solution: Placement[] = [{ characterId: 'monica', position: { row: 1, column: 1 } }, { characterId: 'raul', position: { row: 5, column: 3 } }, { characterId: 'ismael', position: { row: 3, column: 6 } }, { characterId: 'clara', position: { row: 4, column: 5 } }, { characterId: 'sofia', position: { row: 2, column: 2 } }, { characterId: 'lucia', position: { row: 6, column: 4 } }]
