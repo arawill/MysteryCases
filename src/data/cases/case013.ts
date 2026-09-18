@@ -48,7 +48,6 @@ const characters: Character[] = [
     isVictim: false,
     clues: [
       { id: 'c13-violeta-bench', type: 'onObject', objectId: 'gymBench', text: 'Estaba sentada en el banco de gimnasio.' },
-      { id: 'c13-violeta-machines', type: 'zone', zoneId: 'machines', text: 'Estaba en la sala de máquinas.' },
     ],
   },
   {
@@ -59,7 +58,6 @@ const characters: Character[] = [
     isVictim: false,
     clues: [
       { id: 'c13-dario-stool', type: 'onObject', objectId: 'storageStool', text: 'Estaba sentado en el taburete del almacén.' },
-      { id: 'c13-dario-storage', type: 'zone', zoneId: 'storage', text: 'Estaba en el almacén.' },
     ],
   },
   {
@@ -80,7 +78,6 @@ const characters: Character[] = [
     avatarImage: avatar(3),
     isVictim: false,
     clues: [
-      { id: 'c13-lara-seat', type: 'onObject', objectId: 'weightsSeat', text: 'Estaba sentada en la zona de peso libre.' },
       { id: 'c13-lara-dumbbells', type: 'besideObject', objectId: 'dumbbells', text: 'Estaba junto a las mancuernas.' },
     ],
   },

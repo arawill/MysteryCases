@@ -5,8 +5,11 @@ import { case010 } from '../../data/cases/case010'
 import { case011 } from '../../data/cases/case011'
 import { case012 } from '../../data/cases/case012'
 import { case013 } from '../../data/cases/case013'
+import { areAllCluesSatisfied } from '../clues'
 import { getObjectFootprint, isFootprintReservedCell } from '../objects/footprints'
 import { resolveObjectVisualProfile } from '../objects/appearanceCatalog'
+import { findKiller, placementsEqual } from '../rules'
+import { solveCaseWithStats } from '../solver'
 import { expectManualD1Case } from './manualD1Case.testUtils'
 
 describe('case013', () => {
@@ -40,6 +43,27 @@ describe('case013', () => {
     expect(lockers.object?.appearance).toBe('lockerBank')
     expect(lockers.occupiable).toBe(false)
     expect(resolveObjectVisualProfile(lockers.object!)).toBe('tall')
+  })
+
+  it('keeps only the non-redundant bench, storage stool and dumbbell clues', () => {
+    const violeta = case013.characters.find(character => character.id === 'violeta')!
+    const dario = case013.characters.find(character => character.id === 'dario')!
+    const lara = case013.characters.find(character => character.id === 'lara')!
+    expect(violeta.clues).toEqual([{ id: 'c13-violeta-bench', type: 'onObject', objectId: 'gymBench', text: 'Estaba sentada en el banco de gimnasio.' }])
+    expect(dario.clues).toEqual([{ id: 'c13-dario-stool', type: 'onObject', objectId: 'storageStool', text: 'Estaba sentado en el taburete del almacén.' }])
+    expect(lara.clues).toEqual([{ id: 'c13-lara-dumbbells', type: 'besideObject', objectId: 'dumbbells', text: 'Estaba junto a las mancuernas.' }])
+    expect([...violeta.clues, ...dario.clues, ...lara.clues].some(clue => clue.type === 'zone' || /ocupaba/i.test(clue.text))).toBe(false)
+    expect(areAllCluesSatisfied(case013, case013.solution)).toBe(true)
+  })
+
+  it('remains uniquely canonical with Darío alone with Inés in the storage room', () => {
+    const solved = solveCaseWithStats(case013)
+    expect(solved.truncated).toBeUndefined()
+    expect(solved.solutionsFound).toBe(1)
+    expect(placementsEqual(solved.solutions[0], case013.solution)).toBe(true)
+    expect(findKiller(case013, case013.solution)?.id).toBe('dario')
+    const storagePeople = case013.solution.filter(placement => case013.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === 'storage')
+    expect(storagePeople.map(placement => placement.characterId).sort()).toEqual(['dario', 'ines'])
   })
 
   it('keeps valid free zone labels and a distinct gym structure', () => {
