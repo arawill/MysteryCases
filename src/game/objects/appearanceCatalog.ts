@@ -33,6 +33,11 @@ import coatRack from '../../assets/objects/contextual/d1/coat_rack.png'
 import stageSpotlight from '../../assets/objects/contextual/d1/stage_spotlight.png'
 import freezer from '../../assets/objects/contextual/d1/freezer.png'
 import poolSurface from '../../assets/objects/contextual/pool_surface.svg'
+import securityScanner from '../../assets/objects/contextual/d2/case01/security_scanner.png'
+import baggageConveyor from '../../assets/objects/contextual/d2/case01/baggage_conveyor.png'
+import checkinKiosk from '../../assets/objects/contextual/d2/case01/checkin_kiosk.png'
+import departureBench from '../../assets/objects/contextual/d2/case01/departure_bench.png'
+import luggageDrone from '../../assets/objects/contextual/d2/case01/luggage_drone.png'
 
 export interface ObjectAppearanceDefinition { src: string; label: string; scale?: number; visualProfile?: ObjectVisualProfile; renderMode?: 'contain' | 'coverFootprint' }
 
@@ -81,6 +86,11 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   stageSpotlight: { src: stageSpotlight, label: 'Foco de escenario', scale: 0.82, visualProfile: 'compact' },
   freezer: { src: freezer, label: 'Congelador', scale: 0.94, visualProfile: 'wide' },
   poolSurface: { src: poolSurface, label: 'Piscina', scale: 1, renderMode: 'coverFootprint' },
+  securityScanner: { src: securityScanner, label: 'Escáner de seguridad', scale: 0.9, visualProfile: 'tall' },
+  baggageConveyor: { src: baggageConveyor, label: 'Cinta de equipajes', scale: 0.94, visualProfile: 'wide' },
+  checkinKiosk: { src: checkinKiosk, label: 'Terminal de facturación', scale: 0.9, visualProfile: 'tall' },
+  departureBench: { src: departureBench, label: 'Banco de salidas', scale: 0.94, visualProfile: 'wide' },
+  luggageDrone: { src: luggageDrone, label: 'Dron portaequipajes', scale: 0.82, visualProfile: 'compact' },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog
