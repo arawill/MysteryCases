@@ -1,5 +1,5 @@
 /* Decorative floors never change hit targets, geometry, occupancy, or clue semantics. */
-.board{grid-template-columns:repeat(var(--columns),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr))}
+.board{position:relative;grid-template-columns:repeat(var(--columns),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr))}
 .board .cell{min-height:0;isolation:isolate;--floor-line:color-mix(in srgb,var(--text) 8%,transparent);--floor-soft:color-mix(in srgb,var(--text) 3%,transparent);--floor-pattern:none;--floor-size:auto}
 .board .cell::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background-image:var(--floor-pattern);background-size:var(--floor-size)}
 .board .surface-tile{--floor-pattern:linear-gradient(90deg,var(--floor-line) 1px,transparent 1px),linear-gradient(var(--floor-line) 1px,transparent 1px),linear-gradient(135deg,var(--floor-soft),transparent 60%);--floor-size:24px 24px,24px 24px,auto}
@@ -13,11 +13,10 @@
 .board .surface-concrete{--floor-pattern:radial-gradient(ellipse at 10% 20%,var(--floor-soft),transparent 70%),radial-gradient(var(--floor-soft) .7px,transparent 1px);--floor-size:auto,11px 13px}
 .board .surface-generic{--floor-pattern:linear-gradient(135deg,var(--floor-soft),transparent 65%)}
 html[data-theme='light'] .board .cell.zone-themed{background-color:var(--zone-background-light,var(--surface-soft))}
-/* Object and person layers share the cell anchor but never participate in each other's layout. */
-.board .cell .zone-label{position:absolute;left:8%;right:8%;z-index:1;display:block;box-sizing:border-box;padding:2px 3px;border:1px solid color-mix(in srgb,var(--text) 18%,transparent);border-radius:3px;background:color-mix(in srgb,var(--surface) 82%,transparent);pointer-events:none;overflow:hidden;color:color-mix(in srgb,var(--text) 72%,transparent);font:600 clamp(7px,1.15vw,10px) 'DM Mono',monospace;letter-spacing:.14em;line-height:1.1;text-align:center;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
-.board .cell .zone-label-top{top:7%}
-.board .cell .zone-label-center{top:50%;transform:translateY(-50%)}
-.board .cell .zone-label-bottom{bottom:7%}
+/* Zone plaques are a visual wall layer, never a child of an interactive cell. */
+.board .zone-label-layer{position:absolute;inset:0;z-index:1;display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));pointer-events:none}
+.board .zone-label{grid-column:var(--zone-label-start)/calc(var(--zone-label-end) + 1);grid-row:var(--zone-label-row);align-self:end;justify-self:stretch;z-index:1;display:block;box-sizing:border-box;min-width:0;margin:0 5%;padding:3px 7px;border:1px solid color-mix(in srgb,var(--bg) 80%,#302b20);border-radius:999px;background:color-mix(in srgb,#f4ead4 93%,var(--surface));box-shadow:0 1px 0 color-mix(in srgb,#fff 52%,transparent),0 1px 2px #0003;color:#29241a;font:700 clamp(7px,1.2vw,11px)/1.16 'DM Mono',monospace;letter-spacing:.08em;text-align:center;text-transform:uppercase;white-space:normal;overflow-wrap:anywhere;transform:translateY(50%);pointer-events:none}
+html[data-theme='light'] .board .zone-label{background:color-mix(in srgb,#fff8e8 95%,var(--surface));border-color:color-mix(in srgb,var(--text) 55%,#5a4a2f);color:#30291d}
 .board .cell .cell-object-layer{position:absolute;top:0;left:0;width:calc(100% * var(--object-footprint-columns,1));height:calc(100% * var(--object-footprint-rows,1));display:grid;place-items:center;z-index:2;pointer-events:none}
 .board .cell .cell-person-layer{position:absolute;inset:0;display:grid;place-items:center;z-index:3;pointer-events:none}
 .board .cell .cell-person-layer .placed{position:absolute}

@@ -8,7 +8,13 @@ export interface TraitDefinition { id: string; label: string }
 export type ZoneSurface = 'tile' | 'kitchenTile' | 'grass' | 'stairs' | 'asphalt' | 'wood' | 'carpet' | 'industrial' | 'concrete' | 'generic'
 export type ZoneLabelPlacement = 'top' | 'center' | 'bottom'
 export interface ZoneLabelAnchor { position: Position; placement?: ZoneLabelPlacement }
-export interface Zone { id: string; name: string; tone: string; icon?: string; surface?: ZoneSurface; labelAnchor?: ZoneLabelAnchor }
+/**
+ * Optional explicit visual placement for a zone plaque. Unlike the legacy
+ * `labelAnchor`, this is attached to a real horizontal wall segment instead
+ * of being rendered inside a board cell.
+ */
+export interface ZoneEdgeLabelAnchor { segment: EdgeSegment; span: number }
+export interface Zone { id: string; name: string; tone: string; icon?: string; surface?: ZoneSurface; labelAnchor?: ZoneLabelAnchor; labelEdgeAnchor?: ZoneEdgeLabelAnchor }
 export type ObjectAppearance = 'sunLounger' | 'toilet' | 'diningChair' | 'officeChair' | 'sofa' | 'bathtub' | 'outdoorBench' | 'stool'
   | 'wheelchair' | 'cafeCounter' | 'coffeeMachine' | 'roundTable' | 'workbench' | 'tires' | 'meetingTable' | 'lockerBank' | 'lifeguardChair' | 'shoppingCart' | 'cinemaSeatRow' | 'projector' | 'readingTable' | 'vendingMachine' | 'ticketCounter' | 'gymBench' | 'treadmill' | 'dumbbells' | 'displayCase' | 'restorationTable' | 'piano' | 'dressingTable' | 'coatRack' | 'stageSpotlight' | 'freezer' | 'poolSurface'
   | 'securityScanner' | 'baggageConveyor' | 'checkinKiosk' | 'departureBench' | 'luggageDrone'

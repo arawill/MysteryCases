@@ -6,11 +6,12 @@ import { findKiller, getCell } from './rules'
 import { charactersWithTrait } from './traits'
 import { isZoneSurface, resolveZoneSurface } from './zones/surfaces'
 import { isObjectPositionOccupiable, isRectangularFootprint, positionKey } from './objects/footprints'
-import type { BoardObject, Clue, EdgeFeature, EdgeSegment, GameCase, GlobalClue, Position } from './types'
+import type { BoardObject, Clue, EdgeFeature, EdgeSegment, GameCase, GlobalClue, Position, ZoneEdgeLabelAnchor } from './types'
 
 const exhaustive = (clue: never): never => { throw new Error(`Unsupported clue type: ${(clue as { type: string }).type}`) }
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 const isPosition = (value: unknown): value is Position => isRecord(value) && Number.isInteger(value.row) && Number.isInteger(value.column)
+const isZoneEdgeLabelAnchor = (value: unknown): value is ZoneEdgeLabelAnchor => isRecord(value) && isRecord(value.segment) && isPosition(value.segment.position) && value.segment.side === 'S' && typeof value.span === 'number' && Number.isInteger(value.span) && value.span >= 1
 
 export function validateCaseDefinition(caseData: GameCase): string[] {
   const errors: string[] = []
@@ -36,6 +37,7 @@ export function validateCaseDefinition(caseData: GameCase): string[] {
     if (cell.object) objectIds.add(cell.object.id)
   }
   validateZoneLabelAnchors(caseData, errors)
+  validateZoneEdgeLabelAnchors(caseData, errors)
   validateObjectFootprints(caseData, errors)
   const edgeFeatureValidation = validateEdgeFeatures(caseData, errors)
   const edgeFeatureTypes = edgeFeatureValidation.types
@@ -72,6 +74,36 @@ function validateZoneLabelAnchors(caseData: GameCase, errors: string[]) {
     const cell = getCell(caseData.board, anchor.position)
     if (!cell) errors.push(`La etiqueta de zona ${zone.id} apunta a una celda inexistente.`)
     else if (cell.zoneId !== zone.id) errors.push(`La etiqueta de zona ${zone.id} debe pertenecer a su propia zona.`)
+    const edgeAnchor = zone.labelEdgeAnchor
+    if (edgeAnchor === undefined) continue
+    if (!isRecord(edgeAnchor) || !isRecord(edgeAnchor.segment) || !isPosition(edgeAnchor.segment.position) || edgeAnchor.segment.side !== 'S' || !Number.isInteger(edgeAnchor.span) || edgeAnchor.span < 1) { errors.push(`La cartela de zona ${zone.id} debe incluir un borde inferior y un tramo vÃ¡lido.`); continue }
+    const { row, column } = edgeAnchor.segment.position
+    for (let current = column; current < column + edgeAnchor.span; current += 1) {
+      const edgeCell = getCell(caseData.board, { row, column: current })
+      const below = getCell(caseData.board, { row: row + 1, column: current })
+      if (!edgeCell || edgeCell.zoneId !== zone.id || below?.zoneId === zone.id) { errors.push(`La cartela de zona ${zone.id} debe anclarse a un borde inferior de su propia zona.`); break }
+    }
+  }
+}
+
+function validateZoneEdgeLabelAnchors(caseData: GameCase, errors: string[]) {
+  for (const zone of caseData.zones) {
+    const edgeAnchor: unknown = zone.labelEdgeAnchor
+    if (edgeAnchor === undefined) continue
+    if (!isZoneEdgeLabelAnchor(edgeAnchor)) {
+      errors.push(`La cartela de zona ${zone.id} debe incluir un borde inferior y un tramo válido.`)
+      continue
+    }
+    const { row, column } = edgeAnchor.segment.position
+    const span = edgeAnchor.span
+    for (let current = column; current < column + span; current += 1) {
+      const cell = getCell(caseData.board, { row, column: current })
+      const below = getCell(caseData.board, { row: row + 1, column: current })
+      if (!cell || cell.zoneId !== zone.id || below?.zoneId === zone.id) {
+        errors.push(`La cartela de zona ${zone.id} debe anclarse a un borde inferior de su propia zona.`)
+        break
+      }
+    }
   }
 }
 
