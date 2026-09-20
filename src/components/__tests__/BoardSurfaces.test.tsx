@@ -66,7 +66,7 @@ describe('visual board surfaces', () => {
     expect(markup).toContain('descarte manual')
     expect(markup).toContain('descarte automático')
     expect(markup).toContain('<small>A</small>')
-    expect(markup).toContain('token-victim')
+    expect(markup).toContain('board-person__victim')
     expect(markup).toContain('cell-selected')
     expect(excluded).toEqual(before)
   })
@@ -122,26 +122,26 @@ describe('visual board surfaces', () => {
 
     for (const { gameCase, expectedName } of cases) {
       const markup = renderToStaticMarkup(<Board {...gameCase} placements={gameCase.solution} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
-      const avatarStart = markup.indexOf('class="placed-avatar"')
-      const nameStart = markup.indexOf(`class="placed-name">${expectedName}</span>`)
+      const avatarStart = markup.indexOf('class="board-person__portrait"')
+      const nameStart = markup.indexOf(`class="board-person__name">${expectedName}</figcaption>`)
       expect(avatarStart).toBeGreaterThan(-1)
       expect(nameStart).toBeGreaterThan(avatarStart)
-      expect(markup.slice(avatarStart, nameStart)).toContain('character-avatar')
-      expect(markup.slice(avatarStart, nameStart)).toContain('</span></span>')
-      expect(markup).toContain('class="placed-avatar"')
-      expect(markup).toContain('class="placed-name"')
+      expect(markup.slice(avatarStart, nameStart)).toContain('<img')
+      expect(markup).toContain('<figure class="board-person')
+      expect(markup).toContain('class="board-person__portrait"')
+      expect(markup).toContain('class="board-person__name"')
     }
 
     const tenByTenMarkup = renderToStaticMarkup(<Board board={tenByTenBoard} rows={10} columns={10} zones={[{ id: 'test-zone', name: 'Prueba', tone: 'cafe' }]} placements={[{ characterId: tenByTenCharacter.id, position: { row: 10, column: 10 } }]} excludedCells={[]} characters={[tenByTenCharacter]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect((tenByTenMarkup.match(/<button /g) ?? [])).toHaveLength(100)
-    expect(tenByTenMarkup).toContain('class="placed-name">Alejandro</span>')
+    expect(tenByTenMarkup).toContain('class="board-person__name">Alejandro</figcaption>')
   })
 
   it('keeps the victim indicator and accessible name visible in the final board row', () => {
     const markup = renderToStaticMarkup(<Board {...caseD202} placements={caseD202.solution} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
     expect(markup).toContain('aria-label="Fila 7, columna 2, Eva')
-    expect(markup).toContain('class="placed-name">Eva</span>')
-    expect(markup).toContain('class="token-victim"')
+    expect(markup).toContain('class="board-person__name">Eva</figcaption>')
+    expect(markup).toContain('class="board-person__victim"')
   })
 
   it('renders a multi-cell footprint once, centered over its declared box, with both declared positions occupiable', () => {

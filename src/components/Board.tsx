@@ -7,7 +7,6 @@ import { resolveObjectAppearance, resolveObjectAppearanceScale, resolveObjectVis
 import { getObjectFootprintBounds, isFootprintReservedCell, isObjectFootprintAnchor } from '../game/objects/footprints'
 import '../styles/surfaces.css'
 import type { BoardInteractionMode } from '../game/interaction'
-import { CharacterAvatar } from './CharacterAvatar'
 
 interface BoardProps {
   board: BoardCell[]; rows: number; columns: number; zones: Zone[]; edgeFeatures?: EdgeFeature[]; placements: Placement[]; excludedCells: Position[]; manualExcludedCells?: Position[]; characters: Character[]; selectedCharacterId?: string | null; interactionMode?: BoardInteractionMode
@@ -60,7 +59,7 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
               {showPlacementMarker && <span className="placement-marker" aria-hidden="true">×</span>}
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
               {excluded && !character && <span className="exclude-mark" aria-hidden="true">×{!manual && <small>A</small>}</span>}
-              {character && <span className="cell-person-layer" data-layer="person"><span className={`placed ${character.isVictim ? 'placed-victim' : ''} ${character.id === selectedCharacterId ? 'placed-selected' : ''}`}><span className="placed-avatar" aria-hidden="true"><CharacterAvatar character={character} /></span><span className="placed-name">{character.name}</span>{character.isVictim && <small className="token-victim" aria-hidden="true">V</small>}</span></span>}
+              {character && <span className="cell-person-layer" data-layer="person"><figure className={`board-person ${character.isVictim ? 'board-person--victim' : ''} ${character.id === selectedCharacterId ? 'board-person--selected' : ''}`}>{character.avatarImage ? <img className="board-person__portrait" src={character.avatarImage} alt="" /> : <span className="board-person__portrait" aria-hidden="true">{character.avatar}</span>}<figcaption className="board-person__name">{character.name}</figcaption>{character.isVictim && <span className="board-person__victim" aria-hidden="true">V</span>}</figure></span>}
             </button>
           })}
         </div>
