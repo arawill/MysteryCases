@@ -116,11 +116,11 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   freightConsole: { src: freightConsole, label: 'Consola de control', scale: 0.88, visualProfile: 'standard' },
   sealedContainer: { src: sealedContainer, label: 'Caja metálica', scale: 0.9, visualProfile: 'standard' },
   maintenanceUnit: { src: maintenanceUnit, label: 'Robot de mantenimiento', scale: 0.86, visualProfile: 'tall' },
-  hydroponicBed: { src: hydroponicBed, label: 'Cultivo de plantas', scale: 0.94, visualProfile: 'wide' },
-  growTower: { src: growTower, label: 'Torre de cultivo', scale: 0.88, visualProfile: 'tall' },
-  nutrientTank: { src: nutrientTank, label: 'Depósito de agua', scale: 0.88, visualProfile: 'tall' },
-  irrigationConsole: { src: irrigationConsole, label: 'Consola de riego', scale: 0.92, visualProfile: 'wide' },
-  harvestCart: { src: harvestCart, label: 'Carro de cosecha', scale: 0.88, visualProfile: 'standard' },
+  hydroponicBed: { src: hydroponicBed, label: 'Bancal de plantas', scale: 0.94, visualProfile: 'wide' },
+  growTower: { src: growTower, label: 'Torre de plantas', scale: 0.88, visualProfile: 'tall' },
+  nutrientTank: { src: nutrientTank, label: 'Depósito cilíndrico', scale: 0.88, visualProfile: 'tall' },
+  irrigationConsole: { src: irrigationConsole, label: 'Máquina de riego', scale: 0.92, visualProfile: 'wide' },
+  harvestCart: { src: harvestCart, label: 'Carro con plantas', scale: 0.88, visualProfile: 'standard' },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog

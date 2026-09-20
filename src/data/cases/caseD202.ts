@@ -9,7 +9,8 @@ const analyzer = contextualObject('sampleAnalyzer', 'sampleAnalyzer', false)
 const arch = contextualObject('decontaminationArch', 'decontaminationArch', false)
 
 const zoneAt = (row: number, column: number) => {
-  if (row <= 3) return column <= 4 ? 'mainLab' : 'containment'
+  if (row <= 2) return column <= 4 ? 'mainLab' : 'containment'
+  if (row === 3) return column <= 3 ? 'mainLab' : column === 4 ? 'decontamination' : 'containment'
   if (row <= 5) return column <= 3 ? 'analysis' : column === 4 ? 'decontamination' : 'bioArchive'
   return 'observation'
 }
@@ -27,21 +28,21 @@ const board = createManualBoard(zoneAt, {
 const avatar = (index: number) => avatarCatalog[index].image
 
 const characters: Character[] = [
-  { id: 'female-031', name: 'Claudia', avatar: '👤', avatarImage: avatar(0), isVictim: false, clues: [{ id: 'd2c02-claudia-row', type: 'row', row: 1, text: 'Estaba en la primera fila.' }, { id: 'd2c02-claudia-lab', type: 'zone', zoneId: 'mainLab', text: 'Estaba en la sala de ensayos.' }, { id: 'd2c02-claudia-not-bench', type: 'notBesideObject', objectId: 'xenoLabBench', text: 'No estaba junto a la mesa de laboratorio.' }] },
+  { id: 'female-031', name: 'Claudia', avatar: '👤', avatarImage: avatar(0), isVictim: false, clues: [{ id: 'd2c02-claudia-row', type: 'row', row: 1, text: 'Estaba en la primera fila.' }, { id: 'd2c02-claudia-column', type: 'column', column: 3, text: 'Estaba en la tercera columna.' }] },
   { id: 'male-049', name: 'Héctor', avatar: '👤', avatarImage: avatar(1), isVictim: false, clues: [{ id: 'd2c02-hector-tank', type: 'besideObject', objectId: 'specimenTank', text: 'Estaba junto al acuario de laboratorio.' }, { id: 'd2c02-hector-column', type: 'column', column: 6, text: 'Estaba en la sexta columna.' }] },
-  { id: 'female-088', name: 'Miriam', avatar: '👤', avatarImage: avatar(2), isVictim: false, clues: [{ id: 'd2c02-miriam-row', type: 'row', row: 3, text: 'Estaba en la tercera fila.' }, { id: 'd2c02-miriam-column', type: 'column', column: 1, text: 'Estaba en la primera columna.' }] },
+  { id: 'female-088', name: 'Miriam', avatar: '👤', avatarImage: avatar(2), isVictim: false, clues: [{ id: 'd2c02-miriam-row', type: 'row', row: 3, text: 'Estaba en la tercera fila.' }, { id: 'd2c02-miriam-cleaning', type: 'zone', zoneId: 'decontamination', text: 'Estaba en la zona de limpieza.' }] },
   { id: 'male-041', name: 'Gabriel', avatar: '👤', avatarImage: avatar(3), isVictim: false, clues: [{ id: 'd2c02-gabriel-row', type: 'row', row: 4, text: 'Estaba en la cuarta fila.' }, { id: 'd2c02-gabriel-archive', type: 'zone', zoneId: 'bioArchive', text: 'Estaba en el archivo.' }] },
-  { id: 'female-037', name: 'Alicia', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'd2c02-alicia-analyzer', type: 'relativeToObject', objectId: 'sampleAnalyzer', direction: 'southEast', zoneRelation: 'same', text: 'Estaba al sureste de la máquina de análisis.' }] },
-  { id: 'male-029', name: 'Diego', avatar: '👤', avatarImage: avatar(5), isVictim: false, clues: [{ id: 'd2c02-diego-row', type: 'row', row: 6, text: 'Estaba en la sexta fila.' }, { id: 'd2c02-diego-pod-column', type: 'sameColumnAsObject', objectId: 'containmentPod', zoneRelation: 'different', text: 'Estaba en la misma columna que la cápsula de cristal.' }] },
+  { id: 'female-037', name: 'Alicia', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'd2c02-alicia-row', type: 'row', row: 5, text: 'Estaba en la quinta fila.' }, { id: 'd2c02-alicia-column', type: 'column', column: 1, text: 'Estaba en la primera columna.' }] },
+  { id: 'male-029', name: 'Diego', avatar: '👤', avatarImage: avatar(5), isVictim: false, clues: [{ id: 'd2c02-diego-row', type: 'row', row: 6, text: 'Estaba en la sexta fila.' }, { id: 'd2c02-diego-column', type: 'column', column: 7, text: 'Estaba en la séptima columna.' }] },
   { id: 'female-035', name: 'Eva', avatar: '👤', avatarImage: avatar(6), isVictim: true, clues: [] },
 ]
 
 const solution: Placement[] = [
-  { characterId: 'female-031', position: { row: 1, column: 4 } },
+  { characterId: 'female-031', position: { row: 1, column: 3 } },
   { characterId: 'male-049', position: { row: 2, column: 6 } },
-  { characterId: 'female-088', position: { row: 3, column: 1 } },
+  { characterId: 'female-088', position: { row: 3, column: 4 } },
   { characterId: 'male-041', position: { row: 4, column: 5 } },
-  { characterId: 'female-037', position: { row: 5, column: 3 } },
+  { characterId: 'female-037', position: { row: 5, column: 1 } },
   { characterId: 'male-029', position: { row: 6, column: 7 } },
   { characterId: 'female-035', position: { row: 7, column: 2 } },
 ]
@@ -56,7 +57,7 @@ export const caseD202: GameCase = {
   zones: [
     { id: 'mainLab', name: 'Ensayos', tone: 'kitchen', surface: 'industrial', labelAnchor: { position: { row: 2, column: 3 } } },
     { id: 'containment', name: 'Cápsulas', tone: 'storage', surface: 'concrete', labelAnchor: { position: { row: 3, column: 7 } } },
-    { id: 'analysis', name: 'Análisis', tone: 'cafe', surface: 'tile', labelAnchor: { position: { row: 5, column: 1 } } },
+    { id: 'analysis', name: 'Análisis', tone: 'cafe', surface: 'tile', labelAnchor: { position: { row: 4, column: 1 } } },
     { id: 'decontamination', name: 'Limpieza', tone: 'bathroom', surface: 'tile', labelAnchor: { position: { row: 5, column: 4 } } },
     { id: 'bioArchive', name: 'Archivo', tone: 'storage', surface: 'concrete', labelAnchor: { position: { row: 5, column: 6 } } },
     { id: 'observation', name: 'Control', tone: 'cafe', surface: 'carpet', labelAnchor: { position: { row: 7, column: 7 } } },

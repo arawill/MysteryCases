@@ -22,11 +22,11 @@ describe('object appearance catalog', () => {
     expect(objectAppearanceCatalog.sampleAnalyzer).toMatchObject({ label: 'Máquina de análisis', visualProfile: 'compact' })
     expect(objectAppearanceCatalog.containmentPod).toMatchObject({ label: 'Cápsula de cristal', visualProfile: 'tall' })
     expect(objectAppearanceCatalog.decontaminationArch).toMatchObject({ label: 'Arco de limpieza', visualProfile: 'tall' })
-    expect(objectAppearanceCatalog.hydroponicBed).toMatchObject({ label: 'Cultivo de plantas', visualProfile: 'wide' })
-    expect(objectAppearanceCatalog.growTower).toMatchObject({ label: 'Torre de cultivo', visualProfile: 'tall' })
-    expect(objectAppearanceCatalog.nutrientTank).toMatchObject({ label: 'Depósito de agua', visualProfile: 'tall' })
-    expect(objectAppearanceCatalog.irrigationConsole).toMatchObject({ label: 'Consola de riego', visualProfile: 'wide' })
-    expect(objectAppearanceCatalog.harvestCart).toMatchObject({ label: 'Carro de cosecha', visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.hydroponicBed).toMatchObject({ label: 'Bancal de plantas', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.growTower).toMatchObject({ label: 'Torre de plantas', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.nutrientTank).toMatchObject({ label: 'Depósito cilíndrico', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.irrigationConsole).toMatchObject({ label: 'Máquina de riego', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.harvestCart).toMatchObject({ label: 'Carro con plantas', visualProfile: 'standard' })
   })
 
   it('uses the explicit appearance while preserving the legacy icon fallback safely', () => {

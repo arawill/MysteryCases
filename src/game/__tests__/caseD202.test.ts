@@ -25,6 +25,15 @@ describe('manual D2 case 02', () => {
     expect(caseD202.solution.some(placement => placement.characterId === 'female-035')).toBe(true)
     expect(caseD202.solution.map(placement => placement.position.row).sort((first, second) => first - second)).toEqual([1, 2, 3, 4, 5, 6, 7])
     expect(caseD202.solution.map(placement => placement.position.column).sort((first, second) => first - second)).toEqual([1, 2, 3, 4, 5, 6, 7])
+    expect(caseD202.solution).toEqual([
+      { characterId: 'female-031', position: { row: 1, column: 3 } },
+      { characterId: 'male-049', position: { row: 2, column: 6 } },
+      { characterId: 'female-088', position: { row: 3, column: 4 } },
+      { characterId: 'male-041', position: { row: 4, column: 5 } },
+      { characterId: 'female-037', position: { row: 5, column: 1 } },
+      { characterId: 'male-029', position: { row: 6, column: 7 } },
+      { characterId: 'female-035', position: { row: 7, column: 2 } },
+    ])
     expect(caseD202.characters.every(character => nameCatalog.some(entry => entry.id === character.id && entry.name === character.name))).toBe(true)
   })
 
@@ -83,8 +92,7 @@ describe('manual D2 case 02', () => {
     expect(cluesByCharacter).toEqual({
       Claudia: [
         'Estaba en la primera fila.',
-        'Estaba en la sala de ensayos.',
-        'No estaba junto a la mesa de laboratorio.',
+        'Estaba en la tercera columna.',
       ],
       Héctor: [
         'Estaba junto al acuario de laboratorio.',
@@ -92,13 +100,13 @@ describe('manual D2 case 02', () => {
       ],
       Miriam: [
         'Estaba en la tercera fila.',
-        'Estaba en la primera columna.',
+        'Estaba en la zona de limpieza.',
       ],
       Gabriel: ['Estaba en la cuarta fila.', 'Estaba en el archivo.'],
-      Alicia: ['Estaba al sureste de la máquina de análisis.'],
+      Alicia: ['Estaba en la quinta fila.', 'Estaba en la primera columna.'],
       Diego: [
         'Estaba en la sexta fila.',
-        'Estaba en la misma columna que la cápsula de cristal.',
+        'Estaba en la séptima columna.',
       ],
       Eva: [],
     })
@@ -113,6 +121,22 @@ describe('manual D2 case 02', () => {
     expect(findKiller(caseD202, caseD202.solution)?.id).toBe('male-029')
     const control = caseD202.solution.filter(placement => caseD202.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === 'observation')
     expect(control.map(placement => placement.characterId).sort()).toEqual(['female-035', 'male-029'])
+  })
+
+  it('uses the vertical Limpieza zone and places someone in each laboratory zone', () => {
+    expect(caseD202.board.find(cell => cell.row === 3 && cell.column === 4)?.zoneId).toBe('decontamination')
+    expect(caseD202.board.filter(cell => cell.zoneId === 'decontamination').map(cell => `${cell.row}:${cell.column}`)).toEqual(['3:4', '4:4', '5:4'])
+    const occupantsByZone = Object.fromEntries(caseD202.zones.map(zone => [zone.id, caseD202.solution
+      .filter(placement => caseD202.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === zone.id)
+      .map(placement => placement.characterId)]))
+    expect(occupantsByZone).toEqual({
+      mainLab: ['female-031'],
+      containment: ['male-049'],
+      decontamination: ['female-088'],
+      bioArchive: ['male-041'],
+      analysis: ['female-037'],
+      observation: ['male-029', 'female-035'],
+    })
   })
 
   it('rejects every pairwise exchange through at least one visible clue', () => {

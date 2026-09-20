@@ -28,8 +28,8 @@ const avatar = (index: number) => avatarCatalog[index + 17].image
 
 const characters: Character[] = [
   { id: 'lina', name: 'Lina', avatar: '👤', avatarImage: avatar(0), isVictim: false, clues: [{ id: 'd2c01-lina-scanner', type: 'besideObject', objectId: 'securityScanner', text: 'Estaba junto al escáner de seguridad.' }, { id: 'd2c01-lina-column', type: 'column', column: 6, text: 'Estaba en la sexta columna.' }] },
-  { id: 'oscar', name: 'Óscar', avatar: '👤', avatarImage: avatar(1), isVictim: false, clues: [{ id: 'd2c01-oscar-row', type: 'row', row: 2, text: 'Estaba en la segunda fila.' }, { id: 'd2c01-oscar-security', type: 'zone', zoneId: 'security', text: 'Estaba en el control de seguridad.' }, { id: 'd2c01-oscar-not-scanner', type: 'notBesideObject', objectId: 'securityScanner', text: 'No estaba junto al escáner de seguridad.' }] },
-  { id: 'nerea', name: 'Nerea', avatar: '👤', avatarImage: avatar(2), isVictim: false, clues: [{ id: 'd2c01-nerea-bench', type: 'onObject', objectId: 'departureBench', text: 'Estaba sentada en el banco de salidas.' }, { id: 'd2c01-nerea-column', type: 'column', column: 2, text: 'Estaba en la segunda columna.' }] },
+  { id: 'oscar', name: 'Óscar', avatar: '👤', avatarImage: avatar(1), isVictim: false, clues: [{ id: 'd2c01-oscar-row', type: 'row', row: 2, text: 'Estaba en la segunda fila.' }, { id: 'd2c01-oscar-checkin', type: 'zone', zoneId: 'checkin', text: 'Estaba en facturación.' }, { id: 'd2c01-oscar-not-scanner', type: 'notBesideObject', objectId: 'securityScanner', text: 'No estaba junto al escáner de seguridad.' }] },
+  { id: 'nerea', name: 'Nerea', avatar: '👤', avatarImage: avatar(2), isVictim: false, clues: [{ id: 'd2c01-nerea-bench', type: 'onObject', objectId: 'departureBench', text: 'Estaba sentada en el banco de salidas.' }, { id: 'd2c01-nerea-column', type: 'column', column: 3, text: 'Estaba en la tercera columna.' }] },
   { id: 'tomas', name: 'Tomás', avatar: '👤', avatarImage: avatar(3), isVictim: false, clues: [{ id: 'd2c01-tomas-row', type: 'row', row: 4, text: 'Estaba en la cuarta fila.' }, { id: 'd2c01-tomas-baggage', type: 'zone', zoneId: 'baggageClaim', text: 'Estaba en recogida de equipajes.' }] },
   { id: 'gael', name: 'Gael', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'd2c01-gael-drone', type: 'besideObject', objectId: 'luggageDrone', text: 'Estaba junto al dron portaequipajes.' }, { id: 'd2c01-gael-row', type: 'row', row: 5, text: 'Estaba en la quinta fila.' }] },
   { id: 'irene', name: 'Irene', avatar: '👤', avatarImage: avatar(5), isVictim: false, clues: [{ id: 'd2c01-irene-row', type: 'row', row: 6, text: 'Estaba en la sexta fila.' }, { id: 'd2c01-irene-arrivals', type: 'zone', zoneId: 'arrivals', text: 'Estaba en llegadas.' }, { id: 'd2c01-irene-column', type: 'column', column: 1, text: 'Estaba en la primera columna.' }] },
@@ -38,12 +38,12 @@ const characters: Character[] = [
 
 const solution: Placement[] = [
   { characterId: 'lina', position: { row: 1, column: 6 } },
-  { characterId: 'oscar', position: { row: 2, column: 4 } },
-  { characterId: 'nerea', position: { row: 3, column: 2 } },
+  { characterId: 'oscar', position: { row: 2, column: 2 } },
+  { characterId: 'nerea', position: { row: 3, column: 3 } },
   { characterId: 'tomas', position: { row: 4, column: 5 } },
   { characterId: 'gael', position: { row: 5, column: 7 } },
   { characterId: 'irene', position: { row: 6, column: 1 } },
-  { characterId: 'alma', position: { row: 7, column: 3 } },
+  { characterId: 'alma', position: { row: 7, column: 4 } },
 ]
 
 export const caseD201: GameCase = {

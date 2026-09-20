@@ -19,6 +19,15 @@ describe('manual D2 case 01', () => {
     expect(caseD201.solution.some(placement => placement.characterId === 'alma')).toBe(true)
     expect(caseD201.solution.map(placement => placement.position.row).sort((first, second) => first - second)).toEqual([1, 2, 3, 4, 5, 6, 7])
     expect(caseD201.solution.map(placement => placement.position.column).sort((first, second) => first - second)).toEqual([1, 2, 3, 4, 5, 6, 7])
+    expect(caseD201.solution).toEqual([
+      { characterId: 'lina', position: { row: 1, column: 6 } },
+      { characterId: 'oscar', position: { row: 2, column: 2 } },
+      { characterId: 'nerea', position: { row: 3, column: 3 } },
+      { characterId: 'tomas', position: { row: 4, column: 5 } },
+      { characterId: 'gael', position: { row: 5, column: 7 } },
+      { characterId: 'irene', position: { row: 6, column: 1 } },
+      { characterId: 'alma', position: { row: 7, column: 4 } },
+    ])
     expect(validateCaseDefinition(caseD201)).toEqual([])
     const solved = solveCaseWithStats(caseD201)
     expect(solved.truncated).not.toBe(true)
@@ -53,6 +62,19 @@ describe('manual D2 case 01', () => {
     expect(caseD201.characters.find(character => character.isVictim)?.clues).toEqual([])
     const arrivals = caseD201.solution.filter(placement => caseD201.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === 'arrivals')
     expect(arrivals.map(placement => placement.characterId).sort()).toEqual(['alma', 'irene'])
+  })
+
+  it('places at least one person in every terminal zone', () => {
+    const occupantsByZone = Object.fromEntries(caseD201.zones.map(zone => [zone.id, caseD201.solution
+      .filter(placement => caseD201.board.find(cell => cell.row === placement.position.row && cell.column === placement.position.column)?.zoneId === zone.id)
+      .map(placement => placement.characterId)]))
+    expect(occupantsByZone).toEqual({
+      checkin: ['oscar'],
+      security: ['lina'],
+      departureLounge: ['nerea'],
+      baggageClaim: ['tomas', 'gael'],
+      arrivals: ['irene', 'alma'],
+    })
   })
 
   it('does not allow any pairwise exchange to satisfy every visible clue', () => {
