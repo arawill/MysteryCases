@@ -88,6 +88,19 @@ describe('visual board surfaces', () => {
     expect(empty).toContain(`src="${chair.object!.icon}"`)
   })
 
+  it('renders the vacant placement marker only until a character occupies its cell', () => {
+    const chair = case001.board.find(cell => cell.object?.id === 'chair')!
+    const person = { characterId: 'lucia', position: { row: chair.row, column: chair.column } }
+    const empty = renderToStaticMarkup(<Board {...case001} placements={[]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    const occupied = renderToStaticMarkup(<Board {...case001} placements={[person]} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    const cellContent = (markup: string) => markup.match(new RegExp(`<button[^>]*aria-label="Fila ${chair.row}, columna ${chair.column}[^"]*"[^>]*>([\\s\\S]*?)</button>`))?.[1]
+
+    expect(cellContent(empty)).toContain('class="placement-marker"')
+    expect(cellContent(occupied)).not.toContain('class="placement-marker"')
+    expect(occupied).toContain(`aria-label="Fila ${chair.row}, columna ${chair.column}, Lucía`)
+    expect(occupied).toContain('data-layer="person"')
+  })
+
   it('renders portraits and names as separate vertical token elements from 6×6 through 10×10 boards', () => {
     const tenByTenBoard: BoardCell[] = Array.from({ length: 100 }, (_, index) => ({
       row: Math.floor(index / 10) + 1,
@@ -115,6 +128,8 @@ describe('visual board surfaces', () => {
       expect(nameStart).toBeGreaterThan(avatarStart)
       expect(markup.slice(avatarStart, nameStart)).toContain('character-avatar')
       expect(markup.slice(avatarStart, nameStart)).toContain('</span></span>')
+      expect(markup).toContain('class="placed-avatar"')
+      expect(markup).toContain('class="placed-name"')
     }
 
     const tenByTenMarkup = renderToStaticMarkup(<Board board={tenByTenBoard} rows={10} columns={10} zones={[{ id: 'test-zone', name: 'Prueba', tone: 'cafe' }]} placements={[{ characterId: tenByTenCharacter.id, position: { row: 10, column: 10 } }]} excludedCells={[]} characters={[tenByTenCharacter]} onCellClick={() => {}} onCellContextMenu={() => {}} />)

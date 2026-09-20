@@ -45,6 +45,7 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
             const footprintReserved = isFootprintReservedCell(cell.object, cell)
             const objectAppearance = cell.object ? resolveObjectAppearance(cell.object) : null
             const objectAnchor = Boolean(cell.object && isObjectFootprintAnchor(cell.object, cell))
+            const showPlacementMarker = Boolean(cell.object?.occupiable && !character)
             const footprintBounds = cell.object ? getObjectFootprintBounds(cell.object, cell) : null
             const profile = cell.object ? resolveObjectVisualProfile(cell.object) : 'standard'
             const objectStyle = cell.object ? {
@@ -56,6 +57,7 @@ export function Board({ board, rows, columns, zones, edgeFeatures = [], placemen
               {edgeFeatures.flatMap(feature => feature.segments.filter(segment => segment.position.row === cell.row && segment.position.column === cell.column).map((segment, index) => <span key={`${feature.id}-${index}-${segment.side}`} className={`edge-feature edge-feature-${feature.type} edge-feature-${segment.side.toLowerCase()}`} aria-hidden="true" />))}
               {hasZoneLabel && zone && <span className={`zone-label zone-label-${zoneLabelAnchor?.placement ?? 'center'}`} data-layer="zone-label" data-zone-label={zone.id} aria-hidden="true">{zone.name}</span>}
               {cell.object && objectAppearance && objectAnchor && <span className="cell-object-layer" data-layer="object" data-footprint={cell.object.footprint?.id ?? 'single-cell'} style={objectStyle}><span className={`object object-${cell.object.id} object-visual-${profile} ${cell.object.appearance ? `object-appearance-${cell.object.appearance}` : 'object-appearance-fallback'} ${objectAppearance.renderMode === 'coverFootprint' ? 'object-cover-footprint' : ''} ${cell.object.occupiable ? 'object-occupiable' : 'object-blocking'}`} title={objectAppearance.label}><img src={objectAppearance.src} alt={objectAppearance.label} /></span></span>}
+              {showPlacementMarker && <span className="placement-marker" aria-hidden="true">×</span>}
               {firstZoneCell && zone?.icon && <img className="zone-marker" src={zone.icon} alt="" aria-hidden="true" />}
               {excluded && !character && <span className="exclude-mark" aria-hidden="true">×{!manual && <small>A</small>}</span>}
               {character && <span className="cell-person-layer" data-layer="person"><span className={`placed ${character.isVictim ? 'placed-victim' : ''} ${character.id === selectedCharacterId ? 'placed-selected' : ''}`}><span className="placed-avatar" aria-hidden="true"><CharacterAvatar character={character} /></span><span className="placed-name">{character.name}</span>{character.isVictim && <small className="token-victim" aria-hidden="true">V</small>}</span></span>}
