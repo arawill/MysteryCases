@@ -10,20 +10,20 @@ Los cinco assets exclusivos son la cinta de equipajes bloqueante en 1:1–1:2, e
 
 | Personaje | Posición | Pistas |
 | --- | --- | --- |
-| Lina | 1:6 | Estaba en la sexta columna. Estaba al norte de Nerea. |
-| Óscar | 2:2 | Estaba en la segunda columna. Estaba cuatro filas al norte de Irene. |
-| Nerea | 3:3 | Estaba en la tercera columna. Estaba junto a una pared. |
-| Tomás | 4:5 | Estaba en la quinta columna. Estaba tres filas al norte de Alma. |
-| Gael | 5:7 | Estaba en la quinta fila. Estaba en la misma zona que Tomás. |
-| Irene | 6:1 | Estaba en la primera columna. Estaba una fila al norte de Alma. |
+| Lina | 1:6 | Estaba en la sexta columna. Estaba al norte de Óscar. |
+| Óscar | 2:2 | Estaba en facturación. Estaba junto a la cinta de equipajes. |
+| Nerea | 3:3 | Estaba sentada en el banco de salidas. |
+| Tomás | 4:5 | Estaba en la cuarta fila. Estaba en recogida de equipajes. |
+| Gael | 5:7 | Estaba en recogida de equipajes. Estaba junto al dron portaequipajes. |
+| Irene | 6:1 | Estaba en la primera columna. Estaba al norte de Alma. |
 | Alma (víctima) | 7:4 | Sin pistas. |
 
 Irene es la asesina: es la única persona que comparte Llegadas con Alma.
 
 ## Deducción
 
-Las columnas sitúan a Lina, Óscar, Nerea, Tomás e Irene sin revelar sus filas. La relación entre Óscar e Irene fija las filas 2 y 6; Nerea, en la tercera columna y junto a una pared, queda en la tercera fila. Lina queda al norte de Nerea.
+Óscar queda junto a la cinta de equipajes en Facturación, y Nerea solo puede sentarse en el banco de salidas. Tomás queda en la cuarta fila de Recogida de equipajes; Gael queda junto al dron en esa misma zona.
 
-Irene queda una fila al norte de Alma, y Tomás tres filas al norte de Alma: así se fijan las filas 4, 6 y 7. Gael está en la quinta fila y comparte zona con Tomás, por lo que ambos quedan en Recogida de equipajes. Por descarte de fila y columna, Alma queda en 7:4.
+Lina está en la sexta columna y al norte de Óscar. Irene, en la primera columna, queda al norte de Alma. Con la regla de una persona por fila y columna, las posiciones restantes fijan a todos los presentes y Alma queda en 7:4.
 
 La solución usa una persona en cada fila y columna del 1 al 7 y deja al menos una persona en cada zona. Solo Irene acompaña a Alma en Llegadas, de modo que es la asesina.

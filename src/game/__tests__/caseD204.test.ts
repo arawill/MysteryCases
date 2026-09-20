@@ -94,15 +94,15 @@ describe('manual D2 case 04', () => {
     expect(caseD204.characters.flatMap(character => character.clues).some(clue => clue.text.toLocaleLowerCase('es').includes('ocupaba'))).toBe(false)
   })
 
-  it('leaves Iris as the final free canonical position after the six visible deductions', () => {
+  it('uses varied visual deductions and leaves Iris as the final free canonical position', () => {
     const clueTexts = Object.fromEntries(caseD204.characters.map(character => [character.id, character.clues.map(clue => clue.text)]))
     expect(clueTexts).toEqual({
-      elena: ['Estaba en la cuarta columna.', 'Estaba dos filas al norte de Aitana.'],
-      hugo: ['Estaba en la segunda columna.', 'Estaba una fila al sur de Elena.'],
-      aitana: ['Estaba en la sexta columna.', 'Estaba al norte de Iris.'],
-      ruben: ['Estaba en la primera columna.', 'Estaba una fila al norte de Joel.'],
-      joel: ['Estaba en la séptima columna.', 'Estaba dos filas al norte de Iris.'],
-      marta: ['Estaba en la tercera columna.', 'Estaba una fila al norte de Iris.'],
+      elena: ['Estaba en la cuarta columna.', 'Estaba al norte de Aitana.'],
+      hugo: ['Estaba en la misma columna que la máquina de riego.'],
+      aitana: ['Estaba en el depósito.', 'Estaba junto al depósito cilíndrico.'],
+      ruben: ['Estaba en cultivo.', 'Estaba al suroeste de la máquina de riego.'],
+      joel: ['Estaba en la misma columna que el depósito cilíndrico.', 'Estaba al norte de Iris.'],
+      marta: ['Estaba en el almacén.', 'Estaba junto al carro con plantas.'],
       iris: [],
     })
     const positions = Object.fromEntries(caseD204.solution.map(placement => [placement.characterId, placement.position]))

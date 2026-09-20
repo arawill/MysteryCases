@@ -10,20 +10,20 @@ Los cinco assets propios de D2/C03 son: la consola de control (`freightConsole`)
 
 | Personaje | Posición | Zona | Pistas |
 | --- | ---: | --- | --- |
-| Sara | 1:5 | Muelle | Estaba en la primera fila. / Estaba cinco filas al norte de Adrián. |
-| Bruno | 2:2 | Control | Estaba en la segunda columna. / Estaba al norte de Marcos. |
-| Leire | 3:7 | Taller | Estaba en el taller. |
-| Marcos | 4:4 | Bodega | Estaba en la cuarta columna. / Estaba al sur de Leire. |
-| Noa | 5:6 | Criogenia | Estaba en la sexta columna. / Estaba en criogenia. |
-| Adrián | 6:1 | Esclusa | Estaba en la primera columna. / Estaba en la misma zona que Vega. |
+| Sara | 1:5 | Muelle | Estaba en el muelle. / Estaba junto a la plataforma de contenedores. |
+| Bruno | 2:2 | Control | Estaba en la segunda columna. / Estaba en control. |
+| Leire | 3:7 | Taller | Estaba en el taller. / Estaba en una esquina del taller. |
+| Marcos | 4:4 | Bodega | Estaba en la cuarta fila. / Estaba junto a la pared de la bodega. |
+| Noa | 5:6 | Criogenia | Estaba en criogenia. / Estaba junto a la caja metálica. |
+| Adrián | 6:1 | Esclusa | Estaba en la primera columna. / Estaba al norte de Vega. |
 | Vega (víctima) | 7:3 | Esclusa | Sin pistas. |
 
 Adrián es el asesino: es la única persona que comparte la Esclusa con Vega.
 
 ## Deducción
 
-Sara está en la primera fila y cinco filas al norte de Adrián, fijando la sexta fila para Adrián. Leire está en el Taller; Marcos está al sur de Leire en la cuarta columna, de modo que ambos quedan en 3:7 y 4:4. Bruno queda al norte de Marcos en la segunda columna.
+Sara queda en el Muelle junto a la plataforma de contenedores y Leire en una esquina del Taller. Noa queda en Criogenia junto a la caja metálica. Bruno queda en la segunda columna de Control.
 
-Noa queda en Criogenia, en la sexta columna. Adrián comparte la Esclusa con Vega; con las filas y columnas restantes, Vega queda por descarte en 7:3.
+Marcos está en la cuarta fila junto a la pared de la Bodega. Adrián, en la primera columna, queda al norte de Vega; con las filas y columnas restantes, Vega queda por descarte en 7:3.
 
 La solución es única: cada pista conserva varias posiciones posibles por sí sola y la restricción de una persona por fila y columna completa la deducción global. En la Esclusa solo aparecen Adrián y Vega, de modo que `findKiller()` identifica a Adrián.

@@ -3,7 +3,7 @@ import { objectAppearanceCatalog, resolveObjectAppearance } from '../appearanceC
 
 describe('object appearance catalog', () => {
   it('registers every contextual object with a human label and a supported visual asset', () => {
-    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(54)
+    expect(Object.keys(objectAppearanceCatalog)).toHaveLength(65)
     for (const appearance of Object.values(objectAppearanceCatalog)) {
       expect(appearance.label.length).toBeGreaterThan(0)
       expect(appearance.src).toMatch(/^(data:image\/svg\+xml|.*\.(png|svg)$)/)
@@ -27,6 +27,17 @@ describe('object appearance catalog', () => {
     expect(objectAppearanceCatalog.nutrientTank).toMatchObject({ label: 'Depósito cilíndrico', visualProfile: 'tall' })
     expect(objectAppearanceCatalog.irrigationConsole).toMatchObject({ label: 'Máquina de riego', visualProfile: 'wide' })
     expect(objectAppearanceCatalog.harvestCart).toMatchObject({ label: 'Carro con plantas', visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.assemblyLine).toMatchObject({ label: 'Cadena de montaje', visualProfile: 'wide', renderMode: 'coverFootprint' })
+    expect(objectAppearanceCatalog.roboticArm).toMatchObject({ label: 'Brazo robótico', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.androidPod).toMatchObject({ label: 'Cápsula de ensamblaje', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.calibrationStation).toMatchObject({ label: 'Estación de calibración', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.partsTrolley).toMatchObject({ label: 'Carro de repuestos', visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.lunarDrill).toMatchObject({ label: 'Taladro lunar', visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.oreCart).toMatchObject({ label: 'Vagoneta de mineral', visualProfile: 'wide' })
+    expect(objectAppearanceCatalog.oreCrusher).toMatchObject({ label: 'Trituradora de mineral', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.surveyConsole).toMatchObject({ label: 'Consola topográfica', visualProfile: 'standard' })
+    expect(objectAppearanceCatalog.pressureLocker).toMatchObject({ label: 'Armario presurizado', visualProfile: 'tall' })
+    expect(objectAppearanceCatalog.lunarExcavation).toMatchObject({ label: 'Zona de excavación lunar', renderMode: 'coverFootprint' })
   })
 
   it('uses the explicit appearance while preserving the legacy icon fallback safely', () => {

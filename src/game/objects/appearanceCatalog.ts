@@ -53,6 +53,17 @@ import growTower from '../../assets/objects/contextual/d2/case04/grow_tower.png'
 import nutrientTank from '../../assets/objects/contextual/d2/case04/nutrient_tank.png'
 import irrigationConsole from '../../assets/objects/contextual/d2/case04/irrigation_console.png'
 import harvestCart from '../../assets/objects/contextual/d2/case04/harvest_cart.png'
+import assemblyLine from '../../assets/objects/contextual/d2/case05/assembly_line.png'
+import roboticArm from '../../assets/objects/contextual/d2/case05/robotic_arm.png'
+import androidPod from '../../assets/objects/contextual/d2/case05/android_pod.png'
+import calibrationStation from '../../assets/objects/contextual/d2/case05/calibration_station.png'
+import partsTrolley from '../../assets/objects/contextual/d2/case05/parts_trolley.png'
+import lunarDrill from '../../assets/objects/contextual/d2/case06/lunar_drill.png'
+import oreCart from '../../assets/objects/contextual/d2/case06/ore_cart.png'
+import oreCrusher from '../../assets/objects/contextual/d2/case06/ore_crusher.png'
+import surveyConsole from '../../assets/objects/contextual/d2/case06/survey_console.png'
+import pressureLocker from '../../assets/objects/contextual/d2/case06/pressure_locker.png'
+import lunarExcavation from '../../assets/objects/contextual/d2/surfaces/lunar_excavation.png'
 
 export interface ObjectAppearanceDefinition { src: string; label: string; scale?: number; visualProfile?: ObjectVisualProfile; renderMode?: 'contain' | 'coverFootprint' }
 
@@ -121,6 +132,17 @@ export const objectAppearanceCatalog: Record<ObjectAppearance, ObjectAppearanceD
   nutrientTank: { src: nutrientTank, label: 'Depósito cilíndrico', scale: 0.88, visualProfile: 'tall' },
   irrigationConsole: { src: irrigationConsole, label: 'Máquina de riego', scale: 0.92, visualProfile: 'wide' },
   harvestCart: { src: harvestCart, label: 'Carro con plantas', scale: 0.88, visualProfile: 'standard' },
+  assemblyLine: { src: assemblyLine, label: 'Cadena de montaje', scale: 0.94, visualProfile: 'wide', renderMode: 'coverFootprint' },
+  roboticArm: { src: roboticArm, label: 'Brazo robótico', scale: 0.9, visualProfile: 'tall' },
+  androidPod: { src: androidPod, label: 'Cápsula de ensamblaje', scale: 0.9, visualProfile: 'tall' },
+  calibrationStation: { src: calibrationStation, label: 'Estación de calibración', scale: 0.94, visualProfile: 'wide' },
+  partsTrolley: { src: partsTrolley, label: 'Carro de repuestos', scale: 0.9, visualProfile: 'standard' },
+  lunarDrill: { src: lunarDrill, label: 'Taladro lunar', scale: 0.92, visualProfile: 'standard' },
+  oreCart: { src: oreCart, label: 'Vagoneta de mineral', scale: 0.94, visualProfile: 'wide' },
+  oreCrusher: { src: oreCrusher, label: 'Trituradora de mineral', scale: 0.9, visualProfile: 'tall' },
+  surveyConsole: { src: surveyConsole, label: 'Consola topográfica', scale: 0.9, visualProfile: 'standard' },
+  pressureLocker: { src: pressureLocker, label: 'Armario presurizado', scale: 0.9, visualProfile: 'tall' },
+  lunarExcavation: { src: lunarExcavation, label: 'Zona de excavación lunar', scale: 1, renderMode: 'coverFootprint' },
 }
 
 export const isObjectAppearance = (value: unknown): value is ObjectAppearance => typeof value === 'string' && value in objectAppearanceCatalog
