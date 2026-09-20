@@ -10,20 +10,20 @@ Objetos: mesa de laboratorio bloqueante en 1:1–1:2; acuario de laboratorio blo
 
 | Personaje | Posición | Pistas |
 | --- | --- | --- |
-| Claudia | 1:3 | Estaba en la primera fila. Estaba en la tercera columna. |
-| Héctor | 2:6 | Estaba junto al acuario de laboratorio. Estaba en la sexta columna. |
-| Miriam | 3:4 | Estaba en la tercera fila. Estaba en la zona de limpieza. |
-| Gabriel | 4:5 | Estaba en la cuarta fila. Estaba en el archivo. |
-| Alicia | 5:1 | Estaba en la quinta fila. Estaba en la primera columna. |
-| Diego | 6:7 | Estaba en la sexta fila. Estaba en la séptima columna. |
+| Claudia | 1:3 | Estaba en la tercera columna. Estaba al norte de Diego. |
+| Héctor | 2:6 | Estaba en la sexta columna. Estaba una fila al sur de Claudia. |
+| Miriam | 3:4 | Estaba en la cuarta columna. Estaba tres filas al norte de Diego. |
+| Gabriel | 4:5 | Estaba en la quinta columna. Estaba una fila al norte de Alicia. |
+| Alicia | 5:1 | Estaba en la primera columna. Estaba al sur de Héctor. |
+| Diego | 6:7 | Estaba en la séptima columna. Estaba en la misma zona que Eva. |
 | Eva (víctima) | 7:2 | Sin pistas. |
 
 Diego es el asesino: es la única persona que comparte Control con Eva.
 
 ## Deducción
 
-Claudia queda en 1:3 al cruzar la primera fila con la tercera columna. Héctor queda en 2:6 porque es la única posición de la sexta columna junto al acuario de laboratorio. Miriam queda en 3:4 al cruzar la tercera fila con la zona de Limpieza.
+Las columnas identifican los carriles de Claudia, Héctor, Miriam, Gabriel, Alicia y Diego, pero no sus filas. Héctor queda una fila al sur de Claudia y Alicia al sur de Héctor. Miriam queda tres filas al norte de Diego.
 
-Alicia queda en 5:1 al cruzar la quinta fila con la primera columna. Diego queda en 6:7 al cruzar la sexta fila con la séptima columna. Gabriel queda en 4:5 por su fila, Archivo y las columnas ya utilizadas. Por descarte, Eva queda en 7:2.
+Gabriel queda una fila al norte de Alicia. Diego comparte Control con Eva; al combinar las relaciones, las filas y columnas sin repetir, Diego queda en 6:7 y Eva en 7:2. Por descarte, quedan fijadas las demás posiciones canónicas.
 
 La solución usa exactamente una persona por cada fila y columna y deja al menos una persona en cada zona. En Control solo quedan Diego y Eva, por lo que `findKiller()` identifica a Diego sin ambigüedad.

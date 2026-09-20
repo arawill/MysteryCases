@@ -91,22 +91,22 @@ describe('manual D2 case 02', () => {
 
     expect(cluesByCharacter).toEqual({
       Claudia: [
-        'Estaba en la primera fila.',
         'Estaba en la tercera columna.',
+        'Estaba al norte de Diego.',
       ],
       Héctor: [
-        'Estaba junto al acuario de laboratorio.',
         'Estaba en la sexta columna.',
+        'Estaba una fila al sur de Claudia.',
       ],
       Miriam: [
-        'Estaba en la tercera fila.',
-        'Estaba en la zona de limpieza.',
+        'Estaba en la cuarta columna.',
+        'Estaba tres filas al norte de Diego.',
       ],
-      Gabriel: ['Estaba en la cuarta fila.', 'Estaba en el archivo.'],
-      Alicia: ['Estaba en la quinta fila.', 'Estaba en la primera columna.'],
+      Gabriel: ['Estaba en la quinta columna.', 'Estaba una fila al norte de Alicia.'],
+      Alicia: ['Estaba en la primera columna.', 'Estaba al sur de Héctor.'],
       Diego: [
-        'Estaba en la sexta fila.',
         'Estaba en la séptima columna.',
+        'Estaba en la misma zona que Eva.',
       ],
       Eva: [],
     })

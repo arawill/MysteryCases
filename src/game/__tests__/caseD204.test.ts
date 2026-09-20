@@ -97,12 +97,12 @@ describe('manual D2 case 04', () => {
   it('leaves Iris as the final free canonical position after the six visible deductions', () => {
     const clueTexts = Object.fromEntries(caseD204.characters.map(character => [character.id, character.clues.map(clue => clue.text)]))
     expect(clueTexts).toEqual({
-      elena: ['Estaba en el vivero.', 'Estaba en la cuarta columna.'],
-      hugo: ['Estaba en la segunda fila.', 'Estaba en la segunda columna.'],
-      aitana: ['Estaba en la tercera fila.', 'Estaba junto al depósito cilíndrico.'],
-      ruben: ['Estaba en la cuarta fila.', 'Estaba en la primera columna.'],
-      joel: ['Estaba en la quinta fila.', 'Estaba en la séptima columna.'],
-      marta: ['Estaba en la sexta fila.', 'Estaba en la tercera columna.'],
+      elena: ['Estaba en la cuarta columna.', 'Estaba dos filas al norte de Aitana.'],
+      hugo: ['Estaba en la segunda columna.', 'Estaba una fila al sur de Elena.'],
+      aitana: ['Estaba en la sexta columna.', 'Estaba al norte de Iris.'],
+      ruben: ['Estaba en la primera columna.', 'Estaba una fila al norte de Joel.'],
+      joel: ['Estaba en la séptima columna.', 'Estaba dos filas al norte de Iris.'],
+      marta: ['Estaba en la tercera columna.', 'Estaba una fila al norte de Iris.'],
       iris: [],
     })
     const positions = Object.fromEntries(caseD204.solution.map(placement => [placement.characterId, placement.position]))
@@ -116,8 +116,7 @@ describe('manual D2 case 04', () => {
       iris: { row: 7, column: 5 },
     })
     for (const character of caseD204.characters.filter(character => !character.isVictim)) {
-      const placement = caseD204.solution.filter(candidate => candidate.characterId === character.id)
-      expect(evaluateCharacterClues(character.id, caseD204, placement).every(result => result.evaluation === 'satisfied')).toBe(true)
+      expect(evaluateCharacterClues(character.id, caseD204, caseD204.solution).every(result => result.evaluation === 'satisfied')).toBe(true)
     }
     expect(caseD204.solution.filter(placement => placement.characterId !== 'iris').map(placement => placement.position.row)).not.toContain(7)
     expect(caseD204.solution.filter(placement => placement.characterId !== 'iris').map(placement => placement.position.column)).not.toContain(5)

@@ -10,20 +10,20 @@ Los cinco assets propios de D2/C03 son: la consola de control (`freightConsole`)
 
 | Personaje | Posición | Zona | Pistas |
 | --- | ---: | --- | --- |
-| Sara | 1:5 | Muelle | Estaba en el muelle. / Estaba junto a la plataforma de contenedores. |
-| Bruno | 2:2 | Control | Estaba en la segunda columna. / Estaba al sureste de la consola de control. |
-| Leire | 3:7 | Taller | Estaba en el taller. / Estaba en la séptima columna. |
-| Marcos | 4:4 | Bodega | Estaba en la cuarta fila. / Estaba al sureste de la carretilla elevadora. / Estaba junto a la pared del taller. |
-| Noa | 5:6 | Criogenia | Estaba en la quinta fila. / Estaba junto a la caja metálica. |
-| Adrián | 6:1 | Esclusa | Estaba en la sexta fila. / Estaba en la primera columna. |
+| Sara | 1:5 | Muelle | Estaba en la primera fila. / Estaba cinco filas al norte de Adrián. |
+| Bruno | 2:2 | Control | Estaba en la segunda columna. / Estaba al norte de Marcos. |
+| Leire | 3:7 | Taller | Estaba en el taller. |
+| Marcos | 4:4 | Bodega | Estaba en la cuarta columna. / Estaba al sur de Leire. |
+| Noa | 5:6 | Criogenia | Estaba en la sexta columna. / Estaba en criogenia. |
+| Adrián | 6:1 | Esclusa | Estaba en la primera columna. / Estaba en la misma zona que Vega. |
 | Vega (víctima) | 7:3 | Esclusa | Sin pistas. |
 
 Adrián es el asesino: es la única persona que comparte la Esclusa con Vega.
 
 ## Deducción
 
-Bruno queda en 2:2 al cruzar la segunda columna con la posición situada al sureste de la consola de control. Sara está en el Muelle junto a la plataforma de contenedores; como Bruno ya usa la segunda fila, queda en 1:5. Marcos queda en 4:4: de las posiciones de la cuarta fila al sureste de la carretilla elevadora, solo una toca la pared del Taller.
+Sara está en la primera fila y cinco filas al norte de Adrián, fijando la sexta fila para Adrián. Leire está en el Taller; Marcos está al sur de Leire en la cuarta columna, de modo que ambos quedan en 3:7 y 4:4. Bruno queda al norte de Marcos en la segunda columna.
 
-Noa queda en 5:6 por su fila y la caja metálica. Adrián queda en 6:1 por fila y columna. Leire ocupa la séptima columna del Taller; Marcos ya ocupa la cuarta fila, por lo que queda en 3:7. Con las filas y columnas 1–6 utilizadas, Vega queda por descarte en 7:3.
+Noa queda en Criogenia, en la sexta columna. Adrián comparte la Esclusa con Vega; con las filas y columnas restantes, Vega queda por descarte en 7:3.
 
-La solución es única: cada pista fija una posición o reduce sus candidatas antes de que la restricción de una persona por fila y columna complete el último descarte. En la Esclusa solo aparecen Adrián y Vega, de modo que `findKiller()` identifica a Adrián.
+La solución es única: cada pista conserva varias posiciones posibles por sí sola y la restricción de una persona por fila y columna completa la deducción global. En la Esclusa solo aparecen Adrián y Vega, de modo que `findKiller()` identifica a Adrián.
