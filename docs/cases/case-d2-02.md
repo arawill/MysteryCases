@@ -18,7 +18,7 @@ Objetos: mesa de laboratorio bloqueante en 1:1–1:2; acuario de laboratorio blo
 | Diego | 6:7 | Estaba en la sexta fila. Estaba en la misma columna que la cápsula de cristal. |
 | Eva (víctima) | 7:2 | Sin pistas. |
 
-Diego es el asesino: es la única persona que comparte Observación con Eva.
+Diego es el asesino: es la única persona que comparte Control con Eva.
 
 ## Deducción
 

@@ -3,10 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { case001 } from '../../data/cases/case001'
 import { case002 } from '../../data/cases/case002'
 import { case008 } from '../../data/cases/case008'
+import { caseD202 } from '../../data/cases/caseD202'
 import { resolveZoneSurface } from '../../game/zones/surfaces'
 import { canPlace } from '../../game/rules'
 import { normaliseObjectAppearanceScale, resolveObjectAppearanceScale, resolveObjectVisualProfile } from '../../game/objects/appearanceCatalog'
-import type { Zone } from '../../game/types'
+import type { BoardCell, Character, Zone } from '../../game/types'
 import { Board } from '../Board'
 
 describe('visual board surfaces', () => {
@@ -85,6 +86,47 @@ describe('visual board surfaces', () => {
     expect(occupied).toContain(`src="${chair.object!.icon}"`)
     expect(moved).toContain(`src="${chair.object!.icon}"`)
     expect(empty).toContain(`src="${chair.object!.icon}"`)
+  })
+
+  it('renders portraits and names as separate vertical token elements from 6×6 through 10×10 boards', () => {
+    const tenByTenBoard: BoardCell[] = Array.from({ length: 100 }, (_, index) => ({
+      row: Math.floor(index / 10) + 1,
+      column: (index % 10) + 1,
+      zoneId: 'test-zone',
+      occupiable: true,
+    }))
+    const tenByTenCharacter: Character = {
+      id: 'test-person',
+      name: 'Alejandro',
+      avatar: '👤',
+      clues: [],
+      isVictim: false,
+    }
+    const cases = [
+      { gameCase: case001, expectedName: 'Alma' },
+      { gameCase: caseD202, expectedName: 'Eva' },
+    ]
+
+    for (const { gameCase, expectedName } of cases) {
+      const markup = renderToStaticMarkup(<Board {...gameCase} placements={gameCase.solution} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+      const avatarStart = markup.indexOf('class="placed-avatar"')
+      const nameStart = markup.indexOf(`class="placed-name">${expectedName}</span>`)
+      expect(avatarStart).toBeGreaterThan(-1)
+      expect(nameStart).toBeGreaterThan(avatarStart)
+      expect(markup.slice(avatarStart, nameStart)).toContain('character-avatar')
+      expect(markup.slice(avatarStart, nameStart)).toContain('</span></span>')
+    }
+
+    const tenByTenMarkup = renderToStaticMarkup(<Board board={tenByTenBoard} rows={10} columns={10} zones={[{ id: 'test-zone', name: 'Prueba', tone: 'cafe' }]} placements={[{ characterId: tenByTenCharacter.id, position: { row: 10, column: 10 } }]} excludedCells={[]} characters={[tenByTenCharacter]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect((tenByTenMarkup.match(/<button /g) ?? [])).toHaveLength(100)
+    expect(tenByTenMarkup).toContain('class="placed-name">Alejandro</span>')
+  })
+
+  it('keeps the victim indicator and accessible name visible in the final board row', () => {
+    const markup = renderToStaticMarkup(<Board {...caseD202} placements={caseD202.solution} excludedCells={[]} onCellClick={() => {}} onCellContextMenu={() => {}} />)
+    expect(markup).toContain('aria-label="Fila 7, columna 2, Eva')
+    expect(markup).toContain('class="placed-name">Eva</span>')
+    expect(markup).toContain('class="token-victim"')
   })
 
   it('renders a multi-cell footprint once, centered over its declared box, with both declared positions occupiable', () => {
