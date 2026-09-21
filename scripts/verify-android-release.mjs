@@ -21,8 +21,8 @@ if (existsSync(appBuildGradle)) {
   const gradle = readFileSync(appBuildGradle, 'utf8')
   for (const expected of [
     'applicationId "com.mysterycases.app"',
-    'versionCode 1',
-    'versionName "1.0.0"',
+    'versionCode 2',
+    'versionName "1.1.0"',
     'signingConfigs',
     'signingConfig signingConfigs.release',
   ]) {

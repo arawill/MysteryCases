@@ -1,4 +1,4 @@
-import { getUnlockedDifficulties, NORMAL_CASE_COUNT, type NormalModeProgress } from '../persistence/normalProgress'
+import { NORMAL_CASE_COUNT, type NormalModeProgress } from '../persistence/normalProgress'
 import type { Progress } from '../persistence/progress'
 import type { PlayerStats } from '../persistence/playerStats'
 import { isPerfectInvestigation, type InvestigationHistory } from '../persistence/investigationHistory'
@@ -10,14 +10,14 @@ export const buildAchievementContext = (context: AchievementContext) => context
 
 export function evaluateAchievements(context: AchievementContext): AchievementDefinition[] {
   const statistics = buildPlayerStatistics(context)
-  const normal = context.normalProgress.completedCaseNumbersByDifficulty
+  const normal = Object.fromEntries(Object.entries(context.normalProgress.completedCaseNumbersByDifficulty).map(([difficulty, cases]) => [difficulty, cases.filter(number => number >= 1 && number <= NORMAL_CASE_COUNT)])) as NormalModeProgress['completedCaseNumbersByDifficulty']
   const perfect = context.investigationHistory.records.filter(record => isPerfectInvestigation(record))
   const conditions: Record<AchievementId, boolean> = {
     'first-investigation': statistics.totalSolved >= 1,
     'investigations-10': statistics.totalSolved >= 10,
     'investigations-50': statistics.totalSolved >= 50,
     'investigations-100': statistics.totalSolved >= 100,
-    'all-difficulties-unlocked': getUnlockedDifficulties(context.normalProgress).includes(5),
+    'all-difficulties-unlocked': ([1, 2, 3, 4] as const).every(difficulty => normal[difficulty].length === NORMAL_CASE_COUNT),
     'normal-d1-complete': normal[1].length === NORMAL_CASE_COUNT,
     'normal-d2-complete': normal[2].length === NORMAL_CASE_COUNT,
     'normal-d3-complete': normal[3].length === NORMAL_CASE_COUNT,

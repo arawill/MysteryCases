@@ -16,7 +16,7 @@ export function achievementDisplayProgress(id: AchievementId, context: Achieveme
   if (id === 'investigations-100') return value(stats.totalSolved, 100, 'expedientes distintos')
   if (id === 'all-difficulties-unlocked') return value(getUnlockedDifficulties(context.normalProgress).length, 5, 'dificultades')
   const normalMatch = /^normal-d([1-5])-complete$/.exec(id); if (normalMatch) return value(normal[Number(normalMatch[1]) as 1 | 2 | 3 | 4 | 5].length, NORMAL_CASE_COUNT, 'casos normales')
-  if (id === 'normal-all-75') return value(stats.normal.total, NORMAL_TOTAL_CASE_COUNT, 'casos normales')
+  if (id === 'normal-all-75') return value(Object.values(normal).reduce((sum, cases) => sum + cases.filter(number => number <= NORMAL_CASE_COUNT).length, 0), NORMAL_CASE_COUNT * 5, 'casos normales (objetivo futuro)')
   if (id === 'first-perfect') return value(perfect.length, 1, 'expedientes impecables')
   if (id === 'perfect-10') return value(perfect.length, 10, 'expedientes impecables')
   if (id === 'perfect-d5') return value(perfect.some(item => item.difficulty === 5) ? 1 : 0, 1, 'expediente D5')

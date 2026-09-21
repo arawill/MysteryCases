@@ -10,7 +10,7 @@ import { GameScreen } from './GameScreen'
 import { recordInvestigationCompletion } from '../game/persistence/investigationHistory'
 import { clearCaseSave } from '../game/persistence/caseSave'
 import { announceAchievements, reconcileCurrentAchievements } from '../game/achievements/runtime'
-import { isActiveNormalCaseNumber } from '../game/normal/constants'
+import { isPublishedNormalCase } from '../game/normal/availability'
 
 const casePath = ({ difficulty, caseNumber }: NormalCaseDestination) => `/normal/${difficulty}/${caseNumber}`
 const caseLabel = (destination: NormalCaseDestination) => `CASO ${String(destination.caseNumber).padStart(2, '0')}`
@@ -59,7 +59,7 @@ export function NormalCaseScreen() {
   const { difficulty: rawDifficulty, caseNumber: rawCaseNumber } = useParams()
   const difficulty = Number(rawDifficulty)
   const caseNumber = Number(rawCaseNumber)
-  const valid = isDifficultyRating(difficulty) && isActiveNormalCaseNumber(caseNumber)
+  const valid = isDifficultyRating(difficulty) && isPublishedNormalCase(difficulty, caseNumber)
   const progress = loadNormalProgress()
   if (!valid || !isDifficultyUnlocked(difficulty, progress)) return <Navigate to="/normal" replace />
   return <LoadedNormalCase key={`${difficulty}-${caseNumber}`} difficulty={difficulty} caseNumber={caseNumber} />

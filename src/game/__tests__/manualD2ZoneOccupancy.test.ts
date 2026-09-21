@@ -4,7 +4,7 @@ import { manualNormalCases } from '../../data/cases/manualNormalCases'
 describe('manual D2 zone occupancy', () => {
   it('places at least one person in every zone of every registered manual D2 case', () => {
     const manualD2Cases = [...manualNormalCases.values()].filter(caseData => caseData.difficulty === 2)
-    expect(manualD2Cases.map(caseData => caseData.id)).toEqual(expect.arrayContaining(['case-d2-01', 'case-d2-02', 'case-d2-03', 'case-d2-04', 'case-d2-05']))
+    expect(manualD2Cases.map(caseData => caseData.id)).toEqual(expect.arrayContaining(['case-d2-01', 'case-d2-02', 'case-d2-03', 'case-d2-04', 'case-d2-05', 'case-d2-06']))
 
     for (const caseData of manualD2Cases) {
       const emptyZones = caseData.zones

@@ -1,5 +1,6 @@
+import { getPublishedNormalCount } from './normal/availability'
 import { formatDifficultyStars } from './difficulty'
-import { countCompletedUnlockCases, countCompletedNormalCases, getUnlockedDifficulties, NORMAL_CASE_COUNT, type NormalModeProgress } from './persistence/normalProgress'
+import { countCompletedUnlockCases, countCompletedNormalCases, getUnlockedDifficulties, type NormalModeProgress } from './persistence/normalProgress'
 import type { PlayerStats } from './persistence/playerStats'
 import type { Progress } from './persistence/progress'
 import type { DifficultyRating } from './types'
@@ -52,7 +53,7 @@ export function buildPlayerStatistics({ normalProgress, progress, playerStats, i
     stars: formatDifficultyStars(difficulty),
     completed: countCompletedNormalCases(difficulty, normalProgress),
     unlockCases: countCompletedUnlockCases(difficulty, normalProgress),
-    max: NORMAL_CASE_COUNT,
+    max: getPublishedNormalCount(difficulty),
     unlocked: unlocked.includes(difficulty),
   }))
   const normalTotal = byDifficulty.reduce((total, item) => total + item.completed, 0)
@@ -60,7 +61,7 @@ export function buildPlayerStatistics({ normalProgress, progress, playerStats, i
   const daily = calculateDailyStreaks(dateKeys, today)
   const hints = playerStats.hintsUsed
   return {
-    totalSolved: normalTotal + dateKeys.length + playerStats.completedInfiniteCaseIds.length,
+    totalSolved: Object.values(normalProgress.completedCaseNumbersByDifficulty).reduce((total, cases) => total + cases.length, 0) + dateKeys.length + playerStats.completedInfiniteCaseIds.length,
     normal: { total: normalTotal, byDifficulty, highestUnlocked: unlocked.at(-1) ?? 1 },
     daily: { completed: dateKeys.length, currentStreak: daily.current, bestStreak: daily.best },
     infinite: { completed: playerStats.completedInfiniteCaseIds.length },

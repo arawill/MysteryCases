@@ -20,7 +20,7 @@ describe('normal case navigation', () => {
   it('crosses unlocked difficulties in both directions', () => {
     expect(getNormalCaseNavigation({ difficulty: 1, caseNumber: 15, progress: progress(2) }).next).toEqual({ difficulty: 2, caseNumber: 1 })
     expect(getNormalCaseNavigation({ difficulty: 2, caseNumber: 1, progress: progress(2) }).previous).toEqual({ difficulty: 1, caseNumber: 15 })
-    expect(getNormalCaseNavigation({ difficulty: 4, caseNumber: 15, progress: progress(5) }).next).toEqual({ difficulty: 5, caseNumber: 1 })
+    expect(getNormalCaseNavigation({ difficulty: 4, caseNumber: 15, progress: progress(5) }).next).toBeNull()
   })
   it('never wraps beyond the final case', () => {
     expect(getNormalCaseNavigation({ difficulty: 5, caseNumber: 15, progress: progress(5) }).next).toBeNull()
