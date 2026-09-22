@@ -8,7 +8,6 @@ import { createGenerationTemplate } from './template'
 import { findDirectKillerRevealClues } from './directKillerReveal'
 
 export { isNegativeClue }
-export const hasRowAndColumn = (clues: readonly Clue[]) => clues.some(clue => clue.type === 'row') && clues.some(clue => clue.type === 'column')
 const sameTarget = (first: Clue, second: Clue) => 'targetCharacterId' in first && 'targetCharacterId' in second && first.targetCharacterId === second.targetCharacterId
 export const areRedundantClues = (first: Clue, second: Clue) =>
   (first.type === 'zone' && second.type === 'oneOfZones' && second.zoneIds.includes(first.zoneId)) || (second.type === 'zone' && first.type === 'oneOfZones' && first.zoneIds.includes(second.zoneId)) ||

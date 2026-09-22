@@ -1,4 +1,0 @@
-import { Link } from 'react-router-dom'
-import type { GameCase } from '../game/types'
-import { formatDifficultyStars } from '../game/difficulty'
-export function CaseCard({ gameCase, completed }: { gameCase: GameCase; completed: boolean }) { return <article className="case-card"><div><p className="eyebrow">{gameCase.id.toUpperCase()}</p><h2>{gameCase.title}</h2><p>Después del cierre de una cafetería, Alma ha sido encontrada muerta. Reconstruye la escena y descubre qué ocurrió.</p><span className="difficulty" aria-label={`Dificultad ${gameCase.difficulty} de 5 estrellas`}>✦ Dificultad: {formatDifficultyStars(gameCase.difficulty)}</span></div><div className="case-card-footer"><span className="available">{completed ? '✓ COMPLETADO' : '● DISPONIBLE'}</span><Link className="primary" to={`/case/${gameCase.id}`}>{completed ? 'REJUGAR' : 'INVESTIGAR'} <span>→</span></Link></div></article> }

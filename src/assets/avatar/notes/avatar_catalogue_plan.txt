@@ -1,4 +1,0 @@
-Plan inicial:
-- 24 retratos base en avatar_sheet_24.png
-- siguiente paso: recortar a PNG individuales avatar_01.png ... avatar_24.png
-- objetivo posterior: ampliar a catalogo mas grande (50-100+)

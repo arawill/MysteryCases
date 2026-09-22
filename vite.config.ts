@@ -8,6 +8,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     base,
+    build: {
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [{ name: 'case-schema-validator', test: /node_modules[\\/]ajv[\\/]/ }],
+          },
+        },
+      },
+    },
     plugins: [
       react(),
       VitePWA({

@@ -6,7 +6,6 @@ import { buildPlayerStatistics } from '../statistics'
 import { achievementCatalog, type AchievementDefinition, type AchievementId } from './catalog'
 
 export interface AchievementContext { normalProgress: NormalModeProgress; progress: Progress; playerStats: PlayerStats; investigationHistory: InvestigationHistory; today: Date }
-export const buildAchievementContext = (context: AchievementContext) => context
 
 export function evaluateAchievements(context: AchievementContext): AchievementDefinition[] {
   const statistics = buildPlayerStatistics(context)

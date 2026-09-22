@@ -55,5 +55,4 @@ export function evaluateClue(clue: Clue, subjectCharacterId: string, caseData: G
 }
 export function evaluateCharacterClues(characterId: string, caseData: GameCase, placements: Placement[]): EvaluatedClue[] { const character = caseData.characters.find(candidate => candidate.id === characterId); return character ? character.clues.map(clue => ({ characterId, clue, evaluation: evaluateClue(clue, characterId, caseData, placements) })) : [] }
 export function evaluateAllClues(caseData: GameCase, placements: Placement[]): EvaluatedClue[] { return caseData.characters.flatMap(character => evaluateCharacterClues(character.id, caseData, placements)) }
-export const hasViolatedClue = (caseData: GameCase, placements: Placement[]) => evaluateAllClues(caseData, placements).some(result => result.evaluation === 'violated')
 export const areAllCluesSatisfied = (caseData: GameCase, placements: Placement[]) => evaluateAllClues(caseData, placements).every(result => result.evaluation === 'satisfied')

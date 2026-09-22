@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "id": "case001",
+  "title": "La última taza",
+  "intro": "Tras el cierre de la cafetería, Alma fue encontrada muerta en el local. Cinco personas estuvieron allí aquella noche. Reconstruye dónde se encontraba cada una y descubre quién se quedó a solas con la víctima.",
+  "difficulty": 1,
+  "rows": 6,
+  "columns": 6,
+  "zones": [
+    { "id": "cafe", "name": "Cafetería", "tone": "cafe", "iconAsset": "cafeteria.zone.cafe", "labelAnchor": { "position": { "row": 3, "column": 1 } } },
+    { "id": "kitchen", "name": "Cocina", "tone": "kitchen", "iconAsset": "cafeteria.zone.kitchen", "labelAnchor": { "position": { "row": 1, "column": 6 } } },
+    { "id": "storage", "name": "Almacén", "tone": "storage", "iconAsset": "cafeteria.zone.storage", "labelAnchor": { "position": { "row": 5, "column": 3 } } },
+    { "id": "bathroom", "name": "Baño", "tone": "bathroom", "iconAsset": "cafeteria.zone.bathroom", "labelAnchor": { "position": { "row": 4, "column": 6 } } }
+  ],
+  "objects": [
+    { "id": "plant", "label": "una planta", "iconAsset": "cafeteria.object.plant", "occupiable": false },
+    { "id": "chair", "label": "una silla", "iconAsset": "cafeteria.object.chair", "occupiable": true },
+    { "id": "register", "label": "una caja registradora", "iconAsset": "cafeteria.object.register", "occupiable": false },
+    { "id": "table", "label": "una mesa", "iconAsset": "cafeteria.object.table", "occupiable": false },
+    { "id": "crate", "label": "una caja", "iconAsset": "cafeteria.object.crate", "occupiable": false },
+    { "id": "puddle", "label": "un charco", "iconAsset": "cafeteria.object.puddle", "occupiable": true }
+  ],
+  "board": [
+    { "row": 1, "column": 1, "zoneId": "cafe", "occupiable": true },
+    { "row": 1, "column": 2, "zoneId": "cafe", "occupiable": false, "objectId": "plant" },
+    { "row": 1, "column": 3, "zoneId": "cafe", "occupiable": true, "objectId": "chair" },
+    { "row": 1, "column": 4, "zoneId": "kitchen", "occupiable": true },
+    { "row": 1, "column": 5, "zoneId": "kitchen", "occupiable": true },
+    { "row": 1, "column": 6, "zoneId": "kitchen", "occupiable": true },
+    { "row": 2, "column": 1, "zoneId": "cafe", "occupiable": true },
+    { "row": 2, "column": 2, "zoneId": "cafe", "occupiable": false, "objectId": "table" },
+    { "row": 2, "column": 3, "zoneId": "cafe", "occupiable": true },
+    { "row": 2, "column": 4, "zoneId": "kitchen", "occupiable": true },
+    { "row": 2, "column": 5, "zoneId": "kitchen", "occupiable": false, "objectId": "register" },
+    { "row": 2, "column": 6, "zoneId": "kitchen", "occupiable": true },
+    { "row": 3, "column": 1, "zoneId": "cafe", "occupiable": true },
+    { "row": 3, "column": 2, "zoneId": "cafe", "occupiable": true },
+    { "row": 3, "column": 3, "zoneId": "cafe", "occupiable": true },
+    { "row": 3, "column": 4, "zoneId": "kitchen", "occupiable": true },
+    { "row": 3, "column": 5, "zoneId": "kitchen", "occupiable": true },
+    { "row": 3, "column": 6, "zoneId": "kitchen", "occupiable": true },
+    { "row": 4, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 2, "zoneId": "storage", "occupiable": false, "objectId": "crate" },
+    { "row": 4, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 4, "zoneId": "bathroom", "occupiable": true },
+    { "row": 4, "column": 5, "zoneId": "bathroom", "occupiable": true },
+    { "row": 4, "column": 6, "zoneId": "bathroom", "occupiable": true },
+    { "row": 5, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 5, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 5, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 5, "column": 4, "zoneId": "bathroom", "occupiable": true, "objectId": "puddle" },
+    { "row": 5, "column": 5, "zoneId": "bathroom", "occupiable": true },
+    { "row": 5, "column": 6, "zoneId": "bathroom", "occupiable": true },
+    { "row": 6, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 6, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 6, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 6, "column": 4, "zoneId": "bathroom", "occupiable": true },
+    { "row": 6, "column": 5, "zoneId": "bathroom", "occupiable": true },
+    { "row": 6, "column": 6, "zoneId": "bathroom", "occupiable": true }
+  ],
+  "characters": [
+    { "id": "lucia", "name": "Lucía", "avatar": "🦊", "avatarAsset": "avatar.avatar_01", "isVictim": false, "clues": [
+      { "id": "lucia-row", "type": "row", "text": "Estaba en la primera fila.", "row": 1 },
+      { "id": "lucia-chair", "type": "onObject", "text": "Estaba sentada en una silla.", "objectId": "chair" }
+    ] },
+    { "id": "mateo", "name": "Mateo", "avatar": "🦉", "avatarAsset": "avatar.avatar_02", "isVictim": false, "clues": [
+      { "id": "mateo-row", "type": "row", "text": "Estaba en la segunda fila.", "row": 2 },
+      { "id": "mateo-register", "type": "besideObject", "text": "Estaba junto a la caja registradora.", "objectId": "register" }
+    ] },
+    { "id": "nora", "name": "Nora", "avatar": "🐈", "avatarAsset": "avatar.avatar_03", "isVictim": false, "clues": [
+      { "id": "nora-row", "type": "row", "text": "Estaba en la tercera fila.", "row": 3 },
+      { "id": "nora-column", "type": "column", "text": "Estaba en la sexta columna.", "column": 6 }
+    ] },
+    { "id": "bruno", "name": "Bruno", "avatar": "🦬", "avatarAsset": "avatar.avatar_04", "isVictim": false, "clues": [
+      { "id": "bruno-zone", "type": "zone", "text": "Estaba en el almacén.", "zoneId": "storage" },
+      { "id": "bruno-row", "type": "row", "text": "Estaba en la cuarta fila.", "row": 4 }
+    ] },
+    { "id": "ines", "name": "Inés", "avatar": "🦋", "avatarAsset": "avatar.avatar_05", "isVictim": false, "clues": [
+      { "id": "ines-zone", "type": "zone", "text": "Estaba en el baño.", "zoneId": "bathroom" },
+      { "id": "ines-column", "type": "column", "text": "Estaba en la quinta columna.", "column": 5 },
+      { "id": "ines-row", "type": "row", "text": "Estaba en la quinta fila.", "row": 5 }
+    ] },
+    { "id": "alma", "name": "Alma", "avatar": "🌙", "avatarAsset": "avatar.avatar_07", "isVictim": true, "clues": [] }
+  ],
+  "solution": [
+    { "characterId": "lucia", "position": { "row": 1, "column": 3 } },
+    { "characterId": "mateo", "position": { "row": 2, "column": 4 } },
+    { "characterId": "nora", "position": { "row": 3, "column": 6 } },
+    { "characterId": "bruno", "position": { "row": 4, "column": 1 } },
+    { "characterId": "ines", "position": { "row": 5, "column": 5 } },
+    { "characterId": "alma", "position": { "row": 6, "column": 2 } }
+  ]
+}

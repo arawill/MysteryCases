@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "case002",
+  "title": "El marco vacío",
+  "intro": "Al cerrar la galería, Noa apareció sin vida junto al archivo. Reconstruye los últimos movimientos y descubre quién quedó a solas con ella.",
+  "difficulty": 1,
+  "rows": 6,
+  "columns": 6,
+  "zones": [
+    { "id": "gallery", "name": "Galería", "tone": "cafe", "surface": "wood", "labelAnchor": { "position": { "row": 3, "column": 1 }, "placement": "bottom" } },
+    { "id": "workshop", "name": "Taller", "tone": "kitchen", "surface": "concrete", "labelAnchor": { "position": { "row": 1, "column": 4 }, "placement": "top" } },
+    { "id": "archive", "name": "Archivo", "tone": "storage", "surface": "carpet", "labelAnchor": { "position": { "row": 6, "column": 6 }, "placement": "bottom" } },
+    { "id": "patio", "name": "Patio", "tone": "bathroom", "surface": "tile", "labelAnchor": { "position": { "row": 4, "column": 3 }, "placement": "top" } }
+  ],
+  "objects": [
+    { "id": "chair", "label": "una silla", "iconAsset": "cafeteria.object.chair", "occupiable": true, "appearance": "diningChair", "visualProfile": "standard" },
+    { "id": "stool", "label": "un taburete", "iconAsset": "cafeteria.object.chair", "occupiable": true, "appearance": "stool", "visualProfile": "tall" },
+    {
+      "id": "patioLounger",
+      "label": "una tumbona",
+      "iconAsset": "cafeteria.object.chair",
+      "occupiable": true,
+      "appearance": "sunLounger",
+      "visualProfile": "tall",
+      "footprint": { "id": "case002-patio-lounger", "positions": [{ "row": 4, "column": 1 }, { "row": 5, "column": 1 }] },
+      "occupiablePositions": [{ "row": 4, "column": 1 }, { "row": 5, "column": 1 }]
+    },
+    { "id": "crate", "label": "una caja", "iconAsset": "cafeteria.object.crate", "occupiable": false, "visualProfile": "standard" },
+    { "id": "plant", "label": "una planta", "iconAsset": "cafeteria.object.plant", "occupiable": false, "visualProfile": "standard" }
+  ],
+  "board": [
+    { "row": 1, "column": 1, "zoneId": "gallery", "occupiable": true },
+    { "row": 1, "column": 2, "zoneId": "gallery", "occupiable": true, "objectId": "chair" },
+    { "row": 1, "column": 3, "zoneId": "gallery", "occupiable": true },
+    { "row": 1, "column": 4, "zoneId": "workshop", "occupiable": true },
+    { "row": 1, "column": 5, "zoneId": "workshop", "occupiable": true },
+    { "row": 1, "column": 6, "zoneId": "workshop", "occupiable": true },
+    { "row": 2, "column": 1, "zoneId": "gallery", "occupiable": true },
+    { "row": 2, "column": 2, "zoneId": "gallery", "occupiable": true },
+    { "row": 2, "column": 3, "zoneId": "gallery", "occupiable": true },
+    { "row": 2, "column": 4, "zoneId": "workshop", "occupiable": true },
+    { "row": 2, "column": 5, "zoneId": "workshop", "occupiable": true, "objectId": "stool" },
+    { "row": 2, "column": 6, "zoneId": "workshop", "occupiable": true },
+    { "row": 3, "column": 1, "zoneId": "gallery", "occupiable": true },
+    { "row": 3, "column": 2, "zoneId": "gallery", "occupiable": true },
+    { "row": 3, "column": 3, "zoneId": "gallery", "occupiable": true },
+    { "row": 3, "column": 4, "zoneId": "workshop", "occupiable": true },
+    { "row": 3, "column": 5, "zoneId": "workshop", "occupiable": false, "objectId": "plant" },
+    { "row": 3, "column": 6, "zoneId": "workshop", "occupiable": true },
+    { "row": 4, "column": 1, "zoneId": "patio", "occupiable": true, "objectId": "patioLounger" },
+    { "row": 4, "column": 2, "zoneId": "patio", "occupiable": true },
+    { "row": 4, "column": 3, "zoneId": "patio", "occupiable": true },
+    { "row": 4, "column": 4, "zoneId": "archive", "occupiable": true },
+    { "row": 4, "column": 5, "zoneId": "archive", "occupiable": true },
+    { "row": 4, "column": 6, "zoneId": "archive", "occupiable": true },
+    { "row": 5, "column": 1, "zoneId": "patio", "occupiable": true, "objectId": "patioLounger" },
+    { "row": 5, "column": 2, "zoneId": "patio", "occupiable": true },
+    { "row": 5, "column": 3, "zoneId": "patio", "occupiable": true },
+    { "row": 5, "column": 4, "zoneId": "archive", "occupiable": true, "objectId": "chair" },
+    { "row": 5, "column": 5, "zoneId": "archive", "occupiable": true },
+    { "row": 5, "column": 6, "zoneId": "archive", "occupiable": true },
+    { "row": 6, "column": 1, "zoneId": "patio", "occupiable": false, "objectId": "crate" },
+    { "row": 6, "column": 2, "zoneId": "patio", "occupiable": true },
+    { "row": 6, "column": 3, "zoneId": "patio", "occupiable": true },
+    { "row": 6, "column": 4, "zoneId": "archive", "occupiable": true },
+    { "row": 6, "column": 5, "zoneId": "archive", "occupiable": true },
+    { "row": 6, "column": 6, "zoneId": "archive", "occupiable": true }
+  ],
+  "characters": [
+    { "id": "vera", "name": "Vera", "avatar": "👤", "avatarAsset": "avatar.avatar_08", "isVictim": false, "clues": [
+      { "id": "vera-chair", "type": "onObject", "objectId": "chair", "text": "Estaba sentada en una silla." },
+      { "id": "vera-gallery", "type": "zone", "zoneId": "gallery", "text": "Estaba en la galería." }
+    ] },
+    { "id": "dario", "name": "Darío", "avatar": "👤", "avatarAsset": "avatar.avatar_09", "isVictim": false, "clues": [
+      { "id": "dario-stool", "type": "onObject", "objectId": "stool", "text": "Estaba sentado en un taburete." },
+      { "id": "dario-workshop", "type": "zone", "zoneId": "workshop", "text": "Estaba en el taller." }
+    ] },
+    { "id": "clara", "name": "Clara", "avatar": "👤", "avatarAsset": "avatar.avatar_10", "isVictim": false, "clues": [
+      { "id": "clara-plant", "type": "besideObject", "objectId": "plant", "text": "Estaba junto a una planta." },
+      { "id": "clara-workshop", "type": "zone", "zoneId": "workshop", "text": "Estaba en el taller." }
+    ] },
+    { "id": "tomas", "name": "Tomás", "avatar": "👤", "avatarAsset": "avatar.avatar_11", "isVictim": false, "clues": [
+      { "id": "tomas-lounger", "type": "onObject", "objectId": "patioLounger", "text": "Estaba sentado en una tumbona." },
+      { "id": "tomas-patio", "type": "zone", "zoneId": "patio", "text": "Estaba en el patio." }
+    ] },
+    { "id": "lidia", "name": "Lidia", "avatar": "👤", "avatarAsset": "avatar.avatar_12", "isVictim": false, "clues": [
+      { "id": "lidia-chair", "type": "onObject", "objectId": "chair", "text": "Estaba sentada en una silla." },
+      { "id": "lidia-archive", "type": "zone", "zoneId": "archive", "text": "Estaba en el archivo." }
+    ] },
+    { "id": "noa", "name": "Noa", "avatar": "👤", "avatarAsset": "avatar.avatar_13", "isVictim": true, "clues": [] }
+  ],
+  "solution": [
+    { "characterId": "vera", "position": { "row": 1, "column": 2 } },
+    { "characterId": "dario", "position": { "row": 2, "column": 5 } },
+    { "characterId": "clara", "position": { "row": 3, "column": 6 } },
+    { "characterId": "tomas", "position": { "row": 4, "column": 1 } },
+    { "characterId": "lidia", "position": { "row": 5, "column": 4 } },
+    { "characterId": "noa", "position": { "row": 6, "column": 3 } }
+  ]
+}

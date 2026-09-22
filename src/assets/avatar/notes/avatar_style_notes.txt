@@ -1,6 +1,0 @@
-Estilo de avatar:
-- retrato minimalista
-- marco tipo polaroid/ficha
-- fondo de color
-- rostro simplificado sin rasgos detallados
-- coherente con estilo de libro / mystery board game

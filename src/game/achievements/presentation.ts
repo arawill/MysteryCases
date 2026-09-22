@@ -1,4 +1,4 @@
-import { achievementCatalog, type AchievementCategory, type AchievementDefinition, type AchievementId } from './catalog'
+import { achievementCatalog, type AchievementCategory, type AchievementId } from './catalog'
 import type { AchievementProgress } from '../persistence/achievementProgress'
 import type { AchievementContext } from './evaluator'
 import { buildPlayerStatistics } from '../statistics'
@@ -31,4 +31,3 @@ export function achievementDisplayProgress(id: AchievementId, context: Achieveme
 }
 export function getRecentAchievements(progress: AchievementProgress, maximum = 3) { return [...progress.unlocked].sort((left, right) => Date.parse(right.unlockedAt) - Date.parse(left.unlockedAt)).slice(0, maximum).map(item => ({ ...item, definition: achievementCatalog.find(achievement => achievement.id === item.id)! })) }
 export function buildProfileSummary(context: AchievementContext, achievements: AchievementProgress) { const stats = buildPlayerStatistics(context), infinitePerfect = context.investigationHistory.records.filter(record => record.mode === 'infinite' && isPerfectInvestigation(record)).length; return { statistics: stats, unlocked: achievements.unlocked.length, normalPercent: Math.min(100, Math.round(stats.normal.total / NORMAL_TOTAL_CASE_COUNT * 100)), perfectRate: stats.performance.trackedUnique ? Math.round(stats.performance.perfectUnique / stats.performance.trackedUnique * 100) : null, infinitePerfect } }
-export const getAchievementDefinition = (id: AchievementId): AchievementDefinition => achievementCatalog.find(item => item.id === id)!
