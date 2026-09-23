@@ -3,6 +3,15 @@ import { PUBLISHED_NORMAL_TOTAL } from '../game/normal/availability'
 import { findKiller, placementsEqual } from '../game/rules'
 import { solveCaseWithStats } from '../game/solver'
 import { validateCaseDefinition } from '../game/validation'
+import { expectedSerializedNormalCaseIds, registeredSerializedNormalCases } from './caseAuthoring/publishedCases'
+import { formatCaseValidationIssue, validatePublishedCases } from './caseAuthoring/validation'
+
+const serializedCases = validatePublishedCases({
+  projectRoot: process.cwd(),
+  registeredCases: registeredSerializedNormalCases,
+  expectedCaseIds: expectedSerializedNormalCaseIds,
+})
+if (!serializedCases.ok) throw new Error(`Published case JSON validation failed:\n${serializedCases.issues.map(formatCaseValidationIssue).join('\n')}`)
 
 const cases = getEffectiveNormalCatalog()
 if (cases.length !== PUBLISHED_NORMAL_TOTAL) throw new Error('Published Normal catalog is incomplete.')

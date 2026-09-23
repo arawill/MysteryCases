@@ -7,10 +7,6 @@ export function contextualObject(id: string, appearance: ObjectAppearance, occup
   return { id, label: entry.label.toLocaleLowerCase('es'), icon: entry.src, occupiable, appearance, footprint: footprint ? { id: `${id}-footprint`, positions: footprint } : undefined, occupiablePositions }
 }
 
-export function legacyObject(id: string, label: string, icon: string, occupiable: boolean, visualProfile: BoardObject['visualProfile'], footprint?: Position[], occupiablePositions?: Position[]): BoardObject {
-  return { id, label, icon, occupiable, visualProfile, footprint: footprint ? { id: `${id}-footprint`, positions: footprint } : undefined, occupiablePositions }
-}
-
 export function createManualBoard(zoneAt: (row: number, column: number) => string, objectAt: Record<string, BoardObject>, rows = 6, columns = 6): BoardCell[] {
   return Array.from({ length: rows }, (_, rowIndex) => Array.from({ length: columns }, (_, columnIndex) => {
     const row = rowIndex + 1, column = columnIndex + 1, object = objectAt[`${row}:${column}`]

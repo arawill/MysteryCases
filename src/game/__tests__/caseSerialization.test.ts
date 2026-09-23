@@ -7,7 +7,7 @@ import { caseAssetRegistry } from '../cases/caseAssetRegistry'
 import { loadSerializedCase } from '../cases/loadSerializedCase'
 import { CURRENT_CASE_SCHEMA_VERSION } from '../cases/schemaVersion'
 import type { SerializedGameCase } from '../cases/serializedTypes'
-import { validateSerializedCaseSchema } from '../cases/validateSerializedCaseSchema'
+import { getSerializedCaseSchemaIssues, validateSerializedCaseSchema } from '../cases/validateSerializedCaseSchema'
 import { findKiller, placementsEqual } from '../rules'
 import { solveCaseWithStats } from '../solver'
 import type { Clue, GlobalClue } from '../types'
@@ -47,6 +47,13 @@ describe('serialización de casos', () => {
 
   it('rechaza propiedades adicionales para evitar typos y deriva silenciosa del contrato', () => {
     expect(validateSerializedCaseSchema({ ...serializedCase001, unexpectedField: true })).toBe(false)
+  })
+
+  it('expone rutas, valores y motivos accionables sin duplicar las reglas de Ajv', () => {
+    const issues = getSerializedCaseSchemaIssues({ ...serializedCase001, rows: '6' })
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: '/rows', value: '6', reason: expect.stringContaining('integer') }),
+    ]))
   })
 
   it('mantiene el schema alineado con todas las variantes actuales de pistas y referencias opcionales', () => {

@@ -1,5 +1,17 @@
 # Registro de migración de casos normales
 
+Estado final: los quince casos manuales de dificultad 1 están almacenados como JSON con `schemaVersion: 1`. C01 y C02 establecieron el loader, el schema, el registro de assets y los wrappers de compatibilidad; C03–C15 se migraron después sobre el mismo contrato. La auditoría final y sus decisiones de conservación están en `case-architecture-consolidation-audit.md`.
+
+## C01 — La última taza
+
+- Migrado en la fase inicial y conservado como entrada directa de la ruta histórica y del generador Normal.
+- La equivalencia completa se protege con un fixture TypeScript independiente, además de schema, solver y tests específicos.
+
+## C02 — El marco vacío
+
+- Migrado en la fase inicial y registrado como caso manual Normal `1:2`.
+- La equivalencia completa se protege con un fixture TypeScript independiente, además de schema, solver y tests específicos.
+
 ## C03 — El salón en silencio
 
 - Migrado a `schemaVersion: 1` sin cambios funcionales.

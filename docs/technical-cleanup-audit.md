@@ -2,6 +2,8 @@
 
 Fecha: 22 de septiembre de 2026.
 
+> Este documento es la fotografía histórica anterior a la migración de C03–C15. La afirmación de que no se migró C03 describe exclusivamente aquel alcance. El estado consolidado posterior se documenta en `case-architecture-consolidation-audit.md` y el detalle de las quince migraciones en `case-migration-log.md`.
+
 ## Alcance y garantías
 
 La auditoría recorrió la aplicación, tests, herramientas, scripts, dependencias,

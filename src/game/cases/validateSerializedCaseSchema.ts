@@ -7,18 +7,50 @@ import type { SerializedGameCase } from './serializedTypes'
 const ajv = new Ajv2020({ allErrors: true, strict: true, strictTypes: false })
 const validate = ajv.compile<SerializedGameCase>(caseSchema)
 
-function describeError(error: ErrorObject): string {
-  const path = error.instancePath || '$'
-  if (error.keyword === 'required') return `${path} requiere la propiedad ${String(error.params.missingProperty)}.`
-  return `${path} ${error.message ?? `incumple ${error.keyword}`}.`
+export interface SerializedCaseSchemaIssue {
+  path: string
+  value: unknown
+  reason: string
+}
+
+const escapePointerSegment = (segment: string) => segment.replaceAll('~', '~0').replaceAll('/', '~1')
+const unescapePointerSegment = (segment: string) => segment.replaceAll('~1', '/').replaceAll('~0', '~')
+
+function valueAtPointer(value: unknown, pointer: string): unknown {
+  if (!pointer) return value
+  let current = value
+  for (const segment of pointer.slice(1).split('/').map(unescapePointerSegment)) {
+    if (typeof current !== 'object' || current === null) return undefined
+    current = (current as Record<string, unknown>)[segment]
+  }
+  return current
+}
+
+function toIssue(error: ErrorObject, value: unknown): SerializedCaseSchemaIssue {
+  if (error.keyword === 'required') {
+    const missingProperty = String(error.params.missingProperty)
+    const path = `${error.instancePath}/${escapePointerSegment(missingProperty)}`
+    return { path, value: undefined, reason: `requiere la propiedad ${missingProperty}` }
+  }
+  return {
+    path: error.instancePath || '$',
+    value: valueAtPointer(value, error.instancePath),
+    reason: error.message ?? `incumple ${error.keyword}`,
+  }
+}
+
+export function getSerializedCaseSchemaIssues(value: unknown): SerializedCaseSchemaIssue[] {
+  if (validate(value)) return []
+  return (validate.errors ?? []).map(error => toIssue(error, value))
 }
 
 export function validateSerializedCaseSchema(value: unknown): boolean {
-  return validate(value)
+  return getSerializedCaseSchemaIssues(value).length === 0
 }
 
 export function assertSerializedCaseSchema(value: unknown): asserts value is SerializedGameCase {
-  if (validate(value)) return
-  const details = (validate.errors ?? []).slice(0, 5).map(describeError).join(' ')
+  const issues = getSerializedCaseSchemaIssues(value)
+  if (issues.length === 0) return
+  const details = issues.slice(0, 5).map(issue => `${issue.path} ${issue.reason}.`).join(' ')
   throw new Error(`Caso serializado inválido según JSON Schema: ${details}`)
 }
