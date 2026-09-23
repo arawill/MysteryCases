@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "case015",
+  "title": "Ensayo general",
+  "intro": "Clara fue encontrada sin vida al terminar el ensayo. Reconstruye el último reparto de posiciones y descubre quién se quedó a solas con ella.",
+  "difficulty": 1,
+  "rows": 6,
+  "columns": 6,
+  "zones": [
+    { "id": "stage", "name": "Escenario", "tone": "cafe", "surface": "wood", "labelAnchor": { "position": { "row": 1, "column": 6 } } },
+    { "id": "storage", "name": "Almacén", "tone": "storage", "surface": "concrete", "labelAnchor": { "position": { "row": 3, "column": 2 } } },
+    { "id": "auditorium", "name": "Patio de butacas", "tone": "bathroom", "surface": "carpet", "labelAnchor": { "position": { "row": 4, "column": 5 } } },
+    { "id": "dressingRoom", "name": "Camerinos", "tone": "kitchen", "surface": "tile", "labelAnchor": { "position": { "row": 6, "column": 2 } } }
+  ],
+  "edgeFeatures": [
+    { "id": "stage-curtain", "type": "door", "label": "Cortina de escenario", "segments": [{ "position": { "row": 1, "column": 4 }, "side": "N" }, { "position": { "row": 1, "column": 5 }, "side": "N" }] }
+  ],
+  "objects": [
+    { "id": "piano", "label": "piano", "iconAsset": "contextual.object.piano", "occupiable": true, "appearance": "piano", "footprint": { "id": "piano-footprint", "positions": [{ "row": 1, "column": 2 }, { "row": 1, "column": 3 }] }, "occupiablePositions": [{ "row": 1, "column": 2 }] },
+    { "id": "dressingTable", "label": "tocador", "iconAsset": "contextual.object.dressing_table", "occupiable": false, "appearance": "dressingTable", "footprint": { "id": "dressingTable-footprint", "positions": [{ "row": 5, "column": 5 }, { "row": 5, "column": 6 }] } },
+    { "id": "cinemaSeats", "label": "fila de butacas", "iconAsset": "contextual.object.cinema_seat_row", "occupiable": true, "appearance": "cinemaSeatRow", "footprint": { "id": "cinemaSeats-footprint", "positions": [{ "row": 3, "column": 5 }, { "row": 3, "column": 6 }] }, "occupiablePositions": [{ "row": 3, "column": 6 }] },
+    { "id": "stageSpotlight", "label": "foco de escenario", "iconAsset": "contextual.object.stage_spotlight", "occupiable": false, "appearance": "stageSpotlight" },
+    { "id": "coatRack", "label": "perchero", "iconAsset": "contextual.object.coat_rack", "occupiable": false, "appearance": "coatRack" },
+    { "id": "storageStool", "label": "taburete", "iconAsset": "contextual.object.stool", "occupiable": true, "appearance": "stool" },
+    { "id": "dressingSeat", "label": "silla de comedor", "iconAsset": "contextual.object.dining_chair", "occupiable": true, "appearance": "diningChair" },
+    { "id": "costumeSeat", "label": "silla de comedor", "iconAsset": "contextual.object.dining_chair", "occupiable": true, "appearance": "diningChair" }
+  ],
+  "board": [
+    { "row": 1, "column": 1, "zoneId": "stage", "occupiable": true },
+    { "row": 1, "column": 2, "zoneId": "stage", "occupiable": true, "objectId": "piano" },
+    { "row": 1, "column": 3, "zoneId": "stage", "occupiable": false, "objectId": "piano" },
+    { "row": 1, "column": 4, "zoneId": "stage", "occupiable": true },
+    { "row": 1, "column": 5, "zoneId": "stage", "occupiable": true },
+    { "row": 1, "column": 6, "zoneId": "stage", "occupiable": true },
+    { "row": 2, "column": 1, "zoneId": "storage", "occupiable": true, "objectId": "storageStool" },
+    { "row": 2, "column": 2, "zoneId": "stage", "occupiable": false, "objectId": "stageSpotlight" },
+    { "row": 2, "column": 3, "zoneId": "stage", "occupiable": true },
+    { "row": 2, "column": 4, "zoneId": "stage", "occupiable": true },
+    { "row": 2, "column": 5, "zoneId": "stage", "occupiable": true },
+    { "row": 2, "column": 6, "zoneId": "stage", "occupiable": true },
+    { "row": 3, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 3, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 3, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 3, "column": 4, "zoneId": "auditorium", "occupiable": true },
+    { "row": 3, "column": 5, "zoneId": "auditorium", "occupiable": false, "objectId": "cinemaSeats" },
+    { "row": 3, "column": 6, "zoneId": "auditorium", "occupiable": true, "objectId": "cinemaSeats" },
+    { "row": 4, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 4, "zoneId": "auditorium", "occupiable": true },
+    { "row": 4, "column": 5, "zoneId": "auditorium", "occupiable": true },
+    { "row": 4, "column": 6, "zoneId": "auditorium", "occupiable": true },
+    { "row": 5, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 5, "column": 2, "zoneId": "dressingRoom", "occupiable": true },
+    { "row": 5, "column": 3, "zoneId": "dressingRoom", "occupiable": true },
+    { "row": 5, "column": 4, "zoneId": "dressingRoom", "occupiable": true, "objectId": "dressingSeat" },
+    { "row": 5, "column": 5, "zoneId": "dressingRoom", "occupiable": false, "objectId": "dressingTable" },
+    { "row": 5, "column": 6, "zoneId": "dressingRoom", "occupiable": false, "objectId": "dressingTable" },
+    { "row": 6, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 6, "column": 2, "zoneId": "dressingRoom", "occupiable": true },
+    { "row": 6, "column": 3, "zoneId": "dressingRoom", "occupiable": true },
+    { "row": 6, "column": 4, "zoneId": "dressingRoom", "occupiable": true },
+    { "row": 6, "column": 5, "zoneId": "dressingRoom", "occupiable": true, "objectId": "costumeSeat" },
+    { "row": 6, "column": 6, "zoneId": "dressingRoom", "occupiable": false, "objectId": "coatRack" }
+  ],
+  "characters": [
+    { "id": "irene", "name": "Irene", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_03", "isVictim": false, "clues": [{ "id": "c15-irene-piano", "type": "onObject", "objectId": "piano", "text": "Estaba sentada al piano." }] },
+    { "id": "mateo", "name": "Mateo", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_04", "isVictim": false, "clues": [{ "id": "c15-mateo-stool", "type": "onObject", "objectId": "storageStool", "text": "Estaba sentado en el taburete del almacén." }] },
+    { "id": "nadia", "name": "Nadia", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_05", "isVictim": false, "clues": [{ "id": "c15-nadia-seat", "type": "onObject", "objectId": "cinemaSeats", "text": "Estaba sentada en el patio de butacas." }] },
+    { "id": "oliver", "name": "Óliver", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_06", "isVictim": false, "clues": [{ "id": "c15-oliver-seat", "type": "onObject", "objectId": "dressingSeat", "text": "Estaba sentado en el camerino." }] },
+    { "id": "rocio", "name": "Rocío", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_07", "isVictim": false, "clues": [{ "id": "c15-rocio-rack", "type": "besideObject", "objectId": "coatRack", "text": "Estaba junto al perchero." }] },
+    { "id": "clara", "name": "Clara", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_08", "isVictim": true, "clues": [] }
+  ],
+  "solution": [
+    { "characterId": "irene", "position": { "row": 1, "column": 2 } },
+    { "characterId": "mateo", "position": { "row": 2, "column": 1 } },
+    { "characterId": "nadia", "position": { "row": 3, "column": 6 } },
+    { "characterId": "clara", "position": { "row": 4, "column": 3 } },
+    { "characterId": "oliver", "position": { "row": 5, "column": 4 } },
+    { "characterId": "rocio", "position": { "row": 6, "column": 5 } }
+  ]
+}

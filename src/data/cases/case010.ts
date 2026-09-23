@@ -1,18 +1,4 @@
-import type { Character, GameCase, Placement } from '../../game/types'
-import { avatarCatalog } from '../../game/characters/avatarCatalog'
-import { contextualObject, createManualBoard } from './manualCaseHelpers'
-const seats = contextualObject('cinemaSeats', 'cinemaSeatRow', true, [{ row: 3, column: 1 }, { row: 3, column: 2 }], [{ row: 3, column: 1 }])
-const projector = contextualObject('projector', 'projector', false), lobbySeat = contextualObject('lobbySeat', 'diningChair', true), cabinSeat = contextualObject('cabinSeat', 'officeChair', true), corridorSeat = contextualObject('corridorSeat', 'stool', true), aisleSeat = contextualObject('aisleSeat', 'diningChair', true)
-const zoneAt = (r: number, c: number) => r <= 2 && c <= 4 ? 'lobby' : r <= 2 ? 'booth' : r >= 3 && c <= 3 ? 'auditorium' : 'corridor'
-const board = createManualBoard(zoneAt, { '1:3': lobbySeat, '1:6': projector, '2:6': cabinSeat, '3:1': seats, '3:2': seats, '4:5': corridorSeat, '5:4': aisleSeat })
-const avatar = (i: number) => avatarCatalog[i + 12].image
-const characters: Character[] = [
-  { id: 'carmen', name: 'Carmen', avatar: '👤', avatarImage: avatar(0), isVictim: false, clues: [{ id: 'c10-carmen', type: 'onObject', objectId: 'lobbySeat', text: 'Estaba sentada en el vestíbulo.' }] },
-  { id: 'tomas', name: 'Tomás', avatar: '👤', avatarImage: avatar(1), isVictim: false, clues: [{ id: 'c10-tomas', type: 'onObject', objectId: 'cinemaSeats', text: 'Estaba sentado en la primera butaca.' }, { id: 'c10-tomas-room', type: 'zone', zoneId: 'auditorium', text: 'Estaba en la sala.' }] },
-  { id: 'jorge', name: 'Jorge', avatar: '👤', avatarImage: avatar(2), isVictim: false, clues: [{ id: 'c10-jorge', type: 'onObject', objectId: 'cabinSeat', text: 'Estaba sentado en la cabina.' }, { id: 'c10-jorge-projector', type: 'besideObject', objectId: 'projector', text: 'Estaba junto al proyector.' }] },
-  { id: 'alicia', name: 'Alicia', avatar: '👤', avatarImage: avatar(3), isVictim: false, clues: [{ id: 'c10-alicia', type: 'onObject', objectId: 'corridorSeat', text: 'Estaba sentada en el taburete del pasillo.' }] },
-  { id: 'santi', name: 'Santi', avatar: '👤', avatarImage: avatar(4), isVictim: false, clues: [{ id: 'c10-santi', type: 'onObject', objectId: 'aisleSeat', text: 'Estaba sentado en una silla.' }, { id: 'c10-santi-wall', type: 'besideWall', text: 'Estaba junto a la pared que separa la sala del pasillo.' }] },
-  { id: 'elisa', name: 'Elisa', avatar: '👤', avatarImage: avatar(5), isVictim: true, clues: [] },
-]
-const solution: Placement[] = [{ characterId: 'carmen', position: { row: 1, column: 3 } }, { characterId: 'tomas', position: { row: 3, column: 1 } }, { characterId: 'jorge', position: { row: 2, column: 6 } }, { characterId: 'alicia', position: { row: 4, column: 5 } }, { characterId: 'santi', position: { row: 5, column: 4 } }, { characterId: 'elisa', position: { row: 6, column: 2 } }]
-export const case010: GameCase = { id: 'case010', title: 'Última función', intro: 'Elisa fue encontrada sin vida tras la última función. Reconstruye las posiciones de la sala, la cabina y el pasillo.', difficulty: 1, rows: 6, columns: 6, zones: [{ id: 'lobby', name: 'Vestíbulo', tone: 'cafe', surface: 'tile', labelAnchor: { position: { row: 1, column: 2 } } }, { id: 'booth', name: 'Cabina', tone: 'storage', surface: 'concrete', labelAnchor: { position: { row: 2, column: 5 } } }, { id: 'auditorium', name: 'Sala', tone: 'bathroom', surface: 'carpet', labelAnchor: { position: { row: 5, column: 3 } } }, { id: 'corridor', name: 'Pasillo', tone: 'kitchen', surface: 'concrete', labelAnchor: { position: { row: 6, column: 5 } } }], edgeFeatures: [{ id: 'cinema-screen', type: 'window', label: 'Pantalla', segments: [{ position: { row: 6, column: 1 }, side: 'S' }, { position: { row: 6, column: 2 }, side: 'S' }] }], board, characters, solution }
+import serializedCase010 from './json/case010.json'
+import { loadSerializedCase } from '../../game/cases/loadSerializedCase'
+
+export const case010 = loadSerializedCase(serializedCase010)

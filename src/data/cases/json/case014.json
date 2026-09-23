@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "id": "case014",
+  "title": "Después del cierre",
+  "intro": "Noa fue encontrada sin vida al cerrar el museo. Reconstruye las posiciones de la galería y descubre quién se quedó a solas con ella.",
+  "difficulty": 1,
+  "rows": 6,
+  "columns": 6,
+  "zones": [
+    { "id": "lobby", "name": "Vestíbulo", "tone": "cafe", "surface": "tile", "labelAnchor": { "position": { "row": 1, "column": 3 } } },
+    { "id": "gallery", "name": "Galería", "tone": "kitchen", "surface": "wood", "labelAnchor": { "position": { "row": 1, "column": 6 } } },
+    { "id": "storage", "name": "Almacén", "tone": "storage", "surface": "concrete", "labelAnchor": { "position": { "row": 2, "column": 2 } } },
+    { "id": "restoration", "name": "Restauración", "tone": "bathroom", "surface": "tile", "labelAnchor": { "position": { "row": 4, "column": 4 } } }
+  ],
+  "edgeFeatures": [
+    { "id": "gallery-painting-north", "type": "window", "label": "Cuadro de la galería", "segments": [{ "position": { "row": 1, "column": 5 }, "side": "N" }] },
+    { "id": "gallery-painting-east", "type": "window", "label": "Cuadro de la galería", "segments": [{ "position": { "row": 2, "column": 6 }, "side": "E" }] }
+  ],
+  "objects": [
+    { "id": "displayCase", "label": "vitrina", "iconAsset": "contextual.object.display_case", "occupiable": false, "appearance": "displayCase", "footprint": { "id": "displayCase-footprint", "positions": [{ "row": 3, "column": 4 }, { "row": 3, "column": 5 }] } },
+    { "id": "restorationTable", "label": "mesa de restauración", "iconAsset": "contextual.object.restoration_table", "occupiable": false, "appearance": "restorationTable", "footprint": { "id": "restorationTable-footprint", "positions": [{ "row": 5, "column": 5 }, { "row": 5, "column": 6 }] } },
+    { "id": "statue", "label": "una estatua", "iconAsset": "hotel.object.statue", "occupiable": false, "visualProfile": "tall" },
+    { "id": "lobbySeat", "label": "silla de comedor", "iconAsset": "contextual.object.dining_chair", "occupiable": true, "appearance": "diningChair" },
+    { "id": "storageStool", "label": "taburete", "iconAsset": "contextual.object.stool", "occupiable": true, "appearance": "stool" },
+    { "id": "gallerySeat", "label": "silla de comedor", "iconAsset": "contextual.object.dining_chair", "occupiable": true, "appearance": "diningChair" },
+    { "id": "restorationSeat", "label": "silla de comedor", "iconAsset": "contextual.object.dining_chair", "occupiable": true, "appearance": "diningChair" },
+    { "id": "curatorSeat", "label": "silla de oficina", "iconAsset": "contextual.object.office_chair", "occupiable": true, "appearance": "officeChair" }
+  ],
+  "board": [
+    { "row": 1, "column": 1, "zoneId": "lobby", "occupiable": true },
+    { "row": 1, "column": 2, "zoneId": "lobby", "occupiable": true, "objectId": "lobbySeat" },
+    { "row": 1, "column": 3, "zoneId": "lobby", "occupiable": true },
+    { "row": 1, "column": 4, "zoneId": "gallery", "occupiable": true },
+    { "row": 1, "column": 5, "zoneId": "gallery", "occupiable": true },
+    { "row": 1, "column": 6, "zoneId": "gallery", "occupiable": true },
+    { "row": 2, "column": 1, "zoneId": "storage", "occupiable": true, "objectId": "storageStool" },
+    { "row": 2, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 2, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 2, "column": 4, "zoneId": "gallery", "occupiable": true },
+    { "row": 2, "column": 5, "zoneId": "gallery", "occupiable": true },
+    { "row": 2, "column": 6, "zoneId": "gallery", "occupiable": true },
+    { "row": 3, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 3, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 3, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 3, "column": 4, "zoneId": "gallery", "occupiable": false, "objectId": "displayCase" },
+    { "row": 3, "column": 5, "zoneId": "gallery", "occupiable": false, "objectId": "displayCase" },
+    { "row": 3, "column": 6, "zoneId": "gallery", "occupiable": true, "objectId": "gallerySeat" },
+    { "row": 4, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 4, "column": 4, "zoneId": "restoration", "occupiable": true },
+    { "row": 4, "column": 5, "zoneId": "restoration", "occupiable": true },
+    { "row": 4, "column": 6, "zoneId": "restoration", "occupiable": true },
+    { "row": 5, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 5, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 5, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 5, "column": 4, "zoneId": "restoration", "occupiable": true, "objectId": "restorationSeat" },
+    { "row": 5, "column": 5, "zoneId": "restoration", "occupiable": false, "objectId": "restorationTable" },
+    { "row": 5, "column": 6, "zoneId": "restoration", "occupiable": false, "objectId": "restorationTable" },
+    { "row": 6, "column": 1, "zoneId": "storage", "occupiable": true },
+    { "row": 6, "column": 2, "zoneId": "storage", "occupiable": true },
+    { "row": 6, "column": 3, "zoneId": "storage", "occupiable": true },
+    { "row": 6, "column": 4, "zoneId": "restoration", "occupiable": true },
+    { "row": 6, "column": 5, "zoneId": "restoration", "occupiable": true, "objectId": "curatorSeat" },
+    { "row": 6, "column": 6, "zoneId": "restoration", "occupiable": false, "objectId": "statue" }
+  ],
+  "characters": [
+    { "id": "amelia", "name": "Amelia", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_19", "isVictim": false, "clues": [{ "id": "c14-amelia-seat", "type": "onObject", "objectId": "lobbySeat", "text": "Estaba sentada en el vestíbulo." }, { "id": "c14-amelia-lobby", "type": "zone", "zoneId": "lobby", "text": "Estaba junto a la entrada del museo." }] },
+    { "id": "hector", "name": "Héctor", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_20", "isVictim": false, "clues": [{ "id": "c14-hector-stool", "type": "onObject", "objectId": "storageStool", "text": "Estaba sentado en el taburete del almacén." }] },
+    { "id": "simon", "name": "Simón", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_21", "isVictim": false, "clues": [{ "id": "c14-simon-display", "type": "besideObject", "objectId": "displayCase", "text": "Estaba junto a la vitrina." }] },
+    { "id": "iria", "name": "Iria", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_22", "isVictim": false, "clues": [{ "id": "c14-iria-table", "type": "besideObject", "objectId": "restorationTable", "text": "Estaba junto a la mesa de restauración." }] },
+    { "id": "gael", "name": "Gael", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_23", "isVictim": false, "clues": [{ "id": "c14-gael-statue", "type": "besideObject", "objectId": "statue", "text": "Estaba junto a la estatua." }] },
+    { "id": "noa", "name": "Noa", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_24", "isVictim": true, "clues": [] }
+  ],
+  "solution": [
+    { "characterId": "amelia", "position": { "row": 1, "column": 2 } },
+    { "characterId": "hector", "position": { "row": 2, "column": 1 } },
+    { "characterId": "simon", "position": { "row": 3, "column": 6 } },
+    { "characterId": "noa", "position": { "row": 4, "column": 3 } },
+    { "characterId": "iria", "position": { "row": 5, "column": 4 } },
+    { "characterId": "gael", "position": { "row": 6, "column": 5 } }
+  ]
+}

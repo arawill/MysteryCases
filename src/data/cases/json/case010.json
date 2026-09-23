@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "case010",
+  "title": "Última función",
+  "intro": "Elisa fue encontrada sin vida tras la última función. Reconstruye las posiciones de la sala, la cabina y el pasillo.",
+  "difficulty": 1,
+  "rows": 6,
+  "columns": 6,
+  "zones": [
+    { "id": "lobby", "name": "Vestíbulo", "tone": "cafe", "surface": "tile", "labelAnchor": { "position": { "row": 1, "column": 2 } } },
+    { "id": "booth", "name": "Cabina", "tone": "storage", "surface": "concrete", "labelAnchor": { "position": { "row": 2, "column": 5 } } },
+    { "id": "auditorium", "name": "Sala", "tone": "bathroom", "surface": "carpet", "labelAnchor": { "position": { "row": 5, "column": 3 } } },
+    { "id": "corridor", "name": "Pasillo", "tone": "kitchen", "surface": "concrete", "labelAnchor": { "position": { "row": 6, "column": 5 } } }
+  ],
+  "edgeFeatures": [
+    { "id": "cinema-screen", "type": "window", "label": "Pantalla", "segments": [{ "position": { "row": 6, "column": 1 }, "side": "S" }, { "position": { "row": 6, "column": 2 }, "side": "S" }] }
+  ],
+  "objects": [
+    { "id": "cinemaSeats", "label": "fila de butacas", "iconAsset": "contextual.object.cinema_seat_row", "occupiable": true, "appearance": "cinemaSeatRow", "footprint": { "id": "cinemaSeats-footprint", "positions": [{ "row": 3, "column": 1 }, { "row": 3, "column": 2 }] }, "occupiablePositions": [{ "row": 3, "column": 1 }] },
+    { "id": "projector", "label": "proyector", "iconAsset": "contextual.object.projector", "occupiable": false, "appearance": "projector" },
+    { "id": "lobbySeat", "label": "silla de comedor", "iconAsset": "contextual.object.dining_chair", "occupiable": true, "appearance": "diningChair" },
+    { "id": "cabinSeat", "label": "silla de oficina", "iconAsset": "contextual.object.office_chair", "occupiable": true, "appearance": "officeChair" },
+    { "id": "corridorSeat", "label": "taburete", "iconAsset": "contextual.object.stool", "occupiable": true, "appearance": "stool" },
+    { "id": "aisleSeat", "label": "silla de comedor", "iconAsset": "contextual.object.dining_chair", "occupiable": true, "appearance": "diningChair" }
+  ],
+  "board": [
+    { "row": 1, "column": 1, "zoneId": "lobby", "occupiable": true },
+    { "row": 1, "column": 2, "zoneId": "lobby", "occupiable": true },
+    { "row": 1, "column": 3, "zoneId": "lobby", "occupiable": true, "objectId": "lobbySeat" },
+    { "row": 1, "column": 4, "zoneId": "lobby", "occupiable": true },
+    { "row": 1, "column": 5, "zoneId": "booth", "occupiable": true },
+    { "row": 1, "column": 6, "zoneId": "booth", "occupiable": false, "objectId": "projector" },
+    { "row": 2, "column": 1, "zoneId": "lobby", "occupiable": true },
+    { "row": 2, "column": 2, "zoneId": "lobby", "occupiable": true },
+    { "row": 2, "column": 3, "zoneId": "lobby", "occupiable": true },
+    { "row": 2, "column": 4, "zoneId": "lobby", "occupiable": true },
+    { "row": 2, "column": 5, "zoneId": "booth", "occupiable": true },
+    { "row": 2, "column": 6, "zoneId": "booth", "occupiable": true, "objectId": "cabinSeat" },
+    { "row": 3, "column": 1, "zoneId": "auditorium", "occupiable": true, "objectId": "cinemaSeats" },
+    { "row": 3, "column": 2, "zoneId": "auditorium", "occupiable": false, "objectId": "cinemaSeats" },
+    { "row": 3, "column": 3, "zoneId": "auditorium", "occupiable": true },
+    { "row": 3, "column": 4, "zoneId": "corridor", "occupiable": true },
+    { "row": 3, "column": 5, "zoneId": "corridor", "occupiable": true },
+    { "row": 3, "column": 6, "zoneId": "corridor", "occupiable": true },
+    { "row": 4, "column": 1, "zoneId": "auditorium", "occupiable": true },
+    { "row": 4, "column": 2, "zoneId": "auditorium", "occupiable": true },
+    { "row": 4, "column": 3, "zoneId": "auditorium", "occupiable": true },
+    { "row": 4, "column": 4, "zoneId": "corridor", "occupiable": true },
+    { "row": 4, "column": 5, "zoneId": "corridor", "occupiable": true, "objectId": "corridorSeat" },
+    { "row": 4, "column": 6, "zoneId": "corridor", "occupiable": true },
+    { "row": 5, "column": 1, "zoneId": "auditorium", "occupiable": true },
+    { "row": 5, "column": 2, "zoneId": "auditorium", "occupiable": true },
+    { "row": 5, "column": 3, "zoneId": "auditorium", "occupiable": true },
+    { "row": 5, "column": 4, "zoneId": "corridor", "occupiable": true, "objectId": "aisleSeat" },
+    { "row": 5, "column": 5, "zoneId": "corridor", "occupiable": true },
+    { "row": 5, "column": 6, "zoneId": "corridor", "occupiable": true },
+    { "row": 6, "column": 1, "zoneId": "auditorium", "occupiable": true },
+    { "row": 6, "column": 2, "zoneId": "auditorium", "occupiable": true },
+    { "row": 6, "column": 3, "zoneId": "auditorium", "occupiable": true },
+    { "row": 6, "column": 4, "zoneId": "corridor", "occupiable": true },
+    { "row": 6, "column": 5, "zoneId": "corridor", "occupiable": true },
+    { "row": 6, "column": 6, "zoneId": "corridor", "occupiable": true }
+  ],
+  "characters": [
+    { "id": "carmen", "name": "Carmen", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_13", "isVictim": false, "clues": [{ "id": "c10-carmen", "type": "onObject", "objectId": "lobbySeat", "text": "Estaba sentada en el vestíbulo." }] },
+    { "id": "tomas", "name": "Tomás", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_14", "isVictim": false, "clues": [{ "id": "c10-tomas", "type": "onObject", "objectId": "cinemaSeats", "text": "Estaba sentado en la primera butaca." }, { "id": "c10-tomas-room", "type": "zone", "zoneId": "auditorium", "text": "Estaba en la sala." }] },
+    { "id": "jorge", "name": "Jorge", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_15", "isVictim": false, "clues": [{ "id": "c10-jorge", "type": "onObject", "objectId": "cabinSeat", "text": "Estaba sentado en la cabina." }, { "id": "c10-jorge-projector", "type": "besideObject", "objectId": "projector", "text": "Estaba junto al proyector." }] },
+    { "id": "alicia", "name": "Alicia", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_16", "isVictim": false, "clues": [{ "id": "c10-alicia", "type": "onObject", "objectId": "corridorSeat", "text": "Estaba sentada en el taburete del pasillo." }] },
+    { "id": "santi", "name": "Santi", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_17", "isVictim": false, "clues": [{ "id": "c10-santi", "type": "onObject", "objectId": "aisleSeat", "text": "Estaba sentado en una silla." }, { "id": "c10-santi-wall", "type": "besideWall", "text": "Estaba junto a la pared que separa la sala del pasillo." }] },
+    { "id": "elisa", "name": "Elisa", "avatar": "\ud83d\udc64", "avatarAsset": "avatar.avatar_18", "isVictim": true, "clues": [] }
+  ],
+  "solution": [
+    { "characterId": "carmen", "position": { "row": 1, "column": 3 } },
+    { "characterId": "tomas", "position": { "row": 3, "column": 1 } },
+    { "characterId": "jorge", "position": { "row": 2, "column": 6 } },
+    { "characterId": "alicia", "position": { "row": 4, "column": 5 } },
+    { "characterId": "santi", "position": { "row": 5, "column": 4 } },
+    { "characterId": "elisa", "position": { "row": 6, "column": 2 } }
+  ]
+}
