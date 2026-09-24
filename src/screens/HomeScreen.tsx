@@ -6,6 +6,7 @@ import { ExtraCaseCard } from '../components/ExtraCaseCard'
 import { InfiniteModeCard } from '../components/InfiniteModeCard'
 import { NormalModeCard } from '../components/NormalModeCard'
 import { formatDailyDate, getDailyCaseId } from '../game/daily/date'
+import { useDailyDate } from '../game/daily/useDailyDate'
 import { loadDailySession } from '../game/persistence/dailySession'
 import { loadInfiniteSession } from '../game/persistence/infiniteSession'
 import { getUnlockedDifficulties, loadNormalProgress } from '../game/persistence/normalProgress'
@@ -14,7 +15,7 @@ import { isCaseCompleted } from '../game/persistence/progress'
 const brandLogo = `${import.meta.env.BASE_URL}mysterycases-logo.webp`
 
 export function HomeScreen() {
-  const today = new Date()
+  const today = useDailyDate()
   const progress = loadNormalProgress()
   const max = getUnlockedDifficulties(progress).at(-1) ?? 1
   return <main className="home-screen">

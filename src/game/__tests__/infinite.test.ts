@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { analyzeCase } from '../analysis'
 import { getDifficultyPreset } from '../difficultyPresets'
 import { clearInfiniteCaseCache, generateInfiniteCase, getCachedInfiniteCase, getInfiniteCaseId } from '../infinite/generator'
@@ -10,6 +10,9 @@ import { loadPlayerStats, recordInfiniteCompletion } from '../persistence/player
 import { findKiller } from '../rules'
 import { solveCase } from '../solver'
 import { validateCaseDefinition } from '../validation'
+import { PROCEDURAL_GENERATION_VERSION } from '../generation/version'
+import { PROCEDURAL_SNAPSHOT_FORMAT_VERSION } from '../persistence/proceduralSnapshot'
+import type { DifficultyRating } from '../types'
 const storage = () => { const values = new Map<string, string>(); return { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => values.set(key, value), removeItem: (key: string) => values.delete(key), clear: () => values.clear(), key: () => null, get length() { return values.size } } as Storage }
 const progress = { saveVersion: 2 as const, selectedDifficulty: 1 as const, completedCaseNumbersByDifficulty: { 1: [], 2: [], 3: [], 4: [], 5: [] } }
 const negative = (type: string) => type === 'notZone' || type === 'notOnObject' || type === 'notBesideObject'
@@ -20,4 +23,37 @@ describe('infinite', () => {
   it('is deterministic, uses distinct IDs and caches', () => { const first = generateInfiniteCase({ difficulty: 1, seed: 123456 }), again = generateInfiniteCase({ difficulty: 1, seed: 123456 }); expect(again).toEqual(first); expect(getInfiniteCaseId(3, 123)).toBe(getInfiniteCaseId(3, 123)); expect(getInfiniteCaseId(3, 123)).not.toBe(getInfiniteCaseId(5, 123)); expect(getInfiniteCaseId(3, 123)).not.toBe(getInfiniteCaseId(3, 124)); clearInfiniteCaseCache(); const a = getCachedInfiniteCase({ difficulty: 1, seed: 123 }), b = getCachedInfiniteCase({ difficulty: 1, seed: 123 }); expect(a).toBe(b); clearInfiniteCaseCache(); expect(getCachedInfiniteCase({ difficulty: 1, seed: 123 })).not.toBe(a) })
   it.each([3, 5] as const)('is deterministic and caches high difficulty %s', difficulty => { const seed = 918270 + difficulty, first = generateInfiniteCase({ difficulty, seed }), again = generateInfiniteCase({ difficulty, seed }); expect(again).toEqual(first); clearInfiniteCaseCache(); const cached = getCachedInfiniteCase({ difficulty, seed }); expect(getCachedInfiniteCase({ difficulty, seed })).toBe(cached); clearInfiniteCaseCache(); expect(getCachedInfiniteCase({ difficulty, seed })).not.toBe(cached) }, 30000)
   it('clears case saves, records a resolved Infinite once, and never writes global progress', () => { const memory = storage(); saveCase('infinite-d3-s123', { placements: [], manualExcludedCells: [{ row: 1, column: 1 }] }, memory); clearCaseSave('infinite-d3-s123', memory); expect(loadCaseSave('infinite-d3-s123', memory)).toEqual({ saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 }, checkpoints: [], positionChecksUsed: 0 }); recordCaseCompletion('infinite-d3-s123', false, memory); recordInfiniteCompletion('infinite-d3-s123', memory); recordInfiniteCompletion('infinite-d3-s123', memory); expect(loadPlayerStats(memory).completedInfiniteCaseIds).toEqual(['infinite-d3-s123']); expect(isCaseCompleted('infinite-d3-s123', memory)).toBe(false) })
+
+  it('restores the exact snapshot without invoking a changed generator', () => {
+    const memory = storage()
+    const started = startInfiniteSession(1, 0x10203040, progress, memory)!
+    const changedGenerator = vi.fn(() => { throw new Error('A restored Infinite session must not regenerate.') })
+    const restored = loadInfiniteSession(memory, changedGenerator)
+    expect(changedGenerator).not.toHaveBeenCalled()
+    expect(restored?.caseData).toEqual(started.caseData)
+    expect(restored).toMatchObject({ saveVersion: 2, mode: 'infinite', snapshotFormatVersion: PROCEDURAL_SNAPSHOT_FORMAT_VERSION, generationVersion: PROCEDURAL_GENERATION_VERSION, seed: 0x10203040, difficulty: 1 })
+  }, 30_000)
+
+  it('migrates legacy metadata exactly once and preserves its status', () => {
+    const memory = storage()
+    memory.setItem(INFINITE_SESSION_KEY, JSON.stringify({ saveVersion: 1, generationVersion: 1, difficulty: 1, seed: 98765, status: 'completed' }))
+    const generator = vi.fn((request: { difficulty: DifficultyRating; seed: number }) => generateInfiniteCase(request))
+    const migrated = loadInfiniteSession(memory, generator)
+    expect(generator).toHaveBeenCalledOnce()
+    expect(migrated).toMatchObject({ status: 'completed', seed: 98765, generationVersion: PROCEDURAL_GENERATION_VERSION })
+    expect(JSON.parse(memory.getItem(INFINITE_SESSION_KEY)!)).toMatchObject({ saveVersion: 2, status: 'completed', snapshot: { mode: 'infinite', originalSeed: 98765 } })
+    const forbiddenGenerator = vi.fn(() => { throw new Error('Legacy migration ran twice.') })
+    expect(loadInfiniteSession(memory, forbiddenGenerator)?.caseData).toEqual(migrated?.caseData)
+    expect(forbiddenGenerator).not.toHaveBeenCalled()
+  }, 30_000)
+
+  it('discards an unreconstructable legacy session without retrying or crashing', () => {
+    const memory = storage()
+    memory.setItem(INFINITE_SESSION_KEY, JSON.stringify({ saveVersion: 1, generationVersion: 1, difficulty: 1, seed: 42, status: 'active' }))
+    const failingGenerator = vi.fn(() => { throw new Error('cannot reconstruct') })
+    expect(() => loadInfiniteSession(memory, failingGenerator)).not.toThrow()
+    expect(loadInfiniteSession(memory, failingGenerator)).toBeNull()
+    expect(memory.getItem(INFINITE_SESSION_KEY)).toBeNull()
+    expect(failingGenerator).toHaveBeenCalledOnce()
+  })
 })

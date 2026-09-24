@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AppHeader } from '../components/AppHeader'
 import { formatDifficultyStars } from '../game/difficulty'
 import { allDifficultyPresets } from '../game/difficultyPresets'
-import { getCachedInfiniteCase, getInfiniteCaseId } from '../game/infinite/generator'
+import { getInfiniteCaseId } from '../game/infinite/generator'
 import { clearCaseSave } from '../game/persistence/caseSave'
 import { clearInfiniteSession, createInfiniteSeed, loadInfiniteSession, markInfiniteSessionCompleted, startInfiniteSession } from '../game/persistence/infiniteSession'
 import { getUnlockedDifficulties, loadNormalProgress } from '../game/persistence/normalProgress'
@@ -27,18 +27,17 @@ export function InfiniteScreen() {
 
   if (session.status === 'completed') return <main className="simple-screen">
     <AppHeader back />
-    <section className="simple-hero"><p className="eyebrow">CASO RESUELTO</p><h1>Expediente cerrado</h1><button className="primary" onClick={() => { setPreviousSeed(session.seed); clearCaseSave(getInfiniteCaseId(session.difficulty, session.seed)); clearInfiniteSession(); setSession(null) }}>GENERAR OTRO CASO</button></section>
+    <section className="simple-hero"><p className="eyebrow">CASO RESUELTO</p><h1>Expediente cerrado</h1><button className="primary" onClick={() => { setPreviousSeed(session.seed); clearCaseSave(session.caseData.id); clearInfiniteSession(); setSession(null) }}>GENERAR OTRO CASO</button></section>
   </main>
 
-  const generated = getCachedInfiniteCase(session)
   return <div className="case-route">
     <AppHeader back />
-    <div className="infinite-controls"><button onClick={() => { if (window.confirm('¿Descartar este expediente? Se perderá su progreso.')) { setPreviousSeed(session.seed); clearCaseSave(generated.caseData.id); clearInfiniteSession(); setSession(null) } }}>DESCARTAR CASO</button></div>
+    <div className="infinite-controls"><button onClick={() => { if (window.confirm('¿Descartar este expediente? Se perderá su progreso.')) { setPreviousSeed(session.seed); clearCaseSave(session.caseData.id); clearInfiniteSession(); setSession(null) } }}>DESCARTAR CASO</button></div>
     <GameScreen
-      gameCase={generated.caseData}
+      gameCase={session.caseData}
       eyebrowLabel={`CASO INFINITO · ${formatDifficultyStars(session.difficulty)}`}
       recordGlobalCompletion={false}
-      onCaseCompleted={assists => { markInfiniteSessionCompleted(); recordInfiniteCompletion(generated.caseData.id); recordInvestigationCompletion({ mode: 'infinite', logicalId: getInfiniteCaseId(session.difficulty, session.seed), difficulty: session.difficulty, assists }); announceAchievements(reconcileCurrentAchievements().newlyUnlocked) }}
+      onCaseCompleted={assists => { markInfiniteSessionCompleted(); recordInfiniteCompletion(getInfiniteCaseId(session.difficulty, session.seed)); recordInvestigationCompletion({ mode: 'infinite', logicalId: getInfiniteCaseId(session.difficulty, session.seed), difficulty: session.difficulty, assists }); announceAchievements(reconcileCurrentAchievements().newlyUnlocked) }}
       onCompletionAcknowledged={() => setSession(current => current ? { ...current, status: 'completed' } : null)}
     />
   </div>
