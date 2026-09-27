@@ -56,7 +56,8 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
     if (cached) return cached
     if (stats.solverCalls >= limits.maxSolverCalls) throw new Error('Procedural solver-call budget exceeded.')
     stats.solverCalls += 1
-    const solved = solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2, ...(options.procedural ? { maxNodes: limits.maxSolverNodes } : {}) })
+    const solve = () => solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2, ...(options.procedural ? { maxNodes: limits.maxSolverNodes } : {}) })
+    const solved = options.instrumentation ? options.instrumentation.measureSolver(solve) : solve()
     if (solved.truncated) throw new Error('Procedural solver-node budget exceeded.')
     solveCache.set(signature, solved)
     return solved
@@ -98,7 +99,8 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   // With no minimisation, `result` was obtained from exactly this selected set.
   // Reuse it rather than asking the solver the same question a second time.
   const finalResult = !minimizeClues && result.solutionsFound === 1 ? result : solveSelected(selected); if (finalResult.solutionsFound !== 1 || !placementsEqual(finalResult.solutions[0], generated.solution)) throw new Error('Generated puzzle failed final uniqueness validation.')
-  const analysis = analyzeCase(generated); if (analysis.status !== 'unique' || analysis.matchesCanonical !== true) throw new Error('Generated puzzle failed analysis validation.')
+  const analyze = () => analyzeCase(generated)
+  const analysis = options.instrumentation ? options.instrumentation.measureSolver(analyze) : analyze(); if (analysis.status !== 'unique' || analysis.matchesCanonical !== true) throw new Error('Generated puzzle failed analysis validation.')
   const killer = findKiller(generated, generated.solution); if (!killer) throw new Error('Generated puzzle has no unique killer.')
   stats.selectedClues = selected.length
   return { caseData: generated, seed: options.seed, killerId: killer.id, stats }

@@ -4,6 +4,7 @@ import { generateProceduralCase } from '../game/generation/proceduralCase'
 import { findKiller } from '../game/rules'
 import { validateCaseDefinition } from '../game/validation'
 import type { DifficultyRating } from '../game/types'
+import { aggregateProceduralDiagnostics, type ProceduralGenerationDiagnostic } from '../game/generation/observability'
 
 const option = (name: string) => process.argv.find(argument => argument.startsWith(`--${name}=`))?.slice(name.length + 3)
 const parsedSamples = Number(option('samples') ?? '50')
@@ -13,11 +14,12 @@ if (!Number.isInteger(parsedSamples) || parsedSamples < 1) throw new Error('--sa
 if (parsedDifficultyNumber !== undefined && (!Number.isInteger(parsedDifficultyNumber) || parsedDifficultyNumber < 1 || parsedDifficultyNumber > 5)) throw new Error('--difficulty must be between 1 and 5.')
 const difficulties: DifficultyRating[] = parsedDifficultyNumber === undefined ? [1, 2, 3, 4, 5] : [parsedDifficultyNumber as DifficultyRating]
 let verified = 0
+const diagnostics: ProceduralGenerationDiagnostic[] = []
 for (const difficulty of difficulties) {
   const started = performance.now()
   for (let sample = 0; sample < parsedSamples; sample += 1) {
     const seed = (Math.imul(difficulty, 0x9e3779b1) + Math.imul(sample + 1, 0x85ebca6b) + 0x13579bdf) >>> 0
-    const generated = generateProceduralCase({ id: `quality-d${difficulty}-${sample}`, title: 'Verificación', intro: '', difficulty, seed })
+    const generated = generateProceduralCase({ id: `quality-d${difficulty}-${sample}`, title: 'Verificación', intro: '', difficulty, seed }, { observer: diagnostic => diagnostics.push(diagnostic as ProceduralGenerationDiagnostic) })
     const errors = [...validateCaseDefinition(generated.caseData), ...validateHumanClueQuality(generated.caseData)]
     if (errors.length > 0) throw new Error(`D${difficulty}/S${sample}: ${errors.join(' ')}`)
     if (generated.caseData.characters.some(character => character.clues.some(clue => clue.type === 'row' || clue.type === 'column'))) throw new Error(`D${difficulty}/S${sample}: coordinate clue found.`)
@@ -30,3 +32,5 @@ for (const difficulty of difficulties) {
   console.log(`D${difficulty} completed in ${Math.round(performance.now() - started)} ms.`)
 }
 console.log(`Verified human clue quality for ${verified} procedural puzzles.`)
+const retrySummary = aggregateProceduralDiagnostics(diagnostics)
+console.log(JSON.stringify({ proceduralRetries: { requests: retrySummary.requests, fallbacks: retrySummary.fallbacks, failures: retrySummary.failures, attempts: retrySummary.attempts, solverCalls: retrySummary.solverCalls, solverTimePercentage: retrySummary.solverTimePercentage, rejections: retrySummary.rejections } }))

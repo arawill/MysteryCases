@@ -2,6 +2,8 @@
 
 Fecha: 23 de septiembre de 2026.
 
+> Actualización de observabilidad (27 de septiembre de 2026): Daily, Infinite y el generador directo admiten un observador local opcional que registra cada rechazo real, llamadas/tiempo del solver, fallbacks y agotamientos sin cambiar el output. `npm run audit:procedural-retries` reproduce una matriz Daily+Infinite D1–D5; formato, percentiles, privacidad y reproducción se documentan en [`procedural-observability.md`](procedural-observability.md).
+
 Rama auditada: `pre`.
 
 Estado inicial: árbol de trabajo limpio.

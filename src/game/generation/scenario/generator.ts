@@ -18,11 +18,12 @@ export function generateScenarioTemplate(profile: ScenarioProfile, options: Gene
   const profileErrors = validateScenarioProfile(profile); if (profileErrors.length > 0) throw new Error(`Invalid scenario profile: ${profileErrors.join(' ')}`); if (minZoneCells * profile.zones.length > profile.rows * profile.columns) throw new Error('minZoneCells is impossible for this profile.')
   const scenarioRandom = createSeededRandom(options.seed); const stats: ScenarioStats = { scenarioAttempts: 0, zoneLayoutAttempts: 0, objectPlacementAttempts: 0, feasibilityChecks: 0, objectsPlaced: 0, occupiableCells: 0, blockedCells: 0 }
   for (let attempt = 1; attempt <= maxScenarioAttempts; attempt += 1) {
-    stats.scenarioAttempts = attempt; stats.zoneLayoutAttempts += 1; const layout = generateZoneLayout(profile, scenarioRandom, minZoneCells); if (!layout) continue
-    const selectedObjects = shuffle(profile.objects, scenarioRandom).slice(0, objectCount); const objectResult = placeScenarioObjects(layout, selectedObjects, scenarioRandom, minOccupiableCellsPerZone); stats.objectPlacementAttempts += objectResult.attempts; if (!objectResult.ok) continue
-    const template = templateFrom(profile, objectResult.board, options.seed); if (!template) continue; const errors = validateGenerationTemplate(template); if (errors.length > 0) continue
+    options.instrumentation?.recordScenarioAttempt()
+    stats.scenarioAttempts = attempt; stats.zoneLayoutAttempts += 1; const layout = generateZoneLayout(profile, scenarioRandom, minZoneCells); if (!layout) { options.instrumentation?.recordRejection('scenario-zone-layout'); continue }
+    const selectedObjects = shuffle(profile.objects, scenarioRandom).slice(0, objectCount); const objectResult = placeScenarioObjects(layout, selectedObjects, scenarioRandom, minOccupiableCellsPerZone); stats.objectPlacementAttempts += objectResult.attempts; if (!objectResult.ok) { options.instrumentation?.recordRejection('scenario-object-placement'); continue }
+    const template = templateFrom(profile, objectResult.board, options.seed); if (!template) { options.instrumentation?.recordRejection('scenario-edge-or-trait'); continue }; const errors = validateGenerationTemplate(template); if (errors.length > 0) { options.instrumentation?.recordRejection('scenario-template-validation'); continue }
     stats.feasibilityChecks += 1
-    try { generateValidPlacement(template, createSeededRandom(options.seed), DEFAULT_FEASIBILITY_PLACEMENT_ATTEMPTS) } catch { continue }
+    try { generateValidPlacement(template, createSeededRandom(options.seed), DEFAULT_FEASIBILITY_PLACEMENT_ATTEMPTS) } catch { options.instrumentation?.recordRejection('scenario-placement-feasibility'); continue }
     stats.objectsPlaced = objectResult.objectsPlaced; stats.occupiableCells = template.board.filter(cell => cell.occupiable).length; stats.blockedCells = template.board.length - stats.occupiableCells
     return { template, seed: options.seed, stats }
   }

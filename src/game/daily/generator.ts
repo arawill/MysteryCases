@@ -11,21 +11,26 @@ import { getDailyDifficultySeed, getDailyPuzzleId } from './date'
 import type { DifficultyRating } from '../types'
 import { getVersionedProceduralCaseId } from '../generation/version'
 import { selectScenarioPack } from '../scenarios/catalog'
+import { classifyGenerationError, createProceduralDiagnosticTracker, type ProceduralObservabilityOptions } from '../generation/observability'
 
 export interface GeneratedDailyCase { caseData: GameCase; dateKey: string; baseSeed: number; effectiveSeed: number; seedOffset: number; killerId: string; scenarioAttempts: number; stats: GenerationStats }
-export function generateDailyCase(date: Date, difficulty: DifficultyRating = 1): GeneratedDailyCase {
+export function generateDailyCase(date: Date, difficulty: DifficultyRating = 1, observability?: ProceduralObservabilityOptions): GeneratedDailyCase {
   const dateKey = getDailyDateKey(date), baseSeed = getDailyDifficultySeed(date, difficulty), scenarioPack = selectScenarioPack(baseSeed), characters = buildCharacterRoster({ difficulty, seed: baseSeed, scenarioPack })
+  const tracker = createProceduralDiagnosticTracker('daily', difficulty, baseSeed, observability)
   const profile = createDifficultyScenarioProfile({ id: getDailyPuzzleId(date, difficulty), title: 'Caso diario', intro: 'Un nuevo expediente espera hoy. Reconstruye dónde estaba cada persona y descubre quién se quedó a solas con la víctima.', difficulty, characters, scenarioPack })
   for (let offset = 0; offset < 100; offset += 1) {
+    tracker?.recordCandidate()
     const effectiveSeed = (baseSeed + offset) >>> 0
     try {
-      const scenario = generateScenarioTemplate(profile, { seed: effectiveSeed })
-      const puzzle = generatePuzzle(scenario.template, { seed: effectiveSeed, minCluesPerCharacter: getMinimumCluesPerCharacter(difficulty), minimizeClues: false, procedural: true })
+      const scenario = generateScenarioTemplate(profile, { seed: effectiveSeed, ...(tracker ? { instrumentation: tracker } : {}) })
+      const puzzle = generatePuzzle(scenario.template, { seed: effectiveSeed, minCluesPerCharacter: getMinimumCluesPerCharacter(difficulty), minimizeClues: false, procedural: true, ...(tracker ? { instrumentation: tracker } : {}) })
       const caseData = { ...puzzle.caseData, id: getVersionedProceduralCaseId(getDailyPuzzleId(date, difficulty)) }
-      if (!hasReadableClues(caseData)) continue
+      if (!hasReadableClues(caseData)) { tracker?.recordRejection('post-generation-quality'); continue }
+      tracker?.emit(offset === 0 ? 'success' : 'fallback', offset, effectiveSeed)
       return { caseData, dateKey, baseSeed, effectiveSeed, seedOffset: offset, killerId: puzzle.killerId, scenarioAttempts: scenario.stats.scenarioAttempts, stats: puzzle.stats }
-    } catch { continue }
+    } catch (error) { tracker?.recordRejection(classifyGenerationError(error)); continue }
   }
+  tracker?.recordRejection('candidate-limit'); tracker?.emit('failure')
   throw new Error('No se pudo generar el caso diario para esta fecha.')
 }
 const dailyCaseCache = new Map<string, GeneratedDailyCase>()

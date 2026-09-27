@@ -2,6 +2,8 @@
 
 Fecha: 24 de septiembre de 2026.
 
+> Actualización de observabilidad (27 de septiembre de 2026): el hallazgo sobre causas silenciadas queda resuelto mediante diagnósticos tipados, observador opcional aislado, tiempos de solver y agregación reproducible. La guía operativa y el contrato de privacidad están en [`procedural-observability.md`](procedural-observability.md). Las cifras históricas de 340 casos se conservan como línea base comparable.
+
 Rama auditada: `pre`.
 
 Estado inicial de la auditoría: árbol de trabajo limpio. La implementación posterior se hizo sobre `pre` y se dejó sin commit.
