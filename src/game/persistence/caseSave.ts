@@ -1,6 +1,7 @@
 import { isRecord, sanitiseBoardState, type InvestigationBoardState } from '../boardState'
 import { sanitiseCheckpoints, type CaseCheckpoint } from '../checkpoints'
 import type { GameCase } from '../types'
+import { removeStorageValue, replaceStorageValue, type StorageResult } from './storageAdapter'
 export interface HintUsage { review: number; exclusion: number; reveal: number }
 export interface CaseSave extends InvestigationBoardState {
   saveVersion: 4
@@ -34,10 +35,11 @@ export function loadCaseSave(caseId: string, storage: Storage = localStorage, ga
 
 type SaveInput = InvestigationBoardState & Partial<Pick<CaseSave, 'hintsUsed' | 'checkpoints' | 'positionChecksUsed'>>
 
-export function saveCase(caseId: string, save: SaveInput, storage: Storage = localStorage) {
+export function saveCase(caseId: string, save: SaveInput, storage: Storage = localStorage): StorageResult {
   // Partial callers must not accidentally replenish checks or remove saved hypotheses.
   const current = loadCaseSave(caseId, storage)
   const safe = normalise({ ...current, ...save, saveVersion: 4 })
-  storage.setItem(getCaseSaveKey(caseId), JSON.stringify(safe))
+  const key = getCaseSaveKey(caseId)
+  return replaceStorageValue(key, JSON.stringify(safe), storage)
 }
-export function clearCaseSave(caseId: string, storage: Storage = localStorage) { storage.removeItem(getCaseSaveKey(caseId)) }
+export function clearCaseSave(caseId: string, storage: Storage = localStorage) { return removeStorageValue(getCaseSaveKey(caseId), storage) }

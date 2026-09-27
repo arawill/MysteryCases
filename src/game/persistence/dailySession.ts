@@ -1,9 +1,13 @@
-import { getDailyDateKey } from '../daily/date'
+import { getDateForDailyKey } from '../daily/date'
 import { generateDailyCase, type GeneratedDailyCase } from '../daily/generator'
 import { isDifficultyRating } from '../difficulty'
 import type { DifficultyRating, GameCase } from '../types'
 import { isDifficultyUnlocked, type NormalModeProgress } from './normalProgress'
 import { createProceduralCaseSnapshot, restoreProceduralCaseSnapshot, type ProceduralCaseSnapshot } from './proceduralSnapshot'
+import { getAttemptKey } from './storageCatalog'
+import { getCaseSaveKey } from './caseSave'
+import { executeStorageTransaction } from './storageTransaction'
+import { replaceStorageValue } from './storageAdapter'
 
 interface LegacyDailySession { saveVersion: 1; dateKey: string; difficulty: DifficultyRating }
 interface StoredDailySession { saveVersion: 2; snapshot: ProceduralCaseSnapshot }
@@ -50,29 +54,31 @@ function persistSnapshot(generated: GeneratedDailyCase, storage: Storage): Daily
   try {
     const snapshot = createProceduralCaseSnapshot('daily', generated, { dailyDateKey: generated.dateKey })
     const stored: StoredDailySession = { saveVersion: 2, snapshot }
-    storage.setItem(DAILY_SESSION_KEY, JSON.stringify(stored))
+    if (!replaceStorageValue(DAILY_SESSION_KEY, JSON.stringify(stored), storage).ok) return null
     return toRuntimeSession(snapshot, generated.caseData)
   } catch {
     return null
   }
 }
 
-function isLegacyDailySession(value: unknown, dateKey: string): value is LegacyDailySession {
+function isLegacyDailySession(value: unknown): value is LegacyDailySession {
   if (!isRecord(value)) return false
-  return value.saveVersion === 1 && value.dateKey === dateKey && isDifficultyRating(value.difficulty)
+  return value.saveVersion === 1 && typeof value.dateKey === 'string' && getDateForDailyKey(value.dateKey) !== null && isDifficultyRating(value.difficulty)
 }
 
-export function loadDailySession(date: Date, storage: Storage = localStorage, generate: DailyCaseGenerator = generateDailyCase): DailySession | null {
-  const dateKey = getDailyDateKey(date)
+export function loadDailySession(_date: Date, storage: Storage = localStorage, generate: DailyCaseGenerator = generateDailyCase): DailySession | null {
   let value: unknown
-  try { value = JSON.parse(storage.getItem(DAILY_SESSION_KEY) ?? 'null') } catch { return null }
+  try { value = JSON.parse(storage.getItem(DAILY_SESSION_KEY) ?? 'null') } catch { removeSafely(storage); return null }
   if (isRecord(value) && value.saveVersion === 2) {
-    const restored = restoreProceduralCaseSnapshot(value.snapshot, { mode: 'daily', dailyDateKey: dateKey })
-    return restored ? toRuntimeSession(restored.snapshot, restored.caseData) : null
+    const restored = restoreProceduralCaseSnapshot(value.snapshot, { mode: 'daily' })
+    if (restored) return toRuntimeSession(restored.snapshot, restored.caseData)
+    removeSafely(storage)
+    return null
   }
-  if (!isLegacyDailySession(value, dateKey)) return null
+  if (!isLegacyDailySession(value)) return null
   try {
-    const migrated = persistSnapshot(generate(date, value.difficulty), storage)
+    const legacyDate = getDateForDailyKey(value.dateKey)
+    const migrated = legacyDate ? persistSnapshot(generate(legacyDate, value.difficulty), storage) : null
     if (migrated) return migrated
   } catch { /* A legacy case without a safe reconstruction is discarded below. */ }
   removeSafely(storage)
@@ -90,4 +96,14 @@ export function startDailySession(
   if (existing) return existing
   if (!isDifficultyUnlocked(difficulty, progress)) return null
   try { return persistSnapshot(generate(date, difficulty), storage) } catch { return null }
+}
+
+export function abandonDailySession(storage: Storage = localStorage): boolean {
+  const session = loadDailySession(new Date(), storage)
+  if (!session) return true
+  return executeStorageTransaction(`abandon:${session.caseData.id}`, [
+    { key: DAILY_SESSION_KEY, after: null },
+    { key: getCaseSaveKey(session.caseData.id), after: null },
+    { key: getAttemptKey(session.caseData.id), after: null },
+  ], storage).ok
 }

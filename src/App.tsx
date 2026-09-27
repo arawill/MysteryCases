@@ -53,11 +53,11 @@ function ThemeController() {
   return null
 }
 
-function CaseRoute() { return <div className="case-route"><AppHeader back /><GameScreen gameCase={case001} /></div> }
+function CaseRoute() { return <div className="case-route"><AppHeader back /><GameScreen gameCase={case001} completionIdentity={{ mode: 'normal', logicalId: 'normal-d1-c01', difficulty: 1, caseNumber: 1 }} /></div> }
 
 export default function App() {
   const [, setAchievementBootstrapVersion] = useState(0)
-  useEffect(() => { reconcileCurrentAchievements(); const timer = window.setTimeout(() => setAchievementBootstrapVersion(version => version + 1), 0); return () => window.clearTimeout(timer) }, [])
+  useEffect(() => { try { reconcileCurrentAchievements() } catch { /* A storage failure must not prevent the game from opening. */ } const timer = window.setTimeout(() => setAchievementBootstrapVersion(version => version + 1), 0); return () => window.clearTimeout(timer) }, [])
   return <HashRouter><ThemeController /><AchievementToastHost /><PwaUpdatePrompt /><Routes>
     <Route path="/" element={<HomeScreen />} />
     <Route path="/daily" element={<DailyScreen />} />

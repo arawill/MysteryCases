@@ -5,7 +5,7 @@ import { DailyCaseCard } from '../components/DailyCaseCard'
 import { ExtraCaseCard } from '../components/ExtraCaseCard'
 import { InfiniteModeCard } from '../components/InfiniteModeCard'
 import { NormalModeCard } from '../components/NormalModeCard'
-import { formatDailyDate, getDailyCaseId } from '../game/daily/date'
+import { formatDailyDate, getDailyCaseId, getDailyDateKey, getDateForDailyKey } from '../game/daily/date'
 import { useDailyDate } from '../game/daily/useDailyDate'
 import { loadDailySession } from '../game/persistence/dailySession'
 import { loadInfiniteSession } from '../game/persistence/infiniteSession'
@@ -18,6 +18,9 @@ export function HomeScreen() {
   const today = useDailyDate()
   const progress = loadNormalProgress()
   const max = getUnlockedDifficulties(progress).at(-1) ?? 1
+  const dailySession = loadDailySession(today)
+  const dailySessionDate = dailySession ? getDateForDailyKey(dailySession.dateKey) : null
+  const previousDaily = dailySession?.dateKey !== undefined && dailySession.dateKey !== getDailyDateKey(today)
   return <main className="home-screen">
     <AppHeader />
     <section className="home-hero">
@@ -28,7 +31,7 @@ export function HomeScreen() {
       </div>
       <img className="home-hero-logo" src={brandLogo} alt="MysteryCases" />
     </section>
-    <section><div className="section-heading"><div><p className="eyebrow">EXPEDIENTE DE HOY</p><h2>Caso diario</h2></div></div><DailyCaseCard dateLabel={formatDailyDate(today)} completed={isCaseCompleted(getDailyCaseId(today))} difficulty={loadDailySession(today)?.difficulty} maxDifficulty={max} /></section>
+    <section><div className="section-heading"><div><p className="eyebrow">EXPEDIENTE DE HOY</p><h2>Caso diario</h2></div></div><DailyCaseCard dateLabel={formatDailyDate(dailySessionDate ?? today)} completed={isCaseCompleted(getDailyCaseId(today))} difficulty={dailySession?.difficulty} maxDifficulty={max} previous={previousDaily} /></section>
     <section><div className="section-heading"><div><p className="eyebrow">ELIGE TU INVESTIGACIÓN</p><h2>Casos a investigar</h2></div></div><div className="investigation-mode-cards"><NormalModeCard progress={progress} /><InfiniteModeCard session={loadInfiniteSession()} maxDifficulty={max} /></div></section>
     <section><div className="section-heading"><div><p className="eyebrow">ARCHIVOS SELLADOS</p><h2>Casos extra</h2></div></div><div className="extra-grid">{Array.from({ length: 4 }, (_, index) => <ExtraCaseCard key={index} />)}</div></section>
     <AndroidDownloadCard />

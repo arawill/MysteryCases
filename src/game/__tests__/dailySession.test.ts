@@ -11,7 +11,7 @@ const memory = () => { const values = new Map<string, string>(); return { getIte
 const date = new Date(2026, 8, 8, 12)
 const empty = { saveVersion: 2 as const, selectedDifficulty: 1 as const, completedCaseNumbersByDifficulty: { 1: [], 2: [], 3: [], 4: [], 5: [] } }
 describe('daily session', () => {
-  it('starts once, persists for today and rejects locked difficulty', () => { const storage = memory(); expect(loadDailySession(date, storage)).toBeNull(); expect(startDailySession(date, 2, empty, storage)).toBeNull(); expect(startDailySession(date, 1, empty, storage)?.difficulty).toBe(1); expect(loadDailySession(date, storage)?.difficulty).toBe(1); expect(startDailySession(date, 2, empty, storage)?.difficulty).toBe(1); expect(loadDailySession(new Date(2026, 8, 9, 12), storage)).toBeNull() })
+  it('starts once, persists across dates and rejects locked difficulty', () => { const storage = memory(); expect(loadDailySession(date, storage)).toBeNull(); expect(startDailySession(date, 2, empty, storage)).toBeNull(); expect(startDailySession(date, 1, empty, storage)?.difficulty).toBe(1); expect(loadDailySession(date, storage)?.difficulty).toBe(1); expect(startDailySession(date, 2, empty, storage)?.difficulty).toBe(1); expect(loadDailySession(new Date(2026, 8, 9, 12), storage)?.dateKey).toBe('2026-09-08') })
   it('uses Normal unlocks and stable daily identities', () => { const storage = memory(); for (let number = 1; number <= 15; number += 1) markNormalCaseCompleted(1, number, storage); const progress = { saveVersion: 2 as const, selectedDifficulty: 2 as const, completedCaseNumbersByDifficulty: { 1: Array.from({ length: 15 }, (_, index) => index + 1), 2: [], 3: [], 4: [], 5: [] } }; expect(startDailySession(date, 2, progress, storage)?.difficulty).toBe(2); expect(getDailyCaseId(date)).toBe('daily-2026-09-08'); expect(getDailyPuzzleId(date, 1)).toBe('daily-2026-09-08-d1'); expect(getDailyPuzzleId(date, 5)).toBe('daily-2026-09-08-d5'); expect(getDailyDifficultySeed(date, 1)).toBe(getDailySeed(date)); expect(getDailyDifficultySeed(date, 2)).not.toBe(getDailySeed(date)) })
 
   it('restores the exact snapshot without invoking the generator again', () => {
@@ -43,10 +43,10 @@ describe('daily session', () => {
     const nextDate = new Date(2026, 8, 9, 8)
     expect(active.dateKey).toBe('2026-09-08')
     expect(active.caseData.id).toBe('daily-2026-09-08-d1-g7')
-    expect(loadDailySession(nextDate, storage)).toBeNull()
-    const next = startDailySession(nextDate, 1, empty, storage)!
-    expect(next.dateKey).toBe('2026-09-09')
-    expect(next.caseData.id).not.toBe(active.caseData.id)
+    expect(loadDailySession(nextDate, storage)?.caseData).toEqual(active.caseData)
+    const pinned = startDailySession(nextDate, 1, empty, storage)!
+    expect(pinned.dateKey).toBe('2026-09-08')
+    expect(pinned.caseData.id).toBe(active.caseData.id)
   }, 30_000)
 
   it('handles corrupt and unsafe legacy data without crashing or repeated generation', () => {

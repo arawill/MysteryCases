@@ -10,6 +10,7 @@ import { resetAllProgress } from '../persistence/resetProgress'
 import { INVESTIGATION_HISTORY_KEY } from '../persistence/investigationHistory'
 import { loadSettings, saveSettings } from '../persistence/settings'
 import { ACHIEVEMENT_PROGRESS_KEY, loadAchievementProgress } from '../persistence/achievementProgress'
+import { getAttemptKey, manualCaseIds, STORAGE_TRANSACTION_KEY } from '../persistence/storageCatalog'
 
 class MemoryStorage {
   private values = new Map<string, string>()
@@ -21,11 +22,16 @@ class MemoryStorage {
   setItem(key: string, value: string) { this.values.set(key, value) }
 }
 
+class TransientRemoveFailureStorage extends MemoryStorage {
+  private failed = false
+  override removeItem(key: string) { if (!this.failed) { this.failed = true; throw new Error('transient') }; super.removeItem(key) }
+}
+
 describe('resetAllProgress', () => {
   it('removes all game progress and versioned case saves while preserving settings and foreign keys', () => {
     const storage = new MemoryStorage() as unknown as Storage
     const date = new Date(2026, 8, 8, 12)
-    const caseIds = ['case001', 'normal-d2-c01-g4', 'normal-d3-c42-g2', 'normal-d4-c10-g3', 'daily-2026-09-08-d5-g4', 'infinite-d5-s42-g4']
+    const caseIds = [...manualCaseIds, 'normal-d2-c01-g4', 'normal-d3-c42-g2', 'normal-d4-c10-g3', 'daily-2026-09-08-d5-g4', 'infinite-d5-s42-g4']
     storage.setItem(PROGRESS_KEY, JSON.stringify({ saveVersion: 1, completedCaseIds: ['case001'] }))
     storage.setItem(NORMAL_PROGRESS_KEY, JSON.stringify({ saveVersion: 1, selectedDifficulty: 3, completedCaseNumbersByDifficulty: { 1: [1, 2], 2: [1], 3: [], 4: [], 5: [] } }))
     storage.setItem(DAILY_SESSION_KEY, JSON.stringify({ saveVersion: 1, dateKey: '2026-09-08', difficulty: 2 }))
@@ -34,12 +40,14 @@ describe('resetAllProgress', () => {
     storage.setItem(INVESTIGATION_HISTORY_KEY, JSON.stringify({ saveVersion: 1, records: [] }))
     storage.setItem(ACHIEVEMENT_PROGRESS_KEY, JSON.stringify({ saveVersion: 1, unlocked: [{ id: 'first-investigation', unlockedAt: '2026-09-15T00:00:00Z' }] }))
     caseIds.forEach(caseId => saveCase(caseId, { placements: [{ characterId: 'a', position: { row: 1, column: 1 } }], manualExcludedCells: [{ row: 1, column: 2 }], hintsUsed: { review: 1, exclusion: 1, reveal: 1 } }, storage))
+    caseIds.forEach(caseId => storage.setItem(getAttemptKey(caseId), JSON.stringify({ saveVersion: 1, caseId, sequence: 1, status: 'active' })))
+    storage.setItem(STORAGE_TRANSACTION_KEY, '{corrupt')
     saveSettings({ saveVersion: 1, theme: 'light', autoCrossout: true }, storage)
     storage.setItem('some-other-app-data', 'keep')
 
-    resetAllProgress(storage)
+    expect(resetAllProgress(storage).ok).toBe(true)
 
-    for (const key of [PROGRESS_KEY, NORMAL_PROGRESS_KEY, DAILY_SESSION_KEY, INFINITE_SESSION_KEY, PLAYER_STATS_KEY, ACHIEVEMENT_PROGRESS_KEY, ...caseIds.map(getCaseSaveKey)]) expect(storage.getItem(key)).toBeNull()
+    for (const key of [PROGRESS_KEY, NORMAL_PROGRESS_KEY, DAILY_SESSION_KEY, INFINITE_SESSION_KEY, PLAYER_STATS_KEY, INVESTIGATION_HISTORY_KEY, ACHIEVEMENT_PROGRESS_KEY, STORAGE_TRANSACTION_KEY, ...caseIds.flatMap(caseId => [getCaseSaveKey(caseId), getAttemptKey(caseId)])]) expect(storage.getItem(key)).toBeNull()
     expect(storage.getItem(SETTINGS_KEY)).not.toBeNull()
     expect(storage.getItem('some-other-app-data')).toBe('keep')
     expect(loadProgress(storage)).toEqual({ saveVersion: 1, completedCaseIds: [] })
@@ -51,5 +59,19 @@ describe('resetAllProgress', () => {
     expect(loadAchievementProgress(storage)).toEqual({ saveVersion: 1, unlocked: [] })
     for (const caseId of caseIds) expect(loadCaseSave(caseId, storage)).toEqual({ saveVersion: 4, placements: [], manualExcludedCells: [], hintsUsed: { review: 0, exclusion: 0, reveal: 0 }, checkpoints: [], positionChecksUsed: 0 })
     expect(loadSettings(storage)).toEqual({ saveVersion: 1, theme: 'light', autoCrossout: true })
+  })
+
+  it('is idempotent with absent or corrupt values', () => {
+    const storage = new MemoryStorage() as unknown as Storage
+    storage.setItem(PROGRESS_KEY, '{broken')
+    expect(resetAllProgress(storage).ok).toBe(true)
+    expect(resetAllProgress(storage)).toEqual({ ok: true, removedKeys: [], failedKeys: [] })
+  })
+
+  it('retries an individual transient removal and verifies the result', () => {
+    const storage = new TransientRemoveFailureStorage() as unknown as Storage
+    storage.setItem(PROGRESS_KEY, '{}')
+    expect(resetAllProgress(storage)).toMatchObject({ ok: true, failedKeys: [] })
+    expect(storage.getItem(PROGRESS_KEY)).toBeNull()
   })
 })

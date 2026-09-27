@@ -4,6 +4,7 @@ import type { GeneratedProceduralCase } from '../generation/proceduralCase'
 import type { DifficultyRating, GameCase } from '../types'
 import { isDifficultyUnlocked, type NormalModeProgress } from './normalProgress'
 import { createProceduralCaseSnapshot, restoreProceduralCaseSnapshot, type ProceduralCaseSnapshot } from './proceduralSnapshot'
+import { removeStorageValue, replaceStorageValue } from './storageAdapter'
 
 interface LegacyInfiniteSession { saveVersion: 1; generationVersion: 1; difficulty: DifficultyRating; seed: number; status: InfiniteSessionStatus }
 interface StoredInfiniteSession { saveVersion: 2; status: InfiniteSessionStatus; snapshot: ProceduralCaseSnapshot }
@@ -53,7 +54,7 @@ function persistSnapshot(generated: GeneratedProceduralCase, status: InfiniteSes
   try {
     const snapshot = createProceduralCaseSnapshot('infinite', generated)
     const stored: StoredInfiniteSession = { saveVersion: 2, status, snapshot }
-    storage.setItem(INFINITE_SESSION_KEY, JSON.stringify(stored))
+    if (!replaceStorageValue(INFINITE_SESSION_KEY, JSON.stringify(stored), storage).ok) return null
     return toRuntimeSession(status, snapshot, generated.caseData)
   } catch {
     return null
@@ -100,10 +101,10 @@ export function markInfiniteSessionCompleted(storage: Storage = localStorage): I
   if (!session) return null
   try {
     const stored: StoredInfiniteSession = { saveVersion: 2, status: 'completed', snapshot: session.snapshot }
-    storage.setItem(INFINITE_SESSION_KEY, JSON.stringify(stored))
+    if (!replaceStorageValue(INFINITE_SESSION_KEY, JSON.stringify(stored), storage).ok) return null
     return { ...session, status: 'completed' }
   } catch { return null }
 }
 
-export function clearInfiniteSession(storage: Storage = localStorage) { storage.removeItem(INFINITE_SESSION_KEY) }
+export function clearInfiniteSession(storage: Storage = localStorage) { return removeStorageValue(INFINITE_SESSION_KEY, storage) }
 export function createInfiniteSeed(excludedSeed?: number) { for (let attempt = 0; attempt < 8; attempt += 1) { const value = new Uint32Array(1); crypto.getRandomValues(value); if (value[0] !== excludedSeed) return value[0] } throw new Error('Could not create a new infinite seed.') }

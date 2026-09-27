@@ -14,6 +14,8 @@ import { resolveBoardPrimaryAction, type BoardInteractionMode } from '../game/in
 import { recordCaseCompletion } from '../game/persistence/completion'
 import { notifyCaseCompletionOnce, shouldPersistGameSession, type CaseCompletionPerformance } from '../game/completionNotification'
 import { loadCaseSave, saveCase, type CaseSave } from '../game/persistence/caseSave'
+import { openCaseAttempt } from '../game/persistence/caseAttempt'
+import { completeInvestigation, type CompleteInvestigationResult, type CompletionIdentity } from '../game/persistence/completionTransaction'
 import { checkCharacterPosition, getPositionCheckLimit } from '../game/positionChecks'
 import { recordHintUse } from '../game/persistence/playerStats'
 import { loadSettings } from '../game/persistence/settings'
@@ -27,12 +29,13 @@ interface GameScreenProps {
   gameCase: GameCase
   eyebrowLabel?: string
   onCompletionAcknowledged?: () => void
-  onCaseCompleted?: (performance: CaseCompletionPerformance) => void
+  onCaseCompleted?: (performance: CaseCompletionPerformance, result?: CompleteInvestigationResult & { ok: true }) => void
   recordGlobalCompletion?: boolean
   completionId?: string
+  completionIdentity?: CompletionIdentity
 }
 
-function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseCompleted, recordGlobalCompletion = true, completionId }: GameScreenProps) {
+function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseCompleted, recordGlobalCompletion = true, completionId, completionIdentity }: GameScreenProps) {
   const initial = useMemo(() => loadCaseSave(gameCase.id, localStorage, gameCase), [gameCase])
   const [placements, setPlacements] = useState<Placement[]>(initial.placements)
   const [manualExcludedCells, setManualExcludedCells] = useState<Position[]>(initial.manualExcludedCells)
@@ -47,8 +50,10 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const [history, setHistory] = useState<InvestigationBoardState[]>([])
   const [killer, setKiller] = useState<Character | null>(null)
   const [result, setResult] = useState(false)
+  const [storageWarning, setStorageWarning] = useState('')
   const shown = useRef(false)
   const completionRecorded = useRef(false)
+  const [attempt] = useState(() => completionIdentity ? openCaseAttempt(gameCase.id) : null)
   const victim = gameCase.characters.find(character => character.isVictim)
   const accusationCandidates = useMemo(() => getAccusationCandidates(gameCase.id, gameCase.characters), [gameCase.id, gameCase.characters])
   const selected = gameCase.characters.find(character => character.id === selectedId)
@@ -63,7 +68,8 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
 
   useEffect(() => {
     if (!shouldPersistGameSession(completionRecorded)) return
-    saveCase(gameCase.id, { placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed })
+    const saved = saveCase(gameCase.id, { placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed })
+    setStorageWarning(saved.ok ? '' : 'No se pudo guardar el progreso. Libera espacio o revisa el almacenamiento antes de salir.')
   }, [gameCase.id, placements, manualExcludedCells, hintsUsed, checkpoints, positionChecksUsed])
   useEffect(() => {
     if (result) shown.current = true
@@ -122,7 +128,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const chooseKiller = (id: string) => { setSelectedKillerId(id); const character = gameCase.characters.find(item => item.id === id); if (character) setMessage(`${character.name} señalado/a como sospechoso/a.`) }
   const review = () => {
     const hint = reviewInvestigation(gameCase, placements)
-    setHintsUsed(value => ({ ...value, review: value.review + 1 })); recordHintUse('review')
+    setHintsUsed(value => ({ ...value, review: value.review + 1 })); try { recordHintUse('review') } catch { setStorageWarning('La ayuda se aplicó, pero no pudo guardarse en las estadísticas.') }
     if (hint.status === 'contradiction' && hint.source === 'global') return setMessage(`La evidencia general entra en contradicción: ${hint.text}`)
     const name = hint.status === 'contradiction' ? gameCase.characters.find(character => character.id === hint.characterId)?.name : null
     setMessage(name ? `Hay una contradicción en las pistas de ${name}.` : 'No veo contradicciones directas. Eso no garantiza la solución final.')
@@ -130,7 +136,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
   const exclusion = () => {
     const hint = getExclusionHint(gameCase, placements, manualExcludedCells)
     if (!hint) return setMessage('No encuentro una exclusión nueva útil.')
-    setHintsUsed(value => ({ ...value, exclusion: value.exclusion + 1 })); recordHintUse('exclusion')
+    setHintsUsed(value => ({ ...value, exclusion: value.exclusion + 1 })); try { recordHintUse('exclusion') } catch { setStorageWarning('La ayuda se aplicó, pero no pudo guardarse en las estadísticas.') }
     const name = gameCase.characters.find(character => character.id === hint.characterId)?.name
     setMessage(`Puedes descartar fila ${hint.position.row}, columna ${hint.position.column} para ${name}.`)
   }
@@ -144,8 +150,9 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
       case 'correct': case 'incorrect': {
         const usage = { ...hintsUsed, reveal: hintsUsed.reveal + 1 }
         // Persist the spent use immediately, even if the player leaves straight after checking.
-        saveCase(gameCase.id, { ...currentSave, hintsUsed: usage, positionChecksUsed: checked.positionChecksUsed })
-        setPositionChecksUsed(checked.positionChecksUsed); setHintsUsed(usage); recordHintUse('reveal')
+        const saved = saveCase(gameCase.id, { ...currentSave, hintsUsed: usage, positionChecksUsed: checked.positionChecksUsed })
+        if (!saved.ok) setStorageWarning('La comprobación se aplicó, pero el progreso no pudo guardarse.')
+        setPositionChecksUsed(checked.positionChecksUsed); setHintsUsed(usage); try { recordHintUse('reveal') } catch { setStorageWarning('La comprobación se aplicó, pero no pudo guardarse en las estadísticas.') }
         setMessage(`La posición de ${selected?.name} ${checked.status === 'correct' ? 'es correcta' : 'no es correcta'}.`)
         return
       }
@@ -160,10 +167,20 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
     if (!found) return setMessage('Error interno: la solución no identifica un asesino coherente.')
     if (selectedKillerId !== found.id) return setMessage('La reconstrucción encaja, pero tu acusación no.')
     const performance = { review: hintsUsed.review, exclusion: hintsUsed.exclusion, positionChecks: positionChecksUsed }
-    notifyCaseCompletionOnce(completionRecorded, performance, completedPerformance => {
-      recordCaseCompletion(completionId ?? gameCase.id, recordGlobalCompletion)
-      onCaseCompleted?.(completedPerformance)
-    })
+    if (completionIdentity) {
+      const opened = attempt
+      if (!opened?.ok) return setStorageWarning('No se puede cerrar el expediente de forma segura. Revisa el almacenamiento e inténtalo de nuevo.')
+      const completed = completeInvestigation({ caseId: gameCase.id, attemptSequence: opened.attempt.sequence, identity: completionIdentity, assists: performance })
+      if (!completed.ok) return setStorageWarning('No se pudo guardar el cierre completo. Tu partida sigue intacta; libera espacio e inténtalo de nuevo.')
+      completionRecorded.current = true
+      setStorageWarning('')
+      onCaseCompleted?.(performance, completed)
+    } else {
+      notifyCaseCompletionOnce(completionRecorded, performance, completedPerformance => {
+        recordCaseCompletion(completionId ?? gameCase.id, recordGlobalCompletion)
+        onCaseCompleted?.(completedPerformance)
+      })
+    }
     setKiller(found); setResult(true)
   }
   const globalEvidence = gameCase.globalClues?.length ? <section className="global-evidence"><p className="eyebrow">EVIDENCIA GENERAL</p>{gameCase.globalClues.map(clue => <p key={clue.id}>{clue.text}</p>)}</section> : null
@@ -171,6 +188,7 @@ function GameSession({ gameCase, eyebrowLabel, onCompletionAcknowledged, onCaseC
 
   return <main className="game-screen">
     <section className="game-case-header"><p className="eyebrow">{label}</p><h1>{gameCase.title}</h1><p className="intro">{gameCase.intro}</p><span className="case-classification">CLASIFICACIÓN · {formatDifficultyStars(gameCase.difficulty)}</span></section>
+    {storageWarning && <p className="feedback storage-warning" role="alert">{storageWarning}</p>}
     <section className="investigation-brief"><div className="brief-title"><p className="eyebrow">FICHA DEL INCIDENTE</p><span>VÍCTIMA IDENTIFICADA</span></div><div className="victim-summary"><span className={victim?.avatarImage ? 'avatar-image-shell' : ''}>{victim && <CharacterAvatar character={victim} />}</span><div><strong>{victim?.name}</strong>{victim?.roleLabel && <em className="character-role">{victim.roleLabel}</em>}<small>VÍCTIMA</small></div></div><p>Reconstruye la escena con las declaraciones. El asesino es la única persona que estaba a solas con {victim?.name} en la misma habitación.</p></section>
     <div className="game-workspace"><aside className="suspect-panel"><div className="section-heading"><div><p className="eyebrow">PERSONAS PRESENTES</p><h2>Declaraciones</h2></div><span className="count">{placements.length}/{gameCase.characters.length} EN ESCENA</span></div><div className="characters">{gameCase.characters.map(character => <CharacterCard key={character.id} character={character} traitLabels={getCharacterTraitLabels(character, gameCase.traitDefinitions)} selected={selectedId === character.id} placed={placements.some(placement => placement.characterId === character.id)} onSelect={() => selectCharacter(character)}/>)}</div></aside>
       <section className="scene workspace-scene"><div className="section-heading"><div><p className="eyebrow">RECONSTRUCCIÓN</p><h2>Plano de la escena</h2></div><span className="hint desktop-hint">CLICK DERECHO · DESCARTE</span><span className="hint mobile-hint">USA MARCAR X · DESCARTE</span></div>{quickSelector}<div className="board-mode" aria-label={`Modo del tablero: ${interactionMode === 'place' ? 'colocar persona' : 'marcar descarte'}`}><span>MODO DEL TABLERO</span><button className={interactionMode === 'place' ? 'active' : ''} onClick={() => setInteractionMode('place')} aria-pressed={interactionMode === 'place'}>COLOCAR</button><button className={interactionMode === 'exclude' ? 'active' : ''} onClick={() => setInteractionMode('exclude')} aria-pressed={interactionMode === 'exclude'}>MARCAR X</button></div>

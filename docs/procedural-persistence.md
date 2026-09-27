@@ -1,5 +1,15 @@
 # Daily e Infinite: tiempo, identidad y persistencia
 
+> El ciclo de vida operativo, reset, journal y retención se documentan en [storage-lifecycle.md](storage-lifecycle.md).
+
+## Retención y recuperación
+
+Daily ya no caduca al cruzar medianoche: una sesión anterior válida permanece restaurable hasta completarla o abandonarla. El sistema conserva además las claves Daily del día local actual y elimina únicamente saves antiguos que no correspondan a esa sesión activa, no sean accesibles y no estén implicados en recuperación. Completar/abandonar retira el envelope V2 (que contiene el snapshot V1) y el `CaseSave`; progreso, rachas, estadísticas y logros se conservan durante esta limpieza.
+
+Las finalizaciones Daily e Infinite usan el journal transaccional V1 compartido con Normal. El journal guarda valores exactos anterior/posterior y un receipt de intento, por lo que una recuperación repite asignaciones idempotentes y no recalcula contadores. Si falta cuota se revierte al último estado válido cuando el backend vuelve a aceptar escrituras; si sigue indisponible, el journal queda para el próximo arranque.
+
+Inicialización: recuperar journal raw → migrar/restaurar envelopes conocidos → validar → determinar sesión activa → limpiar Daily inaccesibles → renderizar. Este orden difiere del esquema genérico “migrar antes de recuperar” porque el journal debe resolverse contra los bytes/versiones con los que fue preparado.
+
 Este documento define el contrato vigente de los modos procedurales. Daily e Infinite no son casos Normal, no usan el loader JSON manual y no deben añadirse a `manualNormalCases`.
 
 ## Fecha e identidad de Daily
@@ -19,7 +29,7 @@ La seed base se deriva solo de la fecha civil local y la dificultad. No intervie
 - Antes de iniciar, un cambio de fecha actualiza la oferta.
 - Una partida iniciada conserva el `dateKey`, seed y snapshot originales aunque llegue medianoche.
 - No hay navegación automática ni sustitución del tablero activo.
-- Al abandonar la ruta y volver, solo se ofrece/restaura la sesión de la fecha local actual.
+- Al abandonar la ruta y volver, se restaura la sesión activa aunque pertenezca a una fecha anterior; la UI la identifica y permite abandonarla explícitamente.
 
 Esta lógica es web pura compartida por navegador, PWA y la WebView de Capacitor/Android.
 
@@ -70,7 +80,7 @@ Las sesiones legacy se reconocen de forma explícita:
 - Daily V1: `{ saveVersion: 1, dateKey, difficulty }`.
 - Infinite V1: `{ saveVersion: 1, generationVersion: 1, difficulty, seed, status }`.
 
-Si la sesión legacy corresponde al Daily actual o contiene una seed Infinite válida, se reconstruye una sola vez con el generador actual, se valida y se sustituye inmediatamente por V2. El segundo load usa el snapshot. Si no se puede reconstruir o persistir de forma segura, la metadata legacy se elimina para no regenerar repetidamente ni presentar otro caso como el original. JSON corrupto o formatos desconocidos se ignoran sin crash.
+Si la sesión legacy contiene una fecha Daily civil válida o una seed Infinite válida, se reconstruye una sola vez con el generador actual, se valida y se sustituye inmediatamente por V2. Esto permite restaurar también un Daily antiguo que seguía activo. El segundo load usa el snapshot. Si no se puede reconstruir o persistir de forma segura, la metadata legacy se elimina para no regenerar repetidamente ni presentar otro caso como el original. JSON corrupto o formatos desconocidos se retiran sin crash.
 
 La migración legacy es necesariamente una mejor aproximación: el formato antiguo no guardaba el caso ni una versión histórica utilizable. Solo las sesiones V2 garantizan restauración exacta entre cambios de algoritmo.
 

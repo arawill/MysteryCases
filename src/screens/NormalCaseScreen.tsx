@@ -4,12 +4,11 @@ import { AppHeader } from '../components/AppHeader'
 import { formatDifficultyStars, isDifficultyRating } from '../game/difficulty'
 import { getCachedNormalCase } from '../game/normal/generator'
 import { getNormalCaseNavigation, type NormalCaseDestination } from '../game/normal/navigation'
-import { isDifficultyUnlocked, loadNormalProgress, markNormalCaseCompleted, setSelectedDifficulty } from '../game/persistence/normalProgress'
+import { isDifficultyUnlocked, loadNormalProgress, setSelectedDifficulty } from '../game/persistence/normalProgress'
 import type { DifficultyRating } from '../game/types'
 import { GameScreen } from './GameScreen'
-import { recordInvestigationCompletion } from '../game/persistence/investigationHistory'
-import { clearCaseSave } from '../game/persistence/caseSave'
-import { announceAchievements, reconcileCurrentAchievements } from '../game/achievements/runtime'
+import { announceAchievements } from '../game/achievements/runtime'
+import type { AchievementDefinition } from '../game/achievements/catalog'
 import { isPublishedNormalCase } from '../game/normal/availability'
 
 const casePath = ({ difficulty, caseNumber }: NormalCaseDestination) => `/normal/${difficulty}/${caseNumber}`
@@ -37,20 +36,18 @@ function LoadedNormalCase({ difficulty, caseNumber }: { difficulty: DifficultyRa
     window.scrollTo(0, 0)
   }, [generated.caseData.id])
 
-  const complete = (assists: { review: number; exclusion: number; positionChecks: number }) => {
-    const before = loadNormalProgress()
-    const wasNextLocked = difficulty < 5 && !isDifficultyUnlocked((difficulty + 1) as DifficultyRating, before)
-    const next = markNormalCaseCompleted(difficulty, caseNumber)
-    recordInvestigationCompletion({ mode: 'normal', logicalId: `normal-d${difficulty}-c${String(caseNumber).padStart(2, '0')}`, difficulty, assists })
-    clearCaseSave(generated.caseData.id)
+  const wasNextLocked = difficulty < 5 && !isDifficultyUnlocked((difficulty + 1) as DifficultyRating, progress)
+  const logicalId = `normal-d${difficulty}-c${String(caseNumber).padStart(2, '0')}`
+  const complete = (_assists: { review: number; exclusion: number; positionChecks: number }, result?: { newlyUnlocked: AchievementDefinition[] }) => {
+    const next = loadNormalProgress()
     if (wasNextLocked && difficulty < 5 && isDifficultyUnlocked((difficulty + 1) as DifficultyRating, next)) setNotice(`Has desbloqueado la dificultad ${formatDifficultyStars((difficulty + 1) as DifficultyRating)}.`)
-    announceAchievements(reconcileCurrentAchievements().newlyUnlocked)
+    announceAchievements(result?.newlyUnlocked ?? [])
   }
 
   return <div className="case-route">
     <AppHeader back />
     <div className="normal-case-notice">{notice && <p className="unlock-banner" role="status">{notice}</p>}</div>
-    <GameScreen key={generated.caseData.id} gameCase={generated.caseData} eyebrowLabel={`CASOS NORMALES · ${formatDifficultyStars(difficulty)} · EXPEDIENTE ${String(caseNumber).padStart(2, '0')}`} onCaseCompleted={complete} recordGlobalCompletion={false} />
+    <GameScreen key={generated.caseData.id} gameCase={generated.caseData} eyebrowLabel={`CASOS NORMALES · ${formatDifficultyStars(difficulty)} · EXPEDIENTE ${String(caseNumber).padStart(2, '0')}`} completionIdentity={{ mode: 'normal', logicalId, difficulty, caseNumber }} onCaseCompleted={complete} recordGlobalCompletion={false} />
     <NormalCaseNavigation previous={navigation.previous} next={navigation.next} />
   </div>
 }

@@ -4,13 +4,11 @@ import { formatDifficultyStars } from '../game/difficulty'
 import { allDifficultyPresets } from '../game/difficultyPresets'
 import { getInfiniteCaseId } from '../game/infinite/generator'
 import { clearCaseSave } from '../game/persistence/caseSave'
-import { clearInfiniteSession, createInfiniteSeed, loadInfiniteSession, markInfiniteSessionCompleted, startInfiniteSession } from '../game/persistence/infiniteSession'
+import { clearInfiniteSession, createInfiniteSeed, loadInfiniteSession, startInfiniteSession } from '../game/persistence/infiniteSession'
 import { getUnlockedDifficulties, loadNormalProgress } from '../game/persistence/normalProgress'
-import { recordInfiniteCompletion } from '../game/persistence/playerStats'
 import type { DifficultyRating } from '../game/types'
 import { GameScreen } from './GameScreen'
-import { recordInvestigationCompletion } from '../game/persistence/investigationHistory'
-import { announceAchievements, reconcileCurrentAchievements } from '../game/achievements/runtime'
+import { announceAchievements } from '../game/achievements/runtime'
 
 export function InfiniteScreen() {
   const progress = loadNormalProgress()
@@ -37,7 +35,8 @@ export function InfiniteScreen() {
       gameCase={session.caseData}
       eyebrowLabel={`CASO INFINITO · ${formatDifficultyStars(session.difficulty)}`}
       recordGlobalCompletion={false}
-      onCaseCompleted={assists => { markInfiniteSessionCompleted(); recordInfiniteCompletion(getInfiniteCaseId(session.difficulty, session.seed)); recordInvestigationCompletion({ mode: 'infinite', logicalId: getInfiniteCaseId(session.difficulty, session.seed), difficulty: session.difficulty, assists }); announceAchievements(reconcileCurrentAchievements().newlyUnlocked) }}
+      completionIdentity={{ mode: 'infinite', logicalId: getInfiniteCaseId(session.difficulty, session.seed), difficulty: session.difficulty, seed: session.seed }}
+      onCaseCompleted={(_assists, result) => announceAchievements(result?.newlyUnlocked ?? [])}
       onCompletionAcknowledged={() => setSession(current => current ? { ...current, status: 'completed' } : null)}
     />
   </div>
