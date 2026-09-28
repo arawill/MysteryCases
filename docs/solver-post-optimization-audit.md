@@ -365,3 +365,130 @@ La instrumentación temporal consistió en un harness de cinco rondas/heap, cont
 Los riesgos principales de cualquier Nivel B son romper primera coincidencia con datos duplicados, cambiar evaluación eager/excepciones, alterar desempates MRV, cambiar stats usados en auditoría o dejar índices dinámicos stale al retroceder. El experimento elegido evita los cuatro últimos: solo sustituye la representación estática detrás de una interfaz existente y conserva fallback.
 
 **Decisión: un único experimento Nivel B claramente delimitado —`cellAt` row-major solve-local con fallback exacto y umbral de adopción 5 % total / 7 % solver.** No se autoriza encadenar candidatos. Si no supera ese gate, la recomendación es no continuar optimizando el solver y tratar la cola perceptible en la UX en una tarea separada.
+
+## 12. Resultado del experimento Nivel B: `cellAt` row-major
+
+### 12.1 Estado inicial y baseline
+
+El experimento comenzó en la rama `pre`, con árbol limpio, `pre` sin divergencia respecto de `origin/pre` y `HEAD` `20bd5931269b039eb2a89021140f800ddb68d637`. No se usó red durante la campaña. El mismo Node 24.20.0, la misma fecha fija, las mismas 200 solicitudes y las mismas seeds se usaron en control y candidato.
+
+Antes de editar producción se excluyó un calentamiento de 22.272,147 ms total y 17.247,126 ms de solver. La línea base limpia posterior fue:
+
+| Total | Solver | P50 | P90 | P95 | P99 | Máximo | Heap antes / antes de GC / después de GC |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 22.457,186 ms | 17.385,358 ms | 22,1365 ms | 300,592 ms | 496,372 ms | 1.313,191 ms | 1.395,216 ms | 34.939.064 / 100.720.128 / 37.054.880 bytes |
+
+Reprodujo exactamente 200/200 éxitos, 133 fallbacks, 0 fallos, 679 intentos, 3.163 solves y los siete conteos de rechazo. Este proceso solo confirmó el baseline; no se mezcló con los cinco pares usados para decidir.
+
+### 12.2 Diseño adoptado y contrato
+
+`createSolverEvaluationContext` construye una vez por contexto una tabla row-major local con índice `(row - 1) * columns + (column - 1)`. La representación se habilita únicamente cuando `rows` y `columns` son enteros positivos y su producto es un entero seguro no superior a **65.536 celdas**. Ese límite defensivo acota la reserva por solve; no cambia la semántica porque, cuando se supera, todo se resuelve por el índice `Map` original.
+
+La tabla usa un `Array<BoardCell | undefined>` y un `Uint8Array` de presencia. El bitmap distingue un hueco nunca ocupado de una entrada insertada y permite conservar la primera celda de cada coordenada sin depender del valor almacenado. El fast path solo acepta coordenadas enteras dentro de `1..rows × 1..columns`, calcula el índice aritméticamente y no ejecuta `Map.get` ni crea claves string. Las celdas son las referencias originales, no clones, y tanto tabla como bitmap quedan encerrados en el contexto.
+
+En paralelo se conserva siempre `Map<row, Map<column, primera BoardCell>>`. Este fallback mantiene la semántica `Map` para dimensiones malformadas, producto inseguro o excesivo, coordenadas fraccionarias/no finitas/no numéricas, posiciones fuera del rango declarado, celdas realmente presentes fuera de ese rango y duplicados. Un contexto nuevo observa los cambios previos en `board`; un contexto ya creado permanece aislado y no existe estado global ni caché compartida.
+
+### 12.3 Pruebas contractuales y cobertura observada
+
+Se escribieron primero 30 casos contractuales y se ejecutaron contra el control A4 antes de activar la tabla. Cubren tableros completos y con huecos, esquinas/posiciones row-major, 1×1, vacío, orden arbitrario, dimensiones D1–D5, primera coincidencia dentro y fuera de rango, coordenadas cero/negativas/superiores/fraccionarias/`NaN`/±`Infinity`/string, dimensiones cero/negativas/fraccionarias/no finitas/string, producto inseguro, límite defensivo, referencias originales, mutación de propiedades, reemplazo/reordenación de `board`, aislamiento entre contextos y ausencia de exposición del índice. La primera ejecución del candidato detectó un sombreado local de `columns`; se corrigió antes de medir y todos los benchmarks se hicieron sobre el candidato corregido.
+
+Las pruebas indexadas ya existentes conservaron la equivalencia de los 30 tipos de pista local y 5 globales, placements vacíos/parciales/completos, objetos/footprints, traits, superficies, edge features/helpers espaciales, duplicados, datos malformados y excepciones. Las pruebas del solver conservaron soluciones ordenadas, `maxSolutions` 1/2, truncación por `maxNodes` y todos los campos de `SolveStats`.
+
+Una pasada temporal instrumentada sobre las 200 solicitudes midió:
+
+| Métrica | Resultado |
+| --- | ---: |
+| Contextos construidos / con tabla / fallback completo | 3.163 / 3.163 / 0 |
+| Consultas fast path | 429.470.786 (99,905637 %) |
+| Consultas fallback | 405.645 (0,094363 %) |
+| Construcción total / media | 47,3662 ms / 0,014975 ms por contexto |
+| Celdas de tabla totales / media / máximo | 237.053 / 74,9456 / 100 |
+| Celdas insertadas / huecos | 237.053 / 0 |
+| Duplicados ignorados / activaciones del límite | 0 / 0 |
+
+El fallback observado corresponde a consultas espaciales vecinas fuera del tablero declarado. La matriz normal no activa fixtures malformados, huecos, duplicados ni el límite, pero todos ellos están cubiertos contractualmente. La instrumentación temporal y su harness se retiraron por completo antes del benchmark y de la validación final.
+
+### 12.4 Cinco pares alternados
+
+Cada proceso hizo su propio calentamiento excluido y GC explícito. El orden fue control→candidato, candidato→control, control→candidato, candidato→control y control→candidato. Tiempos y percentiles están en milisegundos; el heap está en bytes.
+
+| Par | Orden | Variante | Total | Solver | P50 | P90 | P95 | P99 | Máximo | Heap antes / antes de GC / después de GC |
+| ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 1 | 1.ª | Control | 21.338,540 | 16.696,952 | 20,4360 | 308,229 | 470,376 | 1.227,323 | 1.369,547 | 37.403.720 / 91.540.248 / 37.382.128 |
+| 1 | 2.ª | Candidato | 19.379,528 | 14.630,997 | 19,2625 | 262,009 | 420,040 | 1.122,326 | 1.174,208 | 37.695.096 / 96.532.632 / 37.416.616 |
+| 2 | 1.ª | Candidato | 20.259,474 | 15.498,003 | 19,1490 | 261,556 | 426,902 | 1.121,797 | 1.508,071 | 37.411.960 / 83.893.632 / 37.440.024 |
+| 2 | 2.ª | Control | 22.208,595 | 17.220,332 | 21,1705 | 303,411 | 477,245 | 1.297,796 | 1.439,915 | 37.360.872 / 98.951.200 / 37.360.624 |
+| 3 | 1.ª | Control | 22.142,651 | 17.190,895 | 21,1060 | 310,173 | 545,458 | 1.270,463 | 1.389,965 | 39.878.880 / 104.826.296 / 39.583.080 |
+| 3 | 2.ª | Candidato | 20.061,620 | 15.138,298 | 19,7770 | 285,144 | 484,603 | 1.131,418 | 1.209,866 | 37.375.008 / 83.657.232 / 37.423.960 |
+| 4 | 1.ª | Candidato | 19.598,460 | 14.800,918 | 19,5570 | 266,690 | 412,235 | 1.123,094 | 1.247,440 | 37.439.720 / 91.822.808 / 37.398.584 |
+| 4 | 2.ª | Control | 20.826,179 | 16.318,921 | 19,0905 | 299,332 | 459,907 | 1.227,836 | 1.350,266 | 37.357.720 / 80.816.520 / 37.409.048 |
+| 5 | 1.ª | Control | 20.680,885 | 16.142,377 | 19,6005 | 282,875 | 446,548 | 1.224,586 | 1.292,625 | 37.304.104 / 83.991.016 / 37.402.768 |
+| 5 | 2.ª | Candidato | 18.910,705 | 14.297,451 | 19,3605 | 266,677 | 406,963 | 1.085,288 | 1.170,457 | 37.446.432 / 95.136.448 / 37.408.808 |
+
+Las diferencias positivas siguientes representan ahorro del candidato respecto del control del mismo par; no se redondearon para decidir el gate.
+
+| Par | Ahorro total | Mejora total | Ahorro solver | Mejora solver | Mejora P95 | Mejora P99 | Δ heap post-GC candidato−control |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 1.959,012 ms | 9,180628103 % | 2.065,955 ms | 12,373246327 % | 10,701226 % | 8,554961 % | +34.488 bytes |
+| 2 | 1.949,121 ms | 8,776426424 % | 1.722,329 ms | 10,001717737 % | 10,548670 % | 13,561376 % | +79.400 bytes |
+| 3 | 2.081,031 ms | 9,398292011 % | 2.052,597 ms | 11,940024065 % | 11,156679 % | 10,944435 % | −2.159.120 bytes |
+| 4 | 1.227,719 ms | 5,895075616 % | 1.518,003 ms | 9,302103981 % | 10,365574 % | 8,530618 % | −10.464 bytes |
+| 5 | 1.770,180 ms | 8,559498300 % | 1.844,926 ms | 11,429085072 % | 8,864669 % | 11,375110 % | +6.040 bytes |
+
+Resumen robusto de la campaña:
+
+| Métrica | Mediana control | Mediana candidato | Mediana pareada / dispersión |
+| --- | ---: | ---: | --- |
+| Total | 21.338,540 ms | 19.598,460 ms | **8,776426424 %** de mejora; rango 5,895075616–9,398292011 % |
+| Solver | 16.696,952 ms | 14.800,918 ms | **11,429085072 %** de mejora; rango 9,302103981–12,373246327 % |
+| P50 / P90 | 20,4360 / 303,411 ms | 19,3605 / 266,677 ms | P50 favorable salvo ruido en el par 4; P90 favorable en los cinco |
+| P95 / P99 | 470,376 / 1.227,836 ms | 420,040 / 1.122,326 ms | Ambos favorables en los cinco pares |
+| Máximo | 1.369,547 ms | 1.209,866 ms | Regresión aislada solo en candidato 2; no se repite en P95/P99 |
+| Heap post-GC | 37.402.768 bytes | 37.416.616 bytes | +13.848 bytes (+0,037024 %), inmaterial y no creciente |
+
+La amplitud control fue 1.527,710 ms total y 1.077,955 ms solver; la candidata, 1.348,769 ms total y 1.200,552 ms solver. La construcción completa de tablas costó 47,3662 ms en la pasada instrumentada, muy por debajo del ahorro pareado mínimo de 1.227,719 ms total.
+
+### 12.5 Invariantes y validación final
+
+Los diez procesos pareados y la auditoría final conservaron exactamente 200/200 éxitos, 133 fallbacks, 0 fallos, 679 intentos, 3.163 solves y estos rechazos: 16 `scenario-zone-layout`, 370 `no-counterexample-clue`, 27 `scenario-placement-feasibility`, 10 `post-generation-quality`, 49 `refinement-limit`, 7 `solver-node-limit` y 43 `candidate-evaluation-limit`.
+
+Una pasada específica de stats reprodujo **7 truncaciones, 215.675 nodos, 78.043.325 checks, 0 podas estáticas, 2.911.009 podas relacionales y 285.676 podas forward-check**. Soluciones y orden, seeds, offsets, IDs, RNG, snapshots y fingerprints D1–D5 permanecieron idénticos.
+
+| Validación candidata final | Resultado |
+| --- | --- |
+| TypeScript / Oxlint | Correctos, sin diagnósticos |
+| Contexto + evaluación indexada | 2 archivos, 41 tests correctos |
+| Suites dirigidas de pistas, reglas, spatial, edge, solver, análisis, validator, generación y observabilidad | 14 archivos, 151 tests correctos |
+| Suite completa | 97 archivos, 689 tests correctos; 7,21 s |
+| Auditoría final de 200 | 200/200, 133 fallbacks, 0 fallos, 679 intentos, 3.163 solves; 20.207 ms; 74,9 % solver |
+| Calidad procedural | 250/250; D1 349, D2 585, D3 2.593, D4 7.609, D5 15.587 ms; 181 fallbacks; 4.249 solves; 0 fallos |
+| Perfil D5 | 20/20; media 322 ms; máximo 955 ms (caso 15); 27,1 solves de media, máximo 87; 74,9511 % solver |
+| Casos Normal | 21 publicados correctos |
+| Fingerprints D1–D5 / RNG / snapshots | Tests exactos correctos |
+| Build web | 460 módulos; correcto |
+| PWA | 225 entradas; 112.876,22 KiB; verificador correcto |
+| GitHub Pages | 225 entradas; 112.879,01 KiB; PWA y Pages correctos |
+| Capacitor/Android | Build, copia, sync y verificador correctos |
+| APK debug offline | `BUILD SUCCESSFUL`; 93 tareas; 120.183.232 bytes; ejecutado con `--offline` |
+| `git diff --check` | Correcto; solo avisos EOL conocidos, sin errores ni diffs generados |
+
+### 12.6 Gate y decisión
+
+| Gate obligatorio | Evidencia | Resultado |
+| --- | --- | --- |
+| Más rápido en 5/5 pares | Ahorro total de 1.227,719–2.081,031 ms | Cumple |
+| Mediana pareada total ≥ 5 % | 8,776426424 % | Cumple |
+| Mediana pareada solver ≥ 7 % | 11,429085072 % | Cumple |
+| Conteos y resultados idénticos | Matriz, stats, soluciones, orden, excepciones, RNG y fingerprints exactos | Cumple |
+| P95/P99 sin regresión repetida | Ambos mejoran en 5/5 pares | Cumple |
+| Sin retención post-GC material/creciente | Mediana +13.848 bytes, +0,037024 %; sin tendencia | Cumple |
+| Construcción inferior al ahorro | 47,3662 ms frente a ≥1.227,719 ms ahorrados | Cumple |
+| Tests y builds completos | Todas las validaciones anteriores correctas | Cumple |
+
+**Decisión: candidato adoptado.** Se conserva exclusivamente la representación row-major solve-local de `cellAt`, con fallback `Map` exacto. No se abre ni se implementa otro candidato Nivel B/C. Antes de cualquier trabajo adicional sobre rendimiento se recomienda una nueva medición de producto separada.
+
+### 12.7 Riesgos y rollback
+
+El riesgo residual se concentra en cargas futuras con tableros muy grandes o datos anómalos: no degradan la semántica, pero usarán el doble `Map` y no obtendrán el beneficio. La tabla y el bitmap añaden una asignación acotada por contexto; el heap post-GC no muestra retención. El límite de 65.536 es deliberadamente conservador y cualquier cambio futuro debe volver a validar memoria, semántica `Map` y percentiles. La campaña representa este hardware y matriz determinista, no garantiza el mismo porcentaje en todos los dispositivos.
+
+El rollback es local: restaurar en `createSolverEvaluationContext` la implementación de `cellAt` basada exclusivamente en `cellsByRow.get(row)?.get(column)` y retirar `MAX_ROW_MAJOR_CELLS`, la tabla y el bitmap. No requiere cambiar consumidores, solver, pistas, generador, PWA ni Android. Los tests contractuales pueden conservarse como protección del contrato aunque se revierta la representación.
