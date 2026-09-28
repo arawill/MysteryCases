@@ -32,15 +32,16 @@ export const isWallSideValue = (value: unknown): value is WallSide => value === 
 export const isEdgeFeatureType = (value: unknown): value is EdgeFeature['type'] => value === 'window' || value === 'door'
 
 /** The cells which physically touch the segment. Exterior segments have one cell. */
-export function adjacentCellsForEdgeSegment(segment: EdgeSegment, board: BoardCell[]): BoardCell[] {
-  const anchor = getCell(board, segment.position)
+export function adjacentCellsForEdgeSegment(segment: EdgeSegment, board: BoardCell[], cellAt?: (position: Position) => BoardCell | undefined): BoardCell[] {
+  const anchor = cellAt ? cellAt(segment.position) : getCell(board, segment.position)
   if (!anchor) return []
   const delta = sideOffset[segment.side]
-  const neighbour = getCell(board, { row: anchor.row + delta.row, column: anchor.column + delta.column })
+  const position = { row: anchor.row + delta.row, column: anchor.column + delta.column }
+  const neighbour = cellAt ? cellAt(position) : getCell(board, position)
   return neighbour ? [anchor, neighbour] : [anchor]
 }
 
-export const isCellBesideEdgeFeature = (cell: BoardCell, feature: EdgeFeature, board: BoardCell[]) => feature.segments.some(segment => adjacentCellsForEdgeSegment(segment, board).some(candidate => candidate.row === cell.row && candidate.column === cell.column))
+export const isCellBesideEdgeFeature = (cell: BoardCell, feature: EdgeFeature, board: BoardCell[], cellAt?: (position: Position) => BoardCell | undefined) => feature.segments.some(segment => adjacentCellsForEdgeSegment(segment, board, cellAt).some(candidate => candidate.row === cell.row && candidate.column === cell.column))
 
 export const isEdgeSegmentOnWall = (segment: EdgeSegment, board: BoardCell[]) => {
   const cell = getCell(board, segment.position)

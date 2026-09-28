@@ -1,5 +1,6 @@
 import { areAllCluesSatisfiedWithContext, evaluateClueWithContext } from './clues'
 import { areAllGlobalCluesSatisfiedWithContext, hasViolatedGlobalClueWithContext } from './globalClues'
+import { createSolverCluePlan } from './solverCluePlan'
 import { createSolverEvaluationContext } from './solverEvaluationContext'
 import type { BoardCell, Clue, GameCase, Placement } from './types'
 
@@ -18,8 +19,8 @@ export function solveCaseWithStats(caseData: GameCase, options: SolveOptions = {
   const maxNodes = options.maxNodes
   if (maxNodes !== undefined && (!Number.isInteger(maxNodes) || maxNodes < 1)) throw new Error('maxNodes must be a positive integer.')
   const evaluationContext = createSolverEvaluationContext(caseData)
+  const cluePlan = createSolverCluePlan(caseData)
   const cells = caseData.board.filter(cell => cell.occupiable)
-  const cluesByCharacter = new Map(caseData.characters.map(character => [character.id, character.clues]))
   const domains = new Map<string, BoardCell[]>()
   const stats = emptyStats()
   for (const character of caseData.characters) {
@@ -30,11 +31,8 @@ export function solveCaseWithStats(caseData: GameCase, options: SolveOptions = {
   let truncated = false
   const relationValid = (characterId: string, cell: BoardCell) => {
     const proposed = { characterId, position: { row: cell.row, column: cell.column } }
-    const relevant: Array<{ owner: string; clue: RelationalClue }> = []
-    for (const clue of cluesByCharacter.get(characterId) ?? []) if (relational(clue)) relevant.push({ owner: characterId, clue })
-    for (const [owner, ownerClues] of cluesByCharacter) for (const clue of ownerClues) if (relational(clue) && clue.targetCharacterId === characterId && positions.has(owner)) relevant.push({ owner, clue })
     const next = [...placements, proposed]
-    return relevant.every(({ owner, clue }) => evaluateClueWithContext(clue, owner, caseData, next, evaluationContext) !== 'violated') && !hasViolatedGlobalClueWithContext(caseData, next, evaluationContext) && !caseData.characters.some(character => next.some(item => item.characterId === character.id) && character.clues.some(clue => occupancy(clue) && evaluateClueWithContext(clue, character.id, caseData, next, evaluationContext) === 'violated'))
+    return !cluePlan.hasViolatedRelation(characterId, owner => positions.has(owner), (owner, clue) => evaluateClueWithContext(clue, owner, caseData, next, evaluationContext) === 'violated') && !hasViolatedGlobalClueWithContext(caseData, next, evaluationContext) && !cluePlan.hasViolatedOccupancy(character => next.some(item => item.characterId === character), (character, clue) => evaluateClueWithContext(clue, character, caseData, next, evaluationContext) === 'violated')
   }
   const candidates = (characterId: string) => (domains.get(characterId) ?? []).filter(cell => { stats.candidateChecks += 1; if (usedRows.has(cell.row) || usedColumns.has(cell.column)) return false; if (!relationValid(characterId, cell)) { stats.prunedByRelation += 1; return false } return true })
   const search = () => {

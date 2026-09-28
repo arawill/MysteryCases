@@ -6,7 +6,9 @@ Fecha de la medición: 27 de septiembre de 2026. Rama `pre`, commit `03fa697`. E
 
 > Segunda actualización del 28 de septiembre de 2026: la optimización Nivel A #2 elimina las colecciones temporales de las comprobaciones booleanas de pistas globales conservando evaluación eager. Diseño, contrato y mediciones están en la sección 15.
 
-> Tercera actualización del 28 de septiembre de 2026: la optimización Nivel A #3 introduce índices estáticos, inmutables y locales a cada llamada real del solver. La caracterización, equivalencia, benchmark alternado y rollback están en la sección 16. El Nivel A #4 no se ha implementado.
+> Tercera actualización del 28 de septiembre de 2026: la optimización Nivel A #3 introduce índices estáticos, inmutables y locales a cada llamada real del solver. La caracterización, equivalencia, benchmark alternado y rollback están en la sección 16.
+
+> Cuarta actualización del 28 de septiembre de 2026: la optimización Nivel A #4 preclasifica relaciones propias/entrantes y occupancy una vez por solve, preservando orden, duplicados y short-circuit. La sección 17 contiene caracterización cuantitativa, benchmark y perfil posterior. No se ha implementado ningún Nivel B/C.
 
 ## 1. Conclusión ejecutiva
 
@@ -594,4 +596,144 @@ Riesgos residuales: el contexto asume que board, personajes y zonas no mutan dur
 
 Rollback: retirar la construcción del contexto en `solveCaseWithStats`, volver a las cuatro llamadas públicas de evaluación y eliminar las rutas `WithContext`, el módulo y los argumentos opcionales de helpers. No hay migración, persistencia, schema, versión diagnóstica ni dependencia nueva.
 
-Recomendación sobre Nivel A #4: **sí merece una auditoría independiente**, porque tras reducir las búsquedas estáticas el coste restante se concentra en el recorrido repetido de pistas dentro de `relationValid`; no se recomienda implementarlo a ciegas ni mezclarlo con este diff. Debe partir de este nuevo baseline, caracterizar listas propias/entrantes/occupancy, preservar orden y excepciones y repetir la misma equivalencia determinista y benchmark alternado. A #4 no forma parte de esta entrega.
+La recomendación al cerrar A #3 era auditar A #4 de forma independiente. Esa auditoría e implementación se registran ahora en la sección 17; mantuvo baseline, equivalencia y benchmark propios y no se mezcló con ningún Nivel B/C.
+
+## 17. Implementación de la cuarta optimización Nivel A
+
+### Estado inicial y baseline posterior a A #3
+
+`pre` estaba sincronizada con `origin/pre` en `a577e1b`, pero no literalmente limpia: el commit de A #3 había omitido `rules.ts`, `spatial.ts` y `edgeFeatures.ts`, mientras el `clues.ts` ya commiteado invocaba sus nuevas firmas indexadas. Esos tres cambios locales eran la corrección necesaria de una regresión de integración previa; TypeScript, lint y el calentamiento confirmaron el estado efectivo de A #3. Se conservaron intactos y no se atribuyen a A #4.
+
+Tras excluir el calentamiento, la matriz baseline A #3 completó 200/200 solicitudes, 133 fallbacks, 0 fallos, 679 intentos y 3.163 llamadas en 28.628,391 ms totales y 24.060,790 ms de solver. Percentiles por solicitud: P50 23,770 ms, P90 392,027, P95 640,569, P99 1.722,038 y máximo 1.876,718 ms. La variación temporal respecto de la mediana histórica 26.907,778/22.681,143 ms de A #3 no altera el baseline contractual.
+
+Los conteos deterministas de partida coincidieron: 215.675 nodos, 78.043.325 checks, 0 podas estáticas, 2.911.009 podas relacionales, 285.676 podas forward-check y 7 solves truncados. Rechazos: `scenario-zone-layout=16`, `no-counterexample-clue=370`, `scenario-placement-feasibility=27`, `post-generation-quality=10`, `refinement-limit=49`, `solver-node-limit=7` y `candidate-evaluation-limit=43`. Fingerprints D1–D5, RNG y snapshots eran los registrados en la sección 15.
+
+### Caracterización cuantitativa de `relationValid`
+
+Una instrumentación temporal retirada antes de implementar registró:
+
+| Operación baseline | Cantidad |
+| --- | ---: |
+| Invocaciones de `relationValid` / arrays `relevant` creados | 12.530.387 |
+| Clasificaciones `relational()` | 449.316.343 |
+| Clasificaciones `occupancy()` | 199.308.337 |
+| Pistas propias recorridas | 27.226.821 |
+| Entries / pistas recorridas buscando entrantes | 114.558.719 / 421.991.581 |
+| Relaciones propias / entrantes añadidas a `relevant` | 9.011.703 / 4.354.102 |
+| Personajes / pistas recorridos en occupancy | 93.451.976 / 199.241.275 |
+| Evaluaciones relacionales propias / entrantes | 8.862.986 / 3.697.700 |
+| Evaluaciones globales | 13.226.813 |
+| Evaluaciones occupancy | 42.472.363 |
+| Short-circuit propio / entrante / global / occupancy | 780.864 / 616.129 / 219.675 / 1.294.341 |
+
+La clasificación accidental superaba ampliamente las evaluaciones reales: las entrantes obligaban a revisar 421,99 millones de pistas para ejecutar 3,70 millones, y occupancy clasificaba 199,31 millones para evaluar 42,47 millones. El orden global de fases ya era correcto y se conserva: relaciones propias+entrantes, globales eager y occupancy.
+
+### Contrato de orden, duplicados y diseño adoptado
+
+`SolverCluePlan` es un módulo interno independiente, creado una vez por `solveCaseWithStats` y liberado con la llamada. Sus mapas y arrays quedan encerrados; el objeto público interno está congelado y solo ofrece dos recorridos con callback y short-circuit.
+
+Para relaciones reproduce exactamente `new Map(characters.map(...))`:
+
+- la posición de cada ID es la de su primera inserción;
+- `Map.set` actualiza el valor, de modo que las pistas son las de la última aparición;
+- las propias conservan el orden de ese último array;
+- las entrantes se agrupan por target recorriendo entries del mapa y pistas en su orden original;
+- `positions.has(owner)` continúa consultándose dinámicamente antes de cada evaluación entrante.
+
+Para occupancy mantiene una entrada por cada elemento original de `caseData.characters`, incluidos IDs duplicados. En ejecución sigue consultando dinámicamente si ese ID aparece en `next`, recorre sus occupancy en orden y se detiene en la primera violación. No usa el mapa deduplicado.
+
+Se conservan `proposed`, `next = [...placements, proposed]`, placements, filas/columnas usadas, dominios, candidatos, MRV, DFS, forward-check, stats y límites. El plan no evalúa pistas: delega en el mismo `evaluateClueWithContext` de A #3.
+
+Clasificaciones adoptadas:
+
+- cinco relacionales propias por ID;
+- cinco relacionales entrantes por target, con `{ owner, clue }` ordenado;
+- seis occupancy por entrada original de personaje.
+
+Clasificaciones descartadas:
+
+- globales: `hasViolatedGlobalClueWithContext` ya recorre directamente el array eager y no repite ningún type guard ni crea wrappers;
+- estáticas: se filtran una sola vez por personaje al crear dominios y no pertenecían al hotspot repetido;
+- estado dinámico de placements, dominios o candidatos: fuera de A #4 y de mayor riesgo semántico.
+
+### Coste de construcción y benchmark por bloques
+
+La instrumentación temporal del constructor midió 3.163 planes, 27.081 entradas de personaje y 97.941 pistas recorridas para cada una de las dos semánticas necesarias —mapa relacional deduplicado y occupancy original—. Coste: 22,414 ms totales, 0,00709 ms por solve, aproximadamente 0,11 % del total candidato mediano.
+
+Mediciones calentadas por bloque sobre las mismas 200 solicitudes:
+
+| Variante | Total | Solver | Cambio frente al paso anterior |
+| --- | ---: | ---: | ---: |
+| A #3 baseline | 28.628,391 ms | 24.060,790 ms | — |
+| Solo relaciones preclasificadas | 22.934,135 ms | 18.284,568 ms | −5.694,256 ms |
+| Relaciones + occupancy | 20.675,844 ms | 16.080,088 ms | −2.258,291 ms |
+
+Las tres conservaron exactamente solicitudes, intentos, solves y rechazos. Globales no se añadieron al plan porque no quedaba trabajo de clasificación demostrable que eliminar.
+
+### Benchmark final alternado
+
+Cada variante tuvo calentamiento independiente tras alternar físicamente `solver.ts`; mismo proceso, dataset, fecha, seeds, configuración e instrumentación:
+
+| Par | Baseline A #3 total / solver | Candidato A #4 total / solver | Diferencia total |
+| ---: | ---: | ---: | ---: |
+| 1 | 29.636,773 / 24.887,176 ms | 21.008,009 / 16.360,053 ms | −8.628,764 ms |
+| 2 | 29.595,781 / 24.817,352 ms | 20.801,540 / 16.079,208 ms | −8.794,241 ms |
+| 3 | 29.581,398 / 24.855,377 ms | 20.989,658 / 16.328,504 ms | −8.591,740 ms |
+| 4 | 29.651,262 / 24.957,135 ms | 20.837,872 / 16.224,852 ms | −8.813,390 ms |
+| 5 | 29.380,537 / 24.681,024 ms | 20.920,789 / 16.266,337 ms | −8.459,748 ms |
+| **Mediana** | **29.595,781 / 24.855,377 ms** | **20.920,789 / 16.266,337 ms** | **−8.674,992 ms (−29,31 %)** |
+
+La mediana de solver baja 34,56 %. El candidato ganó 5/5 pares; diferencia pareada mediana −8.628,764 ms. La amplitud total fue 270,725 ms (0,91 %) en baseline y 206,469 ms (0,99 %) en candidato.
+
+| Mediana de cinco rondas | P50 | P90 | P95 | P99 | Máximo |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Baseline | 24,064 ms | 396,539 ms | 652,999 ms | 1.803,375 ms | 1.927,807 ms |
+| Candidato | 19,910 ms | 287,408 ms | 460,550 ms | 1.223,698 ms | 1.320,735 ms |
+
+Heap mediano antes/después/después de GC: baseline 34.933.792/98.508.808/37.064.048 bytes; candidato 34.972.704/129.524.512/37.082.744 bytes. El pico previo a GC fue ruidoso y mayor en el candidato, pero tras GC solo quedan 18.696 bytes de diferencia (0,05 %), sin referencia global ni evidencia de retención.
+
+En las diez pasadas fueron idénticos 200 éxitos, 133 fallbacks, 0 fallos, 679 intentos, sus percentiles, 3.163 llamadas y los siete motivos de rechazo. La comprobación instrumentada final confirmó 7 truncaciones y stats exactos: 215.675 nodos, 78.043.325 checks y podas 0/2.911.009/285.676. Soluciones, orden, casos, seeds, offsets, IDs, RNG, snapshots y fingerprints permanecieron iguales.
+
+### Nuevo perfil de hotspots tras A #1–A #4
+
+Un perfil CPU temporal de 22.084 muestras sobre la matriz final tardó 21.374 ms frente a 20.665 ms de la auditoría final sin perfil. Los porcentajes siguientes son muestras **propias**, no coste inclusivo ni garantía temporal:
+
+| Función | Muestras propias | % total |
+| --- | ---: | ---: |
+| `evaluateClueCore` | 2.626 | 11,89 % |
+| búsqueda DFS `search` | 1.269 | 5,75 % |
+| contexto `cellAt` | 1.189 | 5,38 % |
+| `evaluateGlobalClueCore` | 865 | 3,92 % |
+| `relationValid` | 576 | 2,61 % |
+| plan `hasViolatedOccupancy` | 416 | 1,88 % |
+| plan `hasViolatedRelation` | 291 | 1,32 % |
+| `candidates` | 99 | 0,45 % |
+
+El perfil original situaba `relationValid` en 14,18 % propio y 53,48 % acumulado. Esas cifras no son directamente comparables con un porcentaje inclusivo nuevo sin reconstruir el árbol completo, pero la reducción de recorridos, el 2,61 % propio actual y el benchmark 5/5 concuerdan. El coste dominante restante ya está repartido entre semántica real de pistas, accesos indexados y búsqueda, no una clasificación accidental equivalente a A #4.
+
+### Pruebas, validación, riesgos y rollback
+
+Las pruebas del plan comparan una implementación de referencia del recorrido anterior con la preclasificada. Cubren cero/estáticas, los cinco tipos relacionales, los seis occupancy, combinaciones, varias propias/entrantes, múltiples owners, owner colocado/no colocado, targets ausentes, violación primera/intermedia/última, orden entre relaciones-globales-occupancy, duplicados con primera posición/último valor, occupancy duplicada completa, arrays vacíos, planes independientes y mensaje de tipo no soportado. Las suites existentes cubren cero/una/dos soluciones, `maxSolutions=1/2`, `maxNodes`, truncación, orden y solves consecutivos.
+
+| Validación | Resultado exacto |
+| --- | --- |
+| TypeScript / Oxlint | Correctos, sin diagnósticos |
+| Tests dirigidos | 15 archivos, 113 tests correctos |
+| Suite completa | 97 archivos, 659 tests correctos, 5,85 s |
+| Auditoría final de 200 | 200/200, 133 fallbacks, 0 fallos, 679 intentos, 3.163 llamadas; 20.665 ms; 77,3 % solver |
+| Auditoría de 250 puzzles | 250 correctos; D1 328 ms, D2 510 ms, D3 2.546 ms, D4 7.950 ms, D5 16.227 ms; 181 fallbacks, 0 fallos, 4.249 llamadas |
+| Perfil D5 | 20/20, 0 fallos; media 333 ms, máximo 989 ms (caso 15); media 27,1 llamadas, máximo 87; 77,5957 % solver; offset medio 4,2, máximo 15 |
+| Casos Normal | 21 casos publicados verificados |
+| Fingerprints/RNG/snapshots | Tests exactos correctos; hashes D1–D5 sin cambios |
+| Web/PWA | Correcto; 460 módulos; 225 entradas y 112.875,71 KiB |
+| GitHub Pages | Correcto; 460 módulos; 225 entradas y 112.878,50 KiB |
+| Capacitor/Android | Build, copia, sync y verificador correctos |
+| APK debug offline | `BUILD SUCCESSFUL in 4s`; 93 tareas (27 ejecutadas, 66 up-to-date); 120.182.924 bytes |
+| `git diff --check` | Correcto; solo avisos LF→CRLF conocidos, sin diff material generado |
+| Red | No utilizada; Gradle se ejecutó con `--offline` |
+
+Riesgos residuales: el plan supone que `characters` y sus arrays de pistas no mutan durante el solve síncrono, la misma frontera local adoptada por A #3. Sus callbacks preservan orden y short-circuit, pero cualquier nuevo tipo relacional u occupancy debe añadirse tanto al plan como al filtro estático de dominios; los tests exhaustivos detectan una omisión. El pico de heap antes de GC varía entre procesos y no debe interpretarse como retención.
+
+Rollback: retirar `createSolverCluePlan`, restaurar el `Map cluesByCharacter`, el array `relevant` y el recorrido original de occupancy en `solver.ts`, y eliminar el módulo/test del plan. No hay migración, persistencia, schema, dependencia ni cambio diagnóstico.
+
+Próximo paso recomendado: **detener las optimizaciones Nivel A**. Antes de cualquier Nivel B conviene una auditoría diagnóstica nueva y aislada sobre el coste semántico real de `evaluateClueCore`, `evaluateGlobalClueCore` y el estado dinámico de placements. No se recomienda implementar directamente iteradores de candidatos, MRV incremental, dominios dinámicos ni memoización: son cambios de mayor riesgo, `candidates` solo representa 0,45 % propio en el perfil actual y cualquier beneficio debe justificar explícitamente orden, stats, límites y memoria. Ningún Nivel B/C forma parte de esta entrega.
