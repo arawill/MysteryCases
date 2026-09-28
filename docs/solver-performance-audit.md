@@ -2,6 +2,8 @@
 
 Fecha de la medición: 27 de septiembre de 2026. Rama `pre`, commit `03fa697`. Esta auditoría es exclusivamente diagnóstica: no modifica solver, generador, reglas, límites, RNG ni tests.
 
+> Actualización del 28 de septiembre de 2026: se implementó únicamente la primera optimización Nivel A. La evidencia, guardas, benchmark y rollback están en la sección 14. El resto de candidatos continúa sin implementar.
+
 ## 1. Conclusión ejecutiva
 
 La línea base calentada completa 200/200 solicitudes y tarda una mediana local de **48.101 ms**; el solver representa una mediana del **90,5 %**. La carga no está repartida uniformemente: D1–D2 son baratos, mientras Daily/Infinite D4–D5 concentran backtracking, comprobaciones de candidatos y casi todo el tiempo.
@@ -297,7 +299,7 @@ Tests permanentes necesarios:
 
 Rollback: una sola ruta de llamada puede volver a `analyzeCase(generated)`. No requiere migración, persistencia ni dependencia.
 
-## 12. Validación final
+## 12. Validación final de la auditoría original
 
 Toda la instrumentación temporal se retiró antes de esta batería.
 
@@ -328,4 +330,79 @@ Avisos no bloqueantes: chunk web minificado mayor de 500 kB; `flatDir` y feature
 - El perfil de heap no pudo atribuir bytes de Vite SSR a funciones fuente; las asignaciones se justifican por código+frecuencia, no por cifras inventadas.
 - El pico de heap se observó entre solicitudes, no dentro de cada DFS.
 - 20 muestras por modo/dificultad permiten reproducir esta carga, no inferir todas las distribuciones posibles.
-- No se implementó ninguna optimización, por lo que los beneficios son techos/hipótesis para validar, no promesas.
+- En la auditoría original no se implementó ninguna optimización; sus beneficios eran techos/hipótesis. La sección 14 registra la implementación posterior y su evidencia real.
+
+## 14. Implementación de la primera optimización Nivel A
+
+### Diseño y guardas
+
+`analyzeCase(caseData, { precomputed })` acepta ahora evidencia opcional y opaca. `PrecomputedCaseAnalysis.create` solo la emite cuando:
+
+1. `maxSolutions` efectivo es un entero mayor o igual que 2;
+2. `maxNodes`, si existe, es un entero positivo;
+3. el resultado no está truncado —el solver representa el falso histórico como `undefined`; la evidencia lo normaliza a `false`—;
+4. hay exactamente una solución tanto en `solutionsFound` como en `solutions`;
+5. cada placement tiene personaje, fila y columna válidos en formato;
+6. el snapshot JSON completo y ordenado del caso resuelto coincide con el objetivo; solo se permite cambiar `id`, y el ID objetivo queda incorporado a la evidencia;
+7. el caso entregado posteriormente a `analyzeCase` sigue coincidiendo byte a byte con ese snapshot.
+
+El snapshot incluye dificultad, solución canónica, orden de personajes, pistas por personaje, globales, board/objetos, zonas, edge features y traits. No ordena IDs ni canonicaliza colecciones. Ausencia y propiedad opcional con `undefined` se consideran equivalentes porque JSON las representa igual y el solver/validator también.
+
+La evidencia clona la solución al crearse y vuelve a clonarla al construir el análisis. Una mutación posterior del caso invalida el snapshot y activa fallback. Una evidencia ausente, desconocida, falsificada, insuficiente, con cero/dos soluciones, truncada o creada con `maxSolutions < 2` nunca se reutiliza.
+
+`validateCaseDefinition` se ejecuta siempre antes de consultar la evidencia. Por tanto se conservan orden/contenido de errores, validación estructural y semántica, IDs/referencias, dificultad y solución canónica. `placementsEqual` sigue calculando `matchesCanonical` al construir el mismo `CaseAnalysis`.
+
+### Integración procedural y fallback
+
+`solveSelected` conserva únicamente el contexto del solve real más reciente —caso exacto, resultado y opciones—, no una caché adicional. La caché local de resultados mantiene su forma anterior. El caso final continúa reconstruyéndose con `applyConstraints`; la fábrica compara esa reconstrucción completa con el contexto original.
+
+La reutilización solo se intenta para `options.procedural && !minimizeClues`, cuando el resultado final es exactamente el mismo objeto devuelto por ese solve. Si la fábrica no puede probar todas las condiciones, `analyzeCase` ejecuta `solveCase` como antes y la instrumentación envuelve esa llamada real. Cuando la evidencia es válida no se llama a `measureSolver`: no se emite una llamada ficticia ni tiempo ficticio. El formato diagnóstico sigue siendo v1.
+
+### Benchmark reproducible
+
+Línea base calentada inmediatamente anterior al cambio: 200/200, 133 fallbacks, 0 fallos, 3.373 llamadas, 49.338 ms, 90,5 % solver; intentos y rechazos coinciden con la auditoría histórica cuya mediana era 48.101 ms.
+
+Cinco rondas posteriores sobre el mismo dataset:
+
+| Ronda | Éxitos/fallbacks/fallos | Llamadas | Total | Solver | P50 | P90 | P95 | P99 | Máximo |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 200/133/0 | 3.163 | 46.119,884 ms | 90,263 % | 24,018 | 639,730 | 1.132,641 | 3.119,150 | 3.318,511 |
+| 2 | 200/133/0 | 3.163 | 44.812,951 ms | 90,329 % | 25,157 | 627,406 | 1.108,404 | 3.046,608 | 3.273,185 |
+| 3 | 200/133/0 | 3.163 | 44.942,419 ms | 90,461 % | 24,091 | 631,526 | 1.087,869 | 3.045,342 | 3.395,148 |
+| 4 | 200/133/0 | 3.163 | 44.338,231 ms | 90,404 % | 24,467 | 625,710 | 1.054,408 | 3.060,024 | 3.203,633 |
+| 5 | 200/133/0 | 3.163 | 44.775,022 ms | 90,279 % | 23,527 | 609,167 | 1.102,768 | 3.122,281 | 3.223,122 |
+| **Mediana** | **200/133/0** | **3.163** | **44.812,951 ms** | **90,329 %** | **24,091** | **627,406** | **1.102,768** | **3.060,024** | **3.273,185** |
+
+La amplitud total post-cambio fue 1.781,653 ms (3,98 % de la mediana). Desaparecen exactamente **210 llamadas**, de 3.373 a 3.163. En las cinco rondas permanecen idénticos: 200 éxitos, 133 fallbacks, cero fallos, media/percentiles/máximo de candidatos y los siete conteos de rechazo (`370/49/43/27/16/10/7`).
+
+La caída observada frente a la ejecución previa es mayor que el techo de ~1,03 s/2–3 % estimado por CPU. No se atribuye íntegramente a la optimización: procesos distintos, calentamiento del sistema y ruido local impiden esa inferencia. La aceptación se basa en trabajo eliminado y equivalencia determinista, no en ese porcentaje temporal.
+
+### Pruebas, rollback y riesgo pendiente
+
+Las pruebas nuevas cubren equivalencia exacta, clonación/orden de solución, errores estructurales/semánticos, cero/una/dos soluciones, truncación, `maxSolutions` insuficiente, formato desconocido, excepción de fallback, ID objetivo, pista añadida/eliminada/reordenada/modificada con el mismo ID, board/objeto, personaje, global y zona. También congelan la seed extrema `648429649`/offset 21 y demuestran que el observador cuenta solo solves reales.
+
+Rollback: retirar el argumento `precomputed` del análisis final y volver a envolver `analyzeCase(generated)` con `measureSolver`; no hay migraciones, persistencia, versión diagnóstica, schema ni dependencia nueva.
+
+Riesgos pendientes: el snapshot añade tres serializaciones estrictas solo al candidato procedural que alcanza la validación final; una diferencia inocua no reconocida produce un fallback seguro, nunca una reutilización permisiva. El límite finito de nodos es aceptable exclusivamente porque `truncated !== true`, `maxSolutions >= 2` y una única solución demuestran que la búsqueda terminó exhaustivamente.
+
+### Validación final de la implementación
+
+| Validación | Resultado exacto |
+| --- | --- |
+| Rama/estado inicial | `pre`; árbol limpio antes de modificar |
+| Línea base calentada inmediata | 200/200 éxitos, 133 fallbacks, 0 fallos; 3.373 llamadas; 49.338 ms; 90,5 % solver; intentos media 3,40, mediana 2, P90 7, P95 10, P99 12, máximo 17; rechazos `370/49/43/27/16/10/7` |
+| TypeScript / Oxlint | `npx tsc -b` y `npm run lint`: correctos, sin diagnósticos |
+| Tests dirigidos | 19 archivos, 165 tests correctos, 6,34 s; incluye análisis, solver, validator, generación, observabilidad, RNG y fingerprints D1–D5 |
+| Suite completa | 93 archivos, 631 tests correctos, 7,63 s |
+| Auditoría de retries, 5 rondas de 20/mode+D | Cada ronda: 200/200 éxitos, 133 fallbacks, 0 fallos, 3.163 llamadas y rechazos exactos `370/49/43/27/16/10/7`; mediana 44.812,951 ms, 90,329 % solver; P50 24,091, P90 627,406, P95 1.102,768, P99 3.060,024 y máximo 3.273,185 ms |
+| Reducción determinista | Exactamente 210 solves finales eliminados: 3.373 → 3.163 llamadas; casos, intentos, motivos y decisiones idénticos |
+| Auditoría de pistas | 250 puzzles correctos; D1 339 ms, D2 539 ms, D3 4.367 ms, D4 16.693 ms, D5 38.317 ms; 181 fallbacks, 0 fallos, 4.249 llamadas; intentos media 3,608, mediana 2, P90 8, P95 11, P99 16, máximo 23 |
+| Perfil D5 oficial | 20/20 éxitos, 0 fallos; media 796 ms, máximo 2.605 ms (caso 15); media 27,1 llamadas por solicitud, máximo 87; 91,1762 % solver; offset medio 4,2, máximo 15 |
+| Casos Normal | 21 casos publicados verificados |
+| Web/PWA | `verify:pwa` correcto; 458 módulos; 225 entradas y 112.873,31 KiB de precache |
+| GitHub Pages | Build y verificadores PWA/Pages correctos; 458 módulos; 225 entradas y 112.876,10 KiB |
+| Capacitor/Android | Build web, copia, `cap sync android` y verificador Android correctos |
+| APK debug offline | Desde `android/`: `BUILD SUCCESSFUL in 15s`, 93 tareas (27 ejecutadas, 66 up-to-date); `app-debug.apk`, 120.182.104 bytes |
+| Red | No utilizada; Gradle se ejecutó con `--offline` |
+
+Avisos no bloqueantes ya presentes: chunk web minificado mayor de 500 kB; `flatDir`, desfase de versión XML del SDK y features de Gradle deprecadas antes de Gradle 9. Ninguno impidió el build o los verificadores.

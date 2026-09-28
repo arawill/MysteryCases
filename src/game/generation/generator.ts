@@ -1,4 +1,4 @@
-import { analyzeCase } from '../analysis'
+import { analyzeCase, createPrecomputedCaseAnalysis } from '../analysis'
 import { findKiller, placementsEqual } from '../rules'
 import { solveCase } from '../solver'
 import { validateCaseDefinition } from '../validation'
@@ -50,17 +50,21 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   selectRequiredGlobals(candidate => candidate.kind === 'global' && isTraitGlobal(candidate.clue), requirements.traitGlobals)
   const remaining: CandidateConstraint[] = [...pool, ...globalPool].filter(candidate => !selected.some(chosen => chosen.clue.id === candidate.clue.id)).sort((a, b) => a.kind === 'global' ? 2 : b.kind === 'global' ? -2 : cluePriority(a) - cluePriority(b))
   const solveCache = new Map<string, ReturnType<typeof solveCase>>()
+  let latestSolved: { caseData: ReturnType<typeof applyConstraints>; result: ReturnType<typeof solveCase>; solveOptions: { maxSolutions: number; maxNodes?: number } } | undefined
   const solveSelected = (candidates: readonly CandidateConstraint[]) => {
     const signature = candidates.map(candidate => candidate.clue.id).sort().join('|')
     const cached = solveCache.get(signature)
     if (cached) return cached
     if (stats.solverCalls >= limits.maxSolverCalls) throw new Error('Procedural solver-call budget exceeded.')
     stats.solverCalls += 1
-    const solve = () => solveCase(applyConstraints(template, placement.solution, candidates), { maxSolutions: 2, ...(options.procedural ? { maxNodes: limits.maxSolverNodes } : {}) })
-    const solved = options.instrumentation ? options.instrumentation.measureSolver(solve) : solve()
-    if (solved.truncated) throw new Error('Procedural solver-node budget exceeded.')
-    solveCache.set(signature, solved)
-    return solved
+    const caseData = applyConstraints(template, placement.solution, candidates)
+    const solveOptions = { maxSolutions: 2, ...(options.procedural ? { maxNodes: limits.maxSolverNodes } : {}) }
+    const solve = () => solveCase(caseData, solveOptions)
+    const result = options.instrumentation ? options.instrumentation.measureSolver(solve) : solve()
+    if (result.truncated) throw new Error('Procedural solver-node budget exceeded.')
+    latestSolved = { caseData, result, solveOptions }
+    solveCache.set(signature, result)
+    return result
   }
   let result = solveSelected(selected)
   let refinementSteps = 0, candidateEvaluations = 0
@@ -96,11 +100,11 @@ export function generatePuzzle(template: GenerationTemplate, options: GeneratePu
   }
   const generated = { ...applyConstraints(template, placement.solution, selected), id: `${template.id}-seed-${options.seed}` }
   const validationErrors = validateCaseDefinition(generated); if (validationErrors.length > 0) throw new Error(`Generated case validation failed: ${validationErrors.join(' ')}`)
-  // With no minimisation, `result` was obtained from exactly this selected set.
-  // Reuse it rather than asking the solver the same question a second time.
-  const finalResult = !minimizeClues && result.solutionsFound === 1 ? result : solveSelected(selected); if (finalResult.solutionsFound !== 1 || !placementsEqual(finalResult.solutions[0], generated.solution)) throw new Error('Generated puzzle failed final uniqueness validation.')
-  const analyze = () => analyzeCase(generated)
-  const analysis = options.instrumentation ? options.instrumentation.measureSolver(analyze) : analyze(); if (analysis.status !== 'unique' || analysis.matchesCanonical !== true) throw new Error('Generated puzzle failed analysis validation.')
+  const finalResult = !minimizeClues && result.solutionsFound === 1 ? result : solveSelected(selected)
+  if (finalResult.solutionsFound !== 1 || !placementsEqual(finalResult.solutions[0], generated.solution)) throw new Error('Generated puzzle failed final uniqueness validation.')
+  const precomputedAnalysis = options.procedural && !minimizeClues && latestSolved?.result === finalResult ? createPrecomputedCaseAnalysis({ solvedCase: latestSolved.caseData, analyzedCase: generated, result: finalResult, solveOptions: latestSolved.solveOptions }) : undefined
+  const analyze = () => analyzeCase(generated, { precomputed: precomputedAnalysis })
+  const analysis = precomputedAnalysis ? analyze() : options.instrumentation ? options.instrumentation.measureSolver(analyze) : analyze(); if (analysis.status !== 'unique' || analysis.matchesCanonical !== true) throw new Error('Generated puzzle failed analysis validation.')
   const killer = findKiller(generated, generated.solution); if (!killer) throw new Error('Generated puzzle has no unique killer.')
   stats.selectedClues = selected.length
   return { caseData: generated, seed: options.seed, killerId: killer.id, stats }

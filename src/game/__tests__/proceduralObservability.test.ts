@@ -63,4 +63,18 @@ describe('procedural generation observability', () => {
     expect(aggregate.groups).toHaveLength(2)
     expect(diagnostics).toHaveLength(3)
   })
+
+  it('preserves the known extreme Daily seed while counting only real solver work', () => {
+    const diagnostics: ProceduralGenerationDiagnostic[] = []
+    const generated = generateDailyCase(new Date(2026, 0, 21, 12), 1, { observer: value => diagnostics.push(value as ProceduralGenerationDiagnostic), detailed: true })
+    expect(generated).toMatchObject({ baseSeed: 648429649, effectiveSeed: 648429670, seedOffset: 21 })
+    expect(diagnostics[0]).toMatchObject({ candidateCount: 22, solverCalls: 56, rejections: { 'no-counterexample-clue': 21 }, reproduction: { baseSeed: 648429649, effectiveSeed: 648429670, seedOffset: 21 } })
+  })
+
+  it('does not record a fictitious final analysis solve for an accepted first candidate', () => {
+    const diagnostics: ProceduralGenerationDiagnostic[] = [], seed = getNormalCaseSeed(5, 1)
+    const generated = generateProceduralCase({ id: getNormalCaseId(5, 1), title: 'Test', intro: '', difficulty: 5, seed }, { observer: value => diagnostics.push(value as ProceduralGenerationDiagnostic) })
+    expect(generated.seedOffset).toBe(0)
+    expect(diagnostics[0].solverCalls).toBe(generated.stats.solverCalls)
+  })
 })
