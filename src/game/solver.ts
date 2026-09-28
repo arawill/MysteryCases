@@ -1,5 +1,6 @@
-import { areAllCluesSatisfied, evaluateClue } from './clues'
-import { areAllGlobalCluesSatisfied, hasViolatedGlobalClue } from './globalClues'
+import { areAllCluesSatisfiedWithContext, evaluateClueWithContext } from './clues'
+import { areAllGlobalCluesSatisfiedWithContext, hasViolatedGlobalClueWithContext } from './globalClues'
+import { createSolverEvaluationContext } from './solverEvaluationContext'
 import type { BoardCell, Clue, GameCase, Placement } from './types'
 
 export interface SolveOptions { maxSolutions?: number; maxNodes?: number }
@@ -16,13 +17,14 @@ export function solveCaseWithStats(caseData: GameCase, options: SolveOptions = {
   if (!Number.isInteger(maxSolutions) || maxSolutions < 1) throw new Error('maxSolutions must be a positive integer.')
   const maxNodes = options.maxNodes
   if (maxNodes !== undefined && (!Number.isInteger(maxNodes) || maxNodes < 1)) throw new Error('maxNodes must be a positive integer.')
+  const evaluationContext = createSolverEvaluationContext(caseData)
   const cells = caseData.board.filter(cell => cell.occupiable)
   const cluesByCharacter = new Map(caseData.characters.map(character => [character.id, character.clues]))
   const domains = new Map<string, BoardCell[]>()
   const stats = emptyStats()
   for (const character of caseData.characters) {
     const staticClues = character.clues.filter(clue => !relational(clue) && !occupancy(clue))
-    domains.set(character.id, cells.filter(cell => staticClues.every(clue => evaluateClue(clue, character.id, caseData, [{ characterId: character.id, position: { row: cell.row, column: cell.column } }]) === 'satisfied')))
+    domains.set(character.id, cells.filter(cell => staticClues.every(clue => evaluateClueWithContext(clue, character.id, caseData, [{ characterId: character.id, position: { row: cell.row, column: cell.column } }], evaluationContext) === 'satisfied')))
   }
   const solutions: Placement[][] = [], placements: Placement[] = [], positions = new Map<string, Placement>(), usedRows = new Set<number>(), usedColumns = new Set<number>()
   let truncated = false
@@ -32,14 +34,14 @@ export function solveCaseWithStats(caseData: GameCase, options: SolveOptions = {
     for (const clue of cluesByCharacter.get(characterId) ?? []) if (relational(clue)) relevant.push({ owner: characterId, clue })
     for (const [owner, ownerClues] of cluesByCharacter) for (const clue of ownerClues) if (relational(clue) && clue.targetCharacterId === characterId && positions.has(owner)) relevant.push({ owner, clue })
     const next = [...placements, proposed]
-    return relevant.every(({ owner, clue }) => evaluateClue(clue, owner, caseData, next) !== 'violated') && !hasViolatedGlobalClue(caseData, next) && !caseData.characters.some(character => next.some(item => item.characterId === character.id) && character.clues.some(clue => occupancy(clue) && evaluateClue(clue, character.id, caseData, next) === 'violated'))
+    return relevant.every(({ owner, clue }) => evaluateClueWithContext(clue, owner, caseData, next, evaluationContext) !== 'violated') && !hasViolatedGlobalClueWithContext(caseData, next, evaluationContext) && !caseData.characters.some(character => next.some(item => item.characterId === character.id) && character.clues.some(clue => occupancy(clue) && evaluateClueWithContext(clue, character.id, caseData, next, evaluationContext) === 'violated'))
   }
   const candidates = (characterId: string) => (domains.get(characterId) ?? []).filter(cell => { stats.candidateChecks += 1; if (usedRows.has(cell.row) || usedColumns.has(cell.column)) return false; if (!relationValid(characterId, cell)) { stats.prunedByRelation += 1; return false } return true })
   const search = () => {
     if (truncated || solutions.length >= maxSolutions) return
     if (maxNodes !== undefined && stats.nodesVisited >= maxNodes) { truncated = true; return }
     stats.nodesVisited += 1
-    if (placements.length === caseData.characters.length) { if (areAllCluesSatisfied(caseData, placements) && areAllGlobalCluesSatisfied(caseData, placements)) solutions.push(placements.map(item => ({ characterId: item.characterId, position: { ...item.position } }))); return }
+    if (placements.length === caseData.characters.length) { if (areAllCluesSatisfiedWithContext(caseData, placements, evaluationContext) && areAllGlobalCluesSatisfiedWithContext(caseData, placements, evaluationContext)) solutions.push(placements.map(item => ({ characterId: item.characterId, position: { ...item.position } }))); return }
     const ranked = caseData.characters.filter(character => !positions.has(character.id)).map((character, index) => ({ character, candidates: candidates(character.id), index })).sort((a, b) => a.candidates.length - b.candidates.length || a.index - b.index)
     const choice = ranked[0]
     if (!choice || choice.candidates.length === 0) return

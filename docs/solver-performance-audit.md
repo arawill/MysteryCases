@@ -6,6 +6,8 @@ Fecha de la medición: 27 de septiembre de 2026. Rama `pre`, commit `03fa697`. E
 
 > Segunda actualización del 28 de septiembre de 2026: la optimización Nivel A #2 elimina las colecciones temporales de las comprobaciones booleanas de pistas globales conservando evaluación eager. Diseño, contrato y mediciones están en la sección 15.
 
+> Tercera actualización del 28 de septiembre de 2026: la optimización Nivel A #3 introduce índices estáticos, inmutables y locales a cada llamada real del solver. La caracterización, equivalencia, benchmark alternado y rollback están en la sección 16. El Nivel A #4 no se ha implementado.
+
 ## 1. Conclusión ejecutiva
 
 La línea base calentada completa 200/200 solicitudes y tarda una mediana local de **48.101 ms**; el solver representa una mediana del **90,5 %**. La carga no está repartida uniformemente: D1–D2 son baratos, mientras Daily/Infinite D4–D5 concentran backtracking, comprobaciones de candidatos y casi todo el tiempo.
@@ -492,4 +494,104 @@ La prueba de observabilidad conserva exactamente cantidad y orden de valores RNG
 
 Riesgo residual: el beneficio temporal es pequeño y comparte escala con el ruido local, aunque aparece en 5/6 pares y elimina asignaciones demostrables por estructura. La semántica eager queda protegida por tests; añadir short-circuit en el futuro sería un cambio contractual independiente. Rollback: restaurar las dos expresiones que delegaban en `evaluateAllGlobalClues`; no hay migración, persistencia, schema, dependencia ni cambio de diagnóstico.
 
-Próximo paso recomendado, no implementado: medir primero el Nivel A #3 —índices inmutables locales por solve para celdas, zonas, objetos y traits— con la misma exigencia de orden, excepciones, stats y fingerprints. No debe combinarse con este cambio ni introducirse sin un baseline propio.
+El siguiente paso recomendado en ese momento era medir por separado el Nivel A #3 —índices inmutables locales por solve para celdas, zonas, objetos y traits— con la misma exigencia de orden, excepciones, stats y fingerprints. Esa implementación y su baseline propio se registran ahora en la sección 16; no se mezcló con A #2.
+
+## 16. Implementación de la tercera optimización Nivel A
+
+### Baseline posterior a A #1 y A #2
+
+La rama `pre` partía limpia y sincronizada en `b88504d`. Se excluyó un calentamiento independiente. La matriz previa a editar producción completó 200/200 solicitudes, 133 fallbacks y 0 fallos en 44.000,818 ms, de los cuales 39.829,632 ms (90,5202 %) correspondieron al solver. Registró 3.163 llamadas; 679 intentos, media 3,395, mediana 2, P90 7, P95 10, P99 12 y máximo 17; rechazos `scenario-zone-layout=16`, `no-counterexample-clue=370`, `scenario-placement-feasibility=27`, `post-generation-quality=10`, `refinement-limit=49`, `solver-node-limit=7` y `candidate-evaluation-limit=43`.
+
+La instrumentación temporal de stats fijó además 215.675 nodos, 78.043.325 checks de candidato, 0 podas por dominio estático, 2.911.009 podas relacionales y 285.676 podas de forward-check. Los tests de fingerprint D1–D5, RNG y snapshots pasaron antes de modificar producción; los diez SHA-256 son los ya registrados en la sección 15. No hubo un cambio legítimo de baseline que investigar.
+
+### Caracterización y frontera estática/mutable
+
+En la ruta caliente de los evaluadores se repetían búsquedas lineales sobre datos estáticos del `GameCase`:
+
+| Consulta anterior | Semántica que debía preservarse | Índice adoptado |
+| --- | --- | --- |
+| `getCell(board, position)` / `board.find` | Primera coordenada en orden de board | `row → column → primera BoardCell` |
+| `characters.find(id)` | Primer personaje con ese ID | `id → primer Character` |
+| `zones.find(id)` + `resolveZoneSurface` | Primera zona y su superficie derivada/explícita | `id → primera superficie resuelta` |
+| `board.filter(object.id)` | Todas las coincidencias en orden original | `objectId → BoardCell[]` ordenado |
+| `characterHasTrait` tras buscar personaje | Comportamiento defensivo ante `traitIds` ausente o malformado | `characterId → Set` defensivo de traits |
+
+El estado del DFS no se indexó: `placements`, su búsqueda de personaje colocado, `positions`, filas/columnas usadas, dominios y candidatos siguen siendo mutables y conservan exactamente su implementación. Tampoco se tocaron `relationValid`, MRV, DFS, desempates, forward-check ni clasificación de pistas; hacerlo correspondería al Nivel A #4 o a niveles posteriores.
+
+`SolverEvaluationContext` se construye una vez, después de validar opciones y antes de crear dominios, dentro de cada `solveCaseWithStats`. Sus mapas quedan encerrados en closures y la interfaz congelada solo expone lectores. No se guarda en `GameCase`, no congela ni clona los objetos recibidos, no usa estado de módulo, singleton, `WeakMap`, serialización ni caché compartida, y queda alcanzable únicamente mientras vive la llamada síncrona.
+
+Los mapas de coordenadas, personajes y zonas usan inserción condicionada con `has`: un duplicado inválido nunca sobrescribe la primera entrada. Las agrupaciones de objeto recorren board una vez y mantienen todas las celdas en el orden original; sus arrays se congelan sin congelar las celdas. Las rutas públicas existentes siguen sin crear ni conservar contexto, por lo que observan mutaciones entre llamadas. La ruta pública y la indexada comparten un único núcleo semántico para cada tipo de pista.
+
+### Índices considerados, coste y consultas servidas
+
+Se adoptaron celda por posición, primer personaje por ID, celdas por objeto, superficie por primera zona y traits por primer personaje. Se descartaron:
+
+- un lector público de zona por ID, porque la instrumentación halló cero consumidores directos;
+- personajes agrupados por trait, porque ningún evaluador actual lo consume;
+- índices de placements, dominios o pistas entrantes/occupancy, por ser estado mutable o Nivel A #4;
+- cualquier caché de resultados o memoización por estado, fuera de alcance.
+
+La superficie por zona se conserva aunque esta matriz concreta no ejecutó `onSurface`/`surfaceOccupancyCount`: tiene consumidores reales en casos manuales y su construcción reutiliza el mismo recorrido pequeño de zonas necesario para preservar la primera coincidencia. El mapa de primeras zonas se mantiene encerrado únicamente para reproducir el fallback `generic` en datos inexistentes.
+
+Una instrumentación temporal —retirada antes de la validación final— contó, sobre la matriz exacta:
+
+| Construcciones de contexto | Coste total | Coste medio | `cellAt` | `characterById` | `cellsByObjectId` | `characterHasTrait` | `surfaceByZoneId` |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 3.163 | 25,7181 ms | 0,00813 ms/solve | 429.876.431 | 52.353 | 257.136 | 7.921.229 | 0 |
+
+Estas cifras cuentan llamadas al lector indexado, no bytes asignados ni tiempo ahorrado por consulta. Demuestran que se sustituyen cientos de millones de búsquedas lineales sobre board; el coste observado de construcción es 0,095 % del total candidato mediano y no anula el beneficio. No se atribuyen bytes ni CPU por función sin una medición fiable.
+
+### Equivalencia contractual
+
+Las pruebas permanentes comparan la ruta tradicional y la indexada para los 30 tipos actuales de pista de personaje y los 5 globales con placements vacíos, parciales y completos. Cubren objetos simples y footprint, superficies explícitas y derivadas, edge features, traits válidos/ausentes/malformados, relaciones, occupancy, referencias inexistentes, arrays opcionales ausentes, duplicados de coordenada/personaje/zona/objeto, primera coincidencia, orden de colecciones y mismo mensaje para tipos no soportados.
+
+También demuestran que las llamadas públicas reflejan mutaciones, que contextos distintos no comparten estado, que dos solves consecutivos no se contaminan y que se conservan solución, orden, stats y truncación para `maxSolutions=1/2` y `maxNodes=1`. Los helpers espaciales aceptan un lector opcional; sus firmas públicas anteriores siguen funcionando sin él.
+
+### Benchmark alternado
+
+Se usaron procesos equivalentes con `node --expose-gc`, calentamiento independiente después de cada alternancia y el mismo dataset de 200 solicitudes. Baseline significa A #1+A #2; candidato añade solo A #3.
+
+| Par | Baseline total / solver | Candidato total / solver | Diferencia total |
+| ---: | ---: | ---: | ---: |
+| 1 | 44.485,876 / 40.240,506 ms | 26.907,778 / 22.675,624 ms | −17.578,098 ms |
+| 2 | 44.078,387 / 39.872,072 ms | 27.428,168 / 23.121,639 ms | −16.650,219 ms |
+| 3 | 43.440,473 / 39.202,774 ms | 26.889,465 / 22.636,143 ms | −16.551,008 ms |
+| 4 | 44.210,689 / 39.967,515 ms | 26.996,431 / 22.780,889 ms | −17.214,258 ms |
+| 5 | 44.061,281 / 39.866,552 ms | 26.906,411 / 22.681,143 ms | −17.154,870 ms |
+| **Mediana** | **44.078,387 / 39.872,072 ms** | **26.907,778 / 22.681,143 ms** | **−17.170,609 ms (−38,95 %)** |
+
+La mediana del solver baja un 43,11 %. La amplitud total fue 1.045,403 ms (2,37 %) en baseline y 538,703 ms (2,00 %) en candidato; el candidato fue más rápido en 5/5 pares. La diferencia pareada mediana fue −17.154,870 ms.
+
+| Mediana de las cinco rondas | P50 | P90 | P95 | P99 | Máximo |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Baseline | 23,433 ms | 604,291 ms | 1.094,442 ms | 3.034,997 ms | 3.198,188 ms |
+| Candidato | 21,632 ms | 371,372 ms | 604,974 ms | 1.650,977 ms | 1.773,492 ms |
+
+La mediana de heap antes/después de la ejecución/después de GC fue 34.836.536/86.599.416/36.852.064 bytes en baseline y 34.900.224/59.712.592/37.039.648 bytes en candidato. El valor tras GC sube 187.584 bytes (0,51 %) y los picos previos a GC variaron ampliamente entre procesos; no se interpreta esa diferencia pequeña como retención. No existe referencia global que permita sobrevivir al solve.
+
+En cada una de las diez pasadas fueron idénticos: 200 éxitos, 133 fallbacks, 0 fallos, 679 intentos, percentiles/máximo de intentos, 3.163 llamadas y los siete motivos de rechazo. La instrumentación de stats del candidato volvió a producir exactamente 215.675 nodos, 78.043.325 checks, 0/2.911.009/285.676 podas estáticas/relacionales/forward-check. Seeds, offsets, IDs, decisiones, truncaciones, orden de soluciones, RNG, snapshots y fingerprints D1–D5 permanecen iguales.
+
+### Validación final, riesgos y rollback
+
+| Validación | Resultado exacto |
+| --- | --- |
+| TypeScript / Oxlint | Correctos, sin diagnósticos |
+| Contexto, evaluadores, solver y helpers dirigidos | 11 archivos, 74 tests correctos |
+| Análisis, validator, generación, observabilidad, RNG, snapshots y fingerprints | 14 archivos, 143 tests correctos |
+| Suite completa | 96 archivos, 653 tests correctos, 5,58 s |
+| Auditoría final de 200 | 200/200 éxitos, 133 fallbacks, 0 fallos, 3.163 llamadas; 27.268 ms; 84,4 % solver; intentos y rechazos exactos |
+| Auditoría de 250 puzzles | 250 correctos; D1 303 ms, D2 506 ms, D3 3.307 ms, D4 10.423 ms, D5 21.424 ms; 181 fallbacks, 0 fallos, 4.249 llamadas |
+| Perfil D5 | 20/20 éxitos, 0 fallos; media 451 ms, máximo 1.368 ms (caso 15); media 27,1 llamadas, máximo 87; 84,7685 % solver; offset medio 4,2, máximo 15 |
+| Casos Normal | 21 casos publicados verificados |
+| Web/PWA | Correcto; 459 módulos; 225 entradas y 112.874,83 KiB de precache |
+| GitHub Pages | Build y verificadores correctos; 459 módulos; 225 entradas y 112.877,62 KiB |
+| Capacitor/Android | Build web, copia, sync y verificador correctos |
+| APK debug offline | `BUILD SUCCESSFUL in 10s`; 93 tareas (27 ejecutadas, 66 up-to-date); 120.182.777 bytes |
+| `git diff --check` | Correcto; solo avisos LF→CRLF conocidos en dos archivos generados de Capacitor, sin diff material |
+| Red | No utilizada; Gradle se ejecutó con `--offline` |
+
+Riesgos residuales: el contexto asume que board, personajes y zonas no mutan durante una llamada síncrona del solver, igual que sus dominios ya asumían; esa suposición no sale del solve. Añadir nuevos consumidores estáticos exige decidir explícitamente si su semántica es primera coincidencia o colección ordenada. Los métodos devuelven referencias a objetos originales y no pretenden protegerlos frente a mutación interna del solver, que hoy no existe.
+
+Rollback: retirar la construcción del contexto en `solveCaseWithStats`, volver a las cuatro llamadas públicas de evaluación y eliminar las rutas `WithContext`, el módulo y los argumentos opcionales de helpers. No hay migración, persistencia, schema, versión diagnóstica ni dependencia nueva.
+
+Recomendación sobre Nivel A #4: **sí merece una auditoría independiente**, porque tras reducir las búsquedas estáticas el coste restante se concentra en el recorrido repetido de pistas dentro de `relationValid`; no se recomienda implementarlo a ciegas ni mezclarlo con este diff. Debe partir de este nuevo baseline, caracterizar listas propias/entrantes/occupancy, preservar orden y excepciones y repetir la misma equivalencia determinista y benchmark alternado. A #4 no forma parte de esta entrega.
