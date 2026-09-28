@@ -3,6 +3,8 @@ import type { BoardCell, Character, GameCase, Position, Zone, ZoneSurface } from
 import { resolveZoneSurface } from './zones/surfaces'
 
 const emptyCells: readonly BoardCell[] = Object.freeze([])
+// Keeps malformed or unexpectedly large fixtures on the exact Map fallback and bounds per-solve allocation.
+const MAX_ROW_MAJOR_CELLS = 65_536
 
 /** Static, solve-local lookups. Maps are enclosed so callers cannot mutate them. */
 export interface SolverEvaluationContext {
@@ -15,11 +17,22 @@ export interface SolverEvaluationContext {
 
 export function createSolverEvaluationContext(caseData: GameCase): SolverEvaluationContext {
   const cellsByRow = new Map<unknown, Map<unknown, BoardCell>>()
+  const rows = caseData.rows, columns = caseData.columns
+  const validDimensions = Number.isInteger(rows) && rows > 0 && Number.isInteger(columns) && columns > 0
+  const denseSize = validDimensions ? rows * columns : 0
+  const useRowMajor = validDimensions
+    && Number.isSafeInteger(denseSize) && denseSize <= MAX_ROW_MAJOR_CELLS
+  const rowMajorCells: Array<BoardCell | undefined> | undefined = useRowMajor ? new Array(denseSize) : undefined
+  const rowMajorPresent: Uint8Array | undefined = useRowMajor ? new Uint8Array(denseSize) : undefined
   const objectCells = new Map<unknown, BoardCell[]>()
   for (const cell of caseData.board) {
-    let columns = cellsByRow.get(cell.row)
-    if (!columns) { columns = new Map(); cellsByRow.set(cell.row, columns) }
-    if (!columns.has(cell.column)) columns.set(cell.column, cell)
+    let fallbackColumns = cellsByRow.get(cell.row)
+    if (!fallbackColumns) { fallbackColumns = new Map(); cellsByRow.set(cell.row, fallbackColumns) }
+    if (!fallbackColumns.has(cell.column)) fallbackColumns.set(cell.column, cell)
+    if (rowMajorCells && rowMajorPresent && Number.isInteger(cell.row) && cell.row >= 1 && cell.row <= rows && Number.isInteger(cell.column) && cell.column >= 1 && cell.column <= columns) {
+      const index = (cell.row - 1) * columns + cell.column - 1
+      if (rowMajorPresent[index] === 0) { rowMajorCells[index] = cell; rowMajorPresent[index] = 1 }
+    }
     if (cell.object) {
       const grouped = objectCells.get(cell.object.id) ?? []
       grouped.push(cell)
@@ -43,7 +56,13 @@ export function createSolverEvaluationContext(caseData: GameCase): SolverEvaluat
   }
 
   return Object.freeze({
-    cellAt: (position: Position) => cellsByRow.get(position.row)?.get(position.column),
+    cellAt: (position: Position) => {
+      if (rowMajorCells && rowMajorPresent && Number.isInteger(position.row) && position.row >= 1 && position.row <= rows && Number.isInteger(position.column) && position.column >= 1 && position.column <= columns) {
+        const index = (position.row - 1) * columns + position.column - 1
+        return rowMajorPresent[index] === 1 ? rowMajorCells[index] : undefined
+      }
+      return cellsByRow.get(position.row)?.get(position.column)
+    },
     characterById: (id: string) => characters.get(id),
     cellsByObjectId: (id: string) => objectCells.get(id) ?? emptyCells,
     surfaceByZoneId: (id: string | undefined) => surfacesByZone.get(id) ?? resolveZoneSurface(zones.get(id)),
