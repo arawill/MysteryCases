@@ -23,5 +23,15 @@ export function evaluateGlobalClue(clue: GlobalClue, caseData: GameCase, placeme
   }
 }
 export const evaluateAllGlobalClues = (caseData: GameCase, placements: Placement[]) => (caseData.globalClues ?? []).map(clue => ({ clue, evaluation: evaluateGlobalClue(clue, caseData, placements) }))
-export const hasViolatedGlobalClue = (caseData: GameCase, placements: Placement[]) => evaluateAllGlobalClues(caseData, placements).some(item => item.evaluation === 'violated')
-export const areAllGlobalCluesSatisfied = (caseData: GameCase, placements: Placement[]) => evaluateAllGlobalClues(caseData, placements).every(item => item.evaluation === 'satisfied')
+export function hasViolatedGlobalClue(caseData: GameCase, placements: Placement[]): boolean {
+  let violated = false
+  // Deliberately eager: unsupported later clues must still be evaluated and throw.
+  for (const clue of caseData.globalClues ?? []) if (evaluateGlobalClue(clue, caseData, placements) === 'violated') violated = true
+  return violated
+}
+export function areAllGlobalCluesSatisfied(caseData: GameCase, placements: Placement[]): boolean {
+  let satisfied = true
+  // Deliberately eager for parity with evaluateAllGlobalClues(...).every(...).
+  for (const clue of caseData.globalClues ?? []) if (evaluateGlobalClue(clue, caseData, placements) !== 'satisfied') satisfied = false
+  return satisfied
+}

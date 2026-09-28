@@ -4,6 +4,8 @@ Fecha de la medición: 27 de septiembre de 2026. Rama `pre`, commit `03fa697`. E
 
 > Actualización del 28 de septiembre de 2026: se implementó únicamente la primera optimización Nivel A. La evidencia, guardas, benchmark y rollback están en la sección 14. El resto de candidatos continúa sin implementar.
 
+> Segunda actualización del 28 de septiembre de 2026: la optimización Nivel A #2 elimina las colecciones temporales de las comprobaciones booleanas de pistas globales conservando evaluación eager. Diseño, contrato y mediciones están en la sección 15.
+
 ## 1. Conclusión ejecutiva
 
 La línea base calentada completa 200/200 solicitudes y tarda una mediana local de **48.101 ms**; el solver representa una mediana del **90,5 %**. La carga no está repartida uniformemente: D1–D2 son baratos, mientras Daily/Infinite D4–D5 concentran backtracking, comprobaciones de candidatos y casi todo el tiempo.
@@ -406,3 +408,88 @@ Riesgos pendientes: el snapshot añade tres serializaciones estrictas solo al ca
 | Red | No utilizada; Gradle se ejecutó con `--offline` |
 
 Avisos no bloqueantes ya presentes: chunk web minificado mayor de 500 kB; `flatDir`, desfase de versión XML del SDK y features de Gradle deprecadas antes de Gradle 9. Ninguno impidió el build o los verificadores.
+
+## 15. Implementación de la segunda optimización Nivel A
+
+### Comportamiento anterior y decisión de equivalencia
+
+Antes del cambio, `hasViolatedGlobalClue` y `areAllGlobalCluesSatisfied` llamaban a `evaluateAllGlobalClues`. Esa función ejecuta un `map` eager sobre todas las pistas y crea un array más un wrapper `{ clue, evaluation }` por pista; después los consumidores booleanos aplicaban respectivamente `some` o `every` al array ya completo.
+
+El `some`/`every` final no convertía la evaluación en short-circuit: para entonces todas las pistas habían sido evaluadas. Esto es observable con datos no admitidos por el tipo estático. Una pista no soportada situada después de una pista ya violada o no satisfecha todavía se evalúa y lanza `Unsupported global clue type: …`. Solo las pistas posteriores a la excepción quedan sin evaluar.
+
+Se eligió por tanto un recorrido **eager sin asignaciones intermedias**, no short-circuit. Cada ruta booleana recorre `globalClues` una vez de izquierda a derecha, llama al mismo `evaluateGlobalClue` y acumula su booleano sin salir antes. Se conservan:
+
+- ausencia de `globalClues` y array vacío: `hasViolatedGlobalClue=false`, `areAllGlobalCluesSatisfied=true`;
+- mismo orden y mismo número de evaluaciones;
+- misma semántica parcial/completa y triestado;
+- misma excepción, incluida su aparición después de que el resultado booleano ya esté decidido;
+- los cinco tipos actuales y el evaluador exhaustivo único.
+
+`evaluateGlobalClue` y `evaluateAllGlobalClues` no cambiaron. Los consumidores detallados, incluido el sistema de pistas, siguen recibiendo exactamente el mismo array de `EvaluatedGlobalClue`. Por llamada booleana con N pistas se evitan el array de N elementos, N wrappers y el callback de `map` más el callback de `some`/`every`; no se introducen cachés, índices ni estado.
+
+### Pruebas contractuales
+
+Las 11 pruebas nuevas se ejecutaron primero contra la implementación anterior para caracterizar el contrato y después contra el candidato. Cubren propiedad ausente, array vacío, todas satisfechas, todas indeterminadas, violación primera/intermedia/última, primera no satisfecha en la comprobación final, placements parciales/completos, los cinco tipos globales, orden exacto, tipo no soportado al principio y después de una violación/no satisfacción, e igualdad con la ruta detallada para entradas válidas.
+
+No se añadieron hooks de producción. Un mock temporal de test envolvió `solveCaseWithStats` solo durante la medición de la matriz y se retiró después. No se midieron bytes asignados ni presión de GC: obtener atribución fiable por helper habría requerido instrumentación más invasiva, por lo que no se inventa una cifra.
+
+### Benchmark alternado
+
+Se calentaron por separado baseline y candidato. En todas las rondas: 200/200 éxitos, 133 fallbacks, 0 fallos, 3.163 llamadas, intentos media 3,40/mediana 2/P90 7/P95 10/P99 12/máximo 17 y rechazos exactos `370/49/43/27/16/10/7`.
+
+| Par | Baseline eager con `map` | Candidato eager sin wrappers | Diferencia candidato |
+| ---: | ---: | ---: | ---: |
+| 1 | 46.220 ms | 43.515 ms | −2.705 ms |
+| 2 | 44.318 ms | 44.283 ms | −35 ms |
+| 3 | 43.878 ms | 43.103 ms | −775 ms |
+| 4 | 44.509 ms | 43.288 ms | −1.221 ms |
+| 5 | 43.991 ms | 44.342 ms | +351 ms |
+| **Mediana** | **44.318 ms** | **43.515 ms** | **−803 ms (−1,81 %)** |
+
+El candidato fue más rápido en 4/5 pares; la diferencia pareada mediana fue −775 ms. La amplitud fue 2.342 ms (5,28 %) para baseline y 1.239 ms (2,85 %) para candidato, de modo que el tiempo sigue siendo evidencia orientativa y no un contrato.
+
+Una sexta pareja con salida JSON registró valores exactos: baseline 46.237,209 ms total y 41.755,511 ms de solver; candidato 45.750,601 ms total y 41.297,271 ms de solver. Son −486,608 ms (−1,05 %) totales y −458,240 ms (−1,10 %) dentro del solver. El porcentaje solver fue 90,307 % frente a 90,266 %.
+
+La instrumentación temporal de stats produjo exactamente los mismos valores en ambas variantes:
+
+| Llamadas | Nodos | Checks de candidato | Poda dominio estático | Poda relacional | Forward-check |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 3.163 | 215.675 | 78.043.325 | 0 | 2.911.009 | 285.676 |
+
+Esto demuestra que el cambio no altera DFS/MRV, dominios, candidatos, podas ni límites. Seeds, offsets, IDs, casos y distribución de rechazos también permanecieron idénticos.
+
+### Fingerprints y RNG
+
+Los fingerprints SHA-256 exactos siguen siendo:
+
+| Dificultad | Daily | Infinite |
+| ---: | --- | --- |
+| 1 | `e3d6051674abd39409220038b0fd12e2114c415d50c8c1064ba0a173e9bba8cc` | `97a76fb8d7d83e6a629e9ac6d9f4f7da131f892fb15dee6d06e7c1e58458f462` |
+| 2 | `475e3308b6a20a144c0c1d6e035b3663795d6f5f520a3ae98d567a11bf14155e` | `737210dc311e6bbf8fa46daba9655139e9fed7da50fc8c6ce344d7db010257ef` |
+| 3 | `30e92c9673995d64f29cb382121db80c048546afc8531e0832076604b50ac6f5` | `028231d9bd49f3ffc414b9701a07dd547b8fee9f6f86038b586081977661196f` |
+| 4 | `84559e895df0c3f6b10ad4f65788ec79f8da080a487aea8d37d04f22f9e5d769` | `01bece51d3f42f42c63190a107f16ee736d34a46e979bfd17738a6213dd1e621` |
+| 5 | `c0e00c1d347d06b0df6f5bb7009d60d9cdcaa25c477fefa6b1af082fa22b0220` | `16546afef80cd76189aa0aeeb7d556bcebb54a2ebecf3da757f37146617e01e7` |
+
+La prueba de observabilidad conserva exactamente cantidad y orden de valores RNG con y sin observer; los snapshots Daily/Infinite hacen round-trip byte-estructural de todos sus campos.
+
+### Validación final, riesgo y rollback
+
+| Validación | Resultado exacto |
+| --- | --- |
+| Rama/estado inicial | `pre`, `4ebeea7`; árbol limpio y sincronizado con `origin/pre` |
+| TypeScript / Oxlint | Correctos, sin diagnósticos |
+| Tests específicos globales | 11/11 correctos antes y después del cambio |
+| Tests dirigidos | 19 archivos, 177 tests correctos, 5,86 s |
+| Suite completa | 94 archivos, 642 tests correctos, 7,04 s |
+| Auditoría de 250 puzzles | 250 correctos; D1 309 ms, D2 497 ms, D3 4.219 ms, D4 16.891 ms, D5 39.761 ms; 181 fallbacks, 0 fallos, 4.249 llamadas, 88,899 % solver |
+| Perfil D5 | 20/20 éxitos, 0 fallos; media 797 ms, máximo 2.589 ms (caso 15); media 27,1 llamadas, máximo 87; 91,0293 % solver; offset medio 4,2, máximo 15 |
+| Casos Normal | 21 casos publicados verificados |
+| Web/PWA | Correcto; 458 módulos; 225 entradas y 112.873,39 KiB de precache |
+| GitHub Pages | Build y verificadores correctos; 458 módulos; 225 entradas y 112.876,19 KiB |
+| Capacitor/Android | Build web, copia, sync y verificador correctos |
+| APK debug offline | Desde `android/`: `BUILD SUCCESSFUL in 1s`, 93 tareas (27 ejecutadas, 66 up-to-date); 120.182.129 bytes |
+| Red | No utilizada; Gradle se ejecutó con `--offline` |
+
+Riesgo residual: el beneficio temporal es pequeño y comparte escala con el ruido local, aunque aparece en 5/6 pares y elimina asignaciones demostrables por estructura. La semántica eager queda protegida por tests; añadir short-circuit en el futuro sería un cambio contractual independiente. Rollback: restaurar las dos expresiones que delegaban en `evaluateAllGlobalClues`; no hay migración, persistencia, schema, dependencia ni cambio de diagnóstico.
+
+Próximo paso recomendado, no implementado: medir primero el Nivel A #3 —índices inmutables locales por solve para celdas, zonas, objetos y traits— con la misma exigencia de orden, excepciones, stats y fingerprints. No debe combinarse con este cambio ni introducirse sin un baseline propio.
