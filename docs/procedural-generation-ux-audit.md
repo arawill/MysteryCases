@@ -1,5 +1,7 @@
 # Auditoría de rendimiento percibido de Daily e Infinite
 
+> Implementación posterior: la opción F seleccionada en esta auditoría se implementó mediante protocolo Worker V1, cliente persistente y lazy, persistencia exclusiva en main, fallback tras pintura y migración V1 visible. La arquitectura operativa, pruebas y mediciones posteriores están en [`procedural-generation-worker.md`](procedural-generation-worker.md).
+
 Fecha de la auditoría: 29 de septiembre de 2026
 
 Rama: `pre`
