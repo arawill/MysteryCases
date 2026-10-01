@@ -41,7 +41,7 @@ El APK se genera en `android/app/build/outputs/apk/debug/app-debug.apk`. Es un a
 
 ### Release firmada manual
 
-La primera publicación usa `versionCode 1` y `versionName 1.0.0`. Antes de cada nueva publicación, incrementa siempre `versionCode`; `versionName` es el texto visible que puedes actualizar según la versión publicada.
+La candidata activa es `1.2.0`, con Android `versionName 1.2.0` y `versionCode 3`. La release `v1.1.0` y su evidencia se conservan como historial; no se debe reutilizar su identidad. Antes de cada publicación posterior, incrementa siempre `versionCode` y actualiza conjuntamente la versión canónica de `package.json` y `versionName`.
 
 Genera una keystore local una sola vez (no se incluye en Git):
 
@@ -59,7 +59,9 @@ npm run verify:android:release
 npm run android:prepare:release
 ```
 
-El APK firmado queda en `android/app/build/outputs/apk/release/app-release.apk`; la preparación genera la copia ignorada `release/MysteryCases.apk`. Sube manualmente ese archivo a una GitHub Release con el nombre exacto `MysteryCases.apk`, para que funcione el enlace de descarga de la Home.
+`verify:android:release` es un gate estricto: exige firma verificable y herramientas Android locales, contrasta package, `versionName` y `versionCode`, y compara el inventario y SHA-256 de todos los assets empaquetados con los assets sincronizados, incluido exactamente el Worker actual. Un APK ausente, vacío, antiguo o distinto falla; la falta de `apksigner` también falla.
+
+El APK firmado queda en `android/app/build/outputs/apk/release/app-release.apk`. La ruta oficial `android:prepare:release` ejecuta primero `android:sync`, por lo que reconstruye y sincroniza los assets web desde el código actual antes de invocar el gate; si ese paso falla, no verifica ni copia. Después comprueba que `release/MysteryCases.apk` sea byte a byte idéntico al APK verificado. Solo tras un resultado verde debe subirse manualmente con el nombre exacto `MysteryCases.apk`, para que funcione el enlace de descarga de la Home. La APK release firmada de `1.2.0`, la PWA instalada y Android WebView real siguen pendientes de validación; ningún build sustituye esas comprobaciones.
 
 Desarrollo normal:
 

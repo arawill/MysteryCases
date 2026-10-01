@@ -5,9 +5,34 @@ Rama: `pre`
 HEAD: `47a45d12453f163dd67327e2935852552282649b`  
 Upstream: `origin/pre`, divergencia inicial y final `0/0`  
 Base comparada: `origin/main` / `b48cfec091461a096d75929dc3e75c17e87f30a8`  
-Versión declarada: `1.1.0`
+Versión declarada durante la auditoría original: `1.1.0`
 
-## Veredicto
+## Resolución de los bloqueadores (2026-10-01)
+
+Los dos bloqueadores de código detectados por esta auditoría quedan resueltos en el working tree de `pre`, partiendo de `eff60dc8c470f00cafb4b084185e4be670624999`:
+
+1. La candidata nueva tiene identidad `1.2.0` en `package.json` y en la raíz de `package-lock.json`; Android declara `versionName "1.2.0"` y `versionCode 3`. El tag y toda la evidencia de `v1.1.0` permanecen históricos y no se han movido ni reescrito.
+2. El gate Android deriva la versión esperada de `package.json`, confirma la configuración Gradle, exige APK no vacío y firma válida, obtiene package/versión/código con herramientas Android instaladas y compara exactamente inventario y SHA-256 de `assets/public` contra los assets sincronizados. También exige un único chunk Worker actual. La ruta oficial `android:prepare:release` reconstruye y sincroniza primero los assets desde el código del HEAD mediante `android:sync`; solo tras ese éxito ejecuta el gate y puede crear una copia byte a byte idéntica. Así, una APK antigua de la misma versión tampoco puede pasar junto con assets sincronizados obsoletos.
+
+La APK release local preexistente no se eliminó, sobrescribió ni copió. El nuevo gate la rechazó con código 1 y este diagnóstico exacto:
+
+```text
+Android release verification failed:
+- APK versionName 1.1.0 does not match expected 1.2.0.
+- APK versionCode 2 does not match expected 3.
+- APK assets are missing 5 file(s): assets/case-schema-validator-DvA17woa.js, assets/index-InU8_iIM.css, assets/index-mitx4V5P.js, assets/proceduralGeneration.worker-DJv38HNH.js, assets/rolldown-runtime-B0Z9INg1.js.
+- APK assets contain 3 unexpected file(s): assets/index-BrceNb_E.js, assets/index-Dz11eLkb.css, icons.svg.
+- APK assets differ in 2 file(s): index.html, sw.js.
+- Release APK must contain exactly one procedural Worker chunk; found 0.
+```
+
+La validación de la resolución completó TypeScript, Oxlint, 17 pruebas contractuales nuevas, la suite completa de 736 tests, coherencia offline de package/lockfile, build web, `verify:pwa`, `verify:pages` y `verify:android`. La APK debug se construyó con Gradle offline y declaró `com.mysterycases.app`, `versionName 1.2.0` y `versionCode 3`; su SHA-256 fue `4E8CDF69F5BB5274C69BDFFB3BAFBE1ED89FC9EC40490A235114E0CEBD5AE7D1`. Contuvo `assets/public/assets/proceduralGeneration.worker-DJv38HNH.js`, cuyo SHA-256 empaquetado y sincronizado coincidió en `4DFED317830938027E1D61213D864E836A44A6671F8D9F2AA03DC8602B593336`.
+
+El APK release antiguo y su copia ignorada conservaron sin cambios el SHA-256 histórico `2197BEFCE61870E1ED8CDAE5CBBBEF5B67128F6AA21DF09428A46AA914CCAE7E`. Se ejecutó `android:prepare:release` contra ese APK solo hasta demostrar el rechazo: primero completó el build y sync frescos, después mostró los mismos seis diagnósticos del bloque anterior bajo `Android release preparation failed:` y terminó con código 1 antes de copiar.
+
+Esto cierra los dos defectos de preparación en código, pero **no autoriza todavía una publicación**: falta construir y validar una APK release firmada nueva de `1.2.0`, y las pruebas en PWA instalada y Android WebView real continúan pendientes. No se añadieron credenciales, no se construyó una release firmada y no se realizó commit, tag, push ni publicación.
+
+## Veredicto original (2026-09-29)
 
 **BLOQUEADO para crear o publicar una nueva release.**
 
